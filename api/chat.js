@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    // Parse JSON body cho chắc chắn (Vercel Node func có thể đưa body dạng string)
+    // Parse JSON body (Vercel có thể truyền body dạng string)
     let body = req.body;
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch { body = {}; }
