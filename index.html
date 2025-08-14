@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pháp Bảo Phúc Lạc • Chatbot</title>
+  <meta name="description" content="Pháp Bảo Phúc Lạc Chatbot — Hỏi đáp Phật pháp" />
+  <style>
+    :root{
+      --bg: #faf9f7; --card:#ffffff; --ink:#111827; --muted:#6b7280;
+      --brand:#16a34a; --ring: rgba(22,163,74,.18);
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+         background:var(--bg);color:var(--ink);display:flex;align-items:center;justify-content:center}
+    .app{width:100%;max-width:920px;height:100dvh;padding:12px;display:flex;flex-direction:column;gap:12px}
+    .header{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:16px;
+            box-shadow:0 4px 20px rgba(0,0,0,.06)}
+    .logo{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+          background:radial-gradient(circle at 30% 30%, #a7f3d0, #86efac)}
+    .logo svg{width:26px;height:26px;fill:#065f46}
+    .title h1{margin:0;font-size:18px} .title p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+    .chat{flex:1;background:var(--card);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:12px;
+          box-shadow:0 4px 20px rgba(0,0,0,.06)}
+    .greeting{font-size:14px;color:#065f46;background:#ecfdf5;border:1px solid #d1fae5;padding:10px 12px;border-radius:12px}
+    .messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+    .msg{display:flex;gap:10px;align-items:flex-start}
+    .msg .bubble{max-width:80%;padding:10px 12px;border-radius:14px;line-height:1.45;font-size:14px;
+                 box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    .msg.assistant .bubble{background:#f1f5f9}
+    .msg.user{justify-content:flex-end}
+    .msg.user .bubble{background:#e6ffe5;border:1px solid #ccf5cc}
+    .composer{display:flex;gap:10px;align-items:flex-end}
+    .box{flex:1;position:relative}
+    textarea{width:100%;min-height:48px;max-height:220px;resize:vertical;padding:12px 44px 12px 12px;border-radius:14px;
+             border:1px solid #e5e7eb;outline:none;background:#fff;font-size:14px;line-height:1.35;
+             box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--ring)}
+    .send{border:none;background:var(--brand);color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;cursor:pointer}
+    .send:disabled{opacity:.6;cursor:not-allowed}
+    .right-icons{position:absolute;right:6px;bottom:6px;display:flex;gap:6px}
+    .pill{font-size:10px;color:#065f46;background:#d1fae5;border:1px solid #a7f3d0;padding:4px 6px;border-radius:999px}
+    .footer{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}
+    .link{color:#0f766e;text-decoration:none}
+    .spinner{width:16px;height:16px;border:2px solid #e2e8f0;border-top-color:#16a34a;border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media (max-width:640px){.msg .bubble{max-width:90%}.header{border-radius:12px}.chat{border-radius:12px}}
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <header class="header">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2c1.5 2.5 3.8 4.4 6.5 5.1C18 10.5 15.3 12 12 12S6 10.5 5.5 7.1C8.2 6.4 10.5 4.5 12 2zm0 0c-1.2 3.8-4.7 6.5-8.9 6.9C4.2 12.9 7.8 15 12 15s7.8-2.1 8.9-6.1C16.7 8.5 13.2 5.8 12 2zm0 6c-1 2.9-3.7 5-7 5-.8 2.6 2.8 6 7 6s7.8-3.4 7-6c-3.3 0-6-2.1-7-5z"/></svg>
+      </div>
+      <div class="title">
+        <h1>Pháp Bảo Phúc Lạc • Chatbot</h1>
+        <p>Nam mô Bổn Sư Thích Ca Mâu Ni Phật — Hỏi điều bạn muốn học hôm nay.</p>
+      </div>
+    </header>
+
+    <section class="chat" role="region" aria-label="Khu vực hội thoại">
+      <div class="greeting">🙏 Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
+      <div class="messages" id="messages" aria-live="polite" aria-busy="false"></div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <div class="box">
+          <label class="sr-only" for="input">Nhập câu hỏi...</label>
+          <textarea id="input" placeholder="Gõ câu hỏi của bạn… (Shift+Enter xuống dòng)" rows="2"></textarea>
+          <div class="right-icons"><span class="pill" title="Lưu hội thoại trên thiết bị">Tự lưu</span></div>
+        </div>
+        <button class="send" id="send" type="submit">Gửi</button>
+      </form>
+
+      <div class="footer">
+        <div><span id="status">Sẵn sàng.</span></div>
+        <div><a class="link" href="#" id="clear">Xóa hội thoại</a></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const CONFIG = {
+      SERVER_URL: '/api/chat',
+      SYSTEM_PROMPT: `Bạn là Pháp Bảo Phúc Lạc — trợ lý Phật học từ bi, khiêm cung, trả lời rõ ràng, ngắn gọn, có trích dẫn khi phù hợp; giữ chánh kiến.`
+    };
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const formEl = document.getElementById('composer');
+    const sendBtn = document.getElementById('send');
+    const statusEl = document.getElementById('status');
+    const clearBtn = document.getElementById('clear');
+    const STORAGE_KEY = 'pbpl_chat_v1';
+    let chat = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if (!chat.length) chat = [{ role:'system', content: CONFIG.SYSTEM_PROMPT }];
+
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(chat)); }
+    function toHTML(t){ const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      t = esc(t); t=t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br/>');
+      t=t.replace(/(https?:\/\/[^\s]+)/g,'<a class="link" target="_blank" rel="noopener">$1</a>'); return t; }
+    function render(){ messagesEl.innerHTML=''; for(const m of chat){ if(m.role==='system') continue;
+      const row=document.createElement('div'); row.className='msg '+(m.role==='assistant'?'assistant':'user');
+      const bubble=document.createElement('div'); bubble.className='bubble'; bubble.innerHTML=toHTML(m.content);
+      row.appendChild(bubble); messagesEl.appendChild(row);} messagesEl.scrollTop=messagesEl.scrollHeight; }
+    render();
+
+    clearBtn.addEventListener('click', e=>{ e.preventDefault(); if(confirm('Xóa toàn bộ hội thoại?')){ chat=[{role:'system',content:CONFIG.SYSTEM_PROMPT}]; save(); render(); }});
+    inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); formEl.dispatchEvent(new Event('submit')); }});
+
+    formEl.addEventListener('submit', async (e)=>{
+      e.preventDefault(); const text = inputEl.value.trim(); if(!text) return; inputEl.value='';
+      chat.push({ role:'user', content:text }); save(); render(); setBusy(true);
+      try{
+        const res = await fetch(CONFIG.SERVER_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ messages: chat }) });
+        if(!res.ok) throw new Error('Bad response: '+res.status);
+        const data = await res.json(); chat.push({ role:'assistant', content: data.reply || '' });
+      }catch(err){ chat.push({ role:'assistant', content:'Xin lỗi, hệ thống đang bận hoặc API chưa sẵn sàng.' }); }
+      finally{ setBusy(false); save(); render(); }
+    });
+
+    function setBusy(b){ messagesEl.setAttribute('aria-busy', b?'true':'false'); statusEl.innerHTML = b? '<span class="spinner"></span> Đang trả lời…':'Sẵn sàng.'; sendBtn.disabled=b; }
+  </script>
+</body>
+</html>
