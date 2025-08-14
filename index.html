@@ -3,121 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Pháp Bảo Phúc Lạc • Chatbot</title>
   <meta name="description" content="Pháp Bảo Phúc Lạc Chatbot — Hỏi điều bạn muốn học hôm nay." />
+
+  <!-- Favicon + OpenGraph/Twitter -->
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Pháp Bảo Phúc Lạc • Chatbot" />
+  <meta property="og:description" content="Hiểu sâu Chánh Pháp – Hướng đạo tu tập" />
+  <meta property="og:image" content="https://pbpl-vercel.vercel.app/logo.png" />
+  <meta property="og:url" content="https://pbpl-vercel.vercel.app" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pháp Bảo Phúc Lạc • Chatbot" />
+  <meta name="twitter:description" content="Hiểu sâu Chánh Pháp – Hướng đạo tu tập" />
+  <meta name="twitter:image" content="https://pbpl-vercel.vercel.app/logo.png" />
+
   <style>
     :root{
-      /* bảng màu dịu như ảnh demo */
+      /* bảng màu theo mẫu */
       --bg:#f4f3f1;         /* nền ngoài */
       --surface:#ffffff;    /* nền thẻ */
-      --ink:#3b3b3b;        /* màu chữ chính */
+      --ink:#3b3b3b;        /* chữ chính */
       --muted:#777;         /* chữ phụ */
-      --brand:#a4383e;      /* nhấn đỏ sen trầm */
+      --brand:#a4383e;      /* đỏ sen trầm */
       --ring:rgba(164,56,62,.12);
       --chip:#f8eef0;       /* nền hồng nhạt */
       --chip-border:#ead2d6;
+      --soft:#eef2f6;       /* bong bóng assistant */
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background:var(--bg);
-      color:var(--ink);
-    }
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--ink)}
 
-    /* khung tổng */
-    .wrap{
-      max-width:880px;
-      margin:32px auto;
-      padding:0 12px;
-    }
+    .wrap{max-width:900px;margin:28px auto;padding:0 12px}
+    .card{background:var(--surface);border-radius:20px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.06)}
 
-    /* header theo ảnh demo */
-    .card{
-      background:var(--surface);
-      border-radius:20px;
-      padding:24px;
-      box-shadow:0 8px 30px rgba(0,0,0,.06);
-    }
-    .header{
-      display:flex; gap:16px; align-items:center; justify-content:center; text-align:center;
-      padding:24px 12px;
-    }
-    .logo{
-      width:72px;height:72px;border-radius:50%;display:grid;place-items:center;
-      background:#fff;border:1px solid #eee; box-shadow:0 2px 10px rgba(0,0,0,.05)
-    }
-    .logo img{max-width:64px;height:auto;display:block}
+    /* Header */
+    .header{display:flex;gap:16px;align-items:center;justify-content:center;text-align:center;padding:24px 12px}
+    .logo{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1px solid #eee;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .logo img{max-width:68px;height:auto;display:block}
     .title h1{margin:0;font-size:28px;font-weight:800;color:#7d2f34;letter-spacing:.3px}
     .title .sub1{margin-top:6px;font-size:12px;color:#b07f3e;letter-spacing:.12em}
     .title .sub2{margin-top:4px;font-size:13px;color:#666;font-style:italic}
 
-    /* khu vực chat */
-    .chat{
-      margin-top:18px;
-      background:var(--surface);
-      border-radius:20px;
-      padding:18px;
-      box-shadow:0 8px 30px rgba(0,0,0,.06);
-      display:flex; flex-direction:column; gap:12px;
-      min-height:60vh;
-    }
-
-    .greeting{
-      color:#7d2f34;
-      background:var(--chip);
-      border:1px solid var(--chip-border);
-      padding:10px 12px; border-radius:12px; font-size:14px; display:flex; gap:6px; align-items:center
-    }
+    /* Chat card */
+    .chat{margin-top:18px;display:flex;flex-direction:column;gap:12px;min-height:60vh}
+    .greeting{color:#7d2f34;background:var(--chip);border:1px solid var(--chip-border);padding:10px 12px;border-radius:12px;font-size:14px;display:flex;gap:8px;align-items:center}
     .pin{font-size:18px}
 
-    .messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;padding-right:4px}
-
+    .messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;padding-right:6px}
     .msg{display:flex;gap:10px;align-items:flex-start}
-    .bubble{
-      max-width:820px;
-      padding:12px 14px; border-radius:14px; line-height:1.55; font-size:15px;
-      box-shadow:0 2px 12px rgba(0,0,0,.04)
-    }
-    .assistant .bubble{background:#eef2f6}
+    .bubble{max-width:820px;padding:12px 14px;border-radius:14px;line-height:1.58;font-size:15px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+    .assistant .bubble{background:var(--soft)}
     .user{justify-content:flex-end}
     .user .bubble{background:#f7e9eb;border:1px solid #e9cfd3}
 
-    .composer{position:sticky; bottom:0; background:var(--surface); padding-top:8px}
-    .form{display:flex; gap:10px; align-items:flex-end}
-    .box{flex:1; position:relative}
-    textarea{
-      width:100%; min-height:58px; max-height:240px; resize:vertical;
-      padding:14px 48px 14px 14px; border-radius:14px; border:1px solid #e4e4e4; outline:none;
-      font-size:15px; line-height:1.45; background:#fff;
-      box-shadow:0 2px 10px rgba(0,0,0,.04)
-    }
-    textarea:focus{border-color:var(--brand); box-shadow:0 0 0 4px var(--ring)}
-    .send{
-      border:none; background:var(--brand); color:#fff; padding:12px 18px; border-radius:14px;
-      font-weight:700; cursor:pointer
-    }
+    /* Composer + toolbar */
+    .composer{position:sticky;bottom:0;background:var(--surface);padding-top:8px}
+    .form{display:flex;gap:10px;align-items:flex-end}
+    .box{flex:1;position:relative}
+    textarea{width:100%;min-height:58px;max-height:240px;resize:vertical;padding:14px 48px 14px 14px;border-radius:14px;border:1px solid #e4e4e4;outline:none;
+      font-size:15px;line-height:1.45;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--ring)}
+    .send{border:none;background:var(--brand);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;cursor:pointer}
     .send:disabled{opacity:.6;cursor:not-allowed}
-    .hint{margin-top:10px; text-align:center; color:var(--muted); font-size:13px}
 
-    /* nút lên đầu trang */
-    .topbtn{
-      position:fixed; right:18px; bottom:18px; width:42px; height:42px; border-radius:999px; border:1px solid #e2cdd1;
-      display:grid; place-items:center; background:#fff; color:#7d2f34; box-shadow:0 6px 20px rgba(0,0,0,.12);
-      cursor:pointer;
-    }
+    .tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:10px}
+    .btn{border:1px solid #e2cdd1;background:#fff;color:#7d2f34;padding:8px 10px;border-radius:10px;font-size:13px;cursor:pointer}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
 
-    @media (max-width:640px){
-      .wrap{margin:16px auto}
-      .title h1{font-size:22px}
-    }
+    /* status + errors */
+    .status{margin-top:6px;color:var(--muted);font-size:12px}
+    .error{color:#8b1a1f}
+
+    /* Back to top */
+    .topbtn{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border-radius:999px;border:1px solid #e2cdd1;
+      display:grid;place-items:center;background:#fff;color:#7d2f34;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:pointer}
+
+    @media (max-width:640px){.wrap{margin:16px auto}.title h1{font-size:22px}}
   </style>
 </head>
 <body>
   <div class="wrap">
+    <!-- Header -->
     <div class="card header">
-      <div class="logo"><img src="logo.png" alt="Pháp Bảo Phúc Lạc"></div>
+      <div class="logo"><img src="/logo.png" alt="Pháp Bảo Phúc Lạc"></div>
       <div class="title">
         <h1>Pháp Bảo Phúc Lạc • Chatbot</h1>
         <div class="sub1">NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT</div>
@@ -125,8 +96,9 @@
       </div>
     </div>
 
-    <div class="chat card" role="region" aria-label="Khu vực hội thoại">
-      <div class="greeting"><span class="pin">📌</span>Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
+    <!-- Chat -->
+    <div class="card chat" role="region" aria-label="Khu vực hội thoại">
+      <div class="greeting"><span class="pin">📌</span><span>Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</span></div>
 
       <div id="messages" class="messages" aria-live="polite" aria-busy="false"></div>
 
@@ -138,7 +110,14 @@
           </div>
           <button class="send" id="send" type="submit">Gửi</button>
         </form>
-        <div class="hint">Bạn muốn tìm hiểu điều gì trong Phật pháp? Bạn cứ hỏi nhé, mình ở đây đồng hành với bạn.</div>
+
+        <!-- Toolbar: Copy / Share / Download -->
+        <div class="tools">
+          <button class="btn" id="copyAnswer" title="Sao chép câu trả lời mới nhất">📋 Sao chép câu trả lời</button>
+          <button class="btn" id="shareAnswer" title="Chia sẻ câu trả lời">🔗 Chia sẻ</button>
+          <button class="btn" id="downloadTxt" title="Tải hội thoại .txt">⬇️ Tải .txt</button>
+        </div>
+        <div class="status" id="status">Sẵn sàng.</div>
       </div>
     </div>
   </div>
@@ -146,17 +125,31 @@
   <a class="topbtn" href="#" id="topBtn" title="Lên đầu trang">▲</a>
 
   <script>
+    /* ====== Cấu hình tiết kiệm chi phí ====== */
+    const MAX_CHARS = 500;        // giới hạn độ dài câu hỏi
+    const COOLDOWN_MS = 4000;     // độ trễ tối thiểu giữa 2 lần gửi
+    /* ======================================== */
+
     const CONFIG = {
       SERVER_URL: '/api/chat',
       SYSTEM_PROMPT: `Bạn là Pháp Bảo Phúc Lạc — trợ lý Phật học từ bi, khiêm cung, trả lời rõ ràng, ngắn gọn, có trích dẫn khi phù hợp; giữ chánh kiến.`
     };
+
+    // Elements
     const messagesEl = document.getElementById('messages');
     const inputEl = document.getElementById('input');
     const formEl = document.getElementById('composer');
     const sendBtn = document.getElementById('send');
-    const STORAGE_KEY = 'pbpl_chat_v2';
+    const statusEl = document.getElementById('status');
+    const copyBtn = document.getElementById('copyAnswer');
+    const shareBtn = document.getElementById('shareAnswer');
+    const downloadBtn = document.getElementById('downloadTxt');
+
+    const STORAGE_KEY = 'pbpl_chat_v3';
     let chat = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     if (!chat.length) chat = [{ role:'system', content: CONFIG.SYSTEM_PROMPT }];
+
+    let lastSentAt = 0;
 
     function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(chat)); }
     function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -178,26 +171,107 @@
     // scroll-to-top
     document.getElementById('topBtn').addEventListener('click', e=>{ e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); });
 
-    // form behaviors
+    // nhập Enter để gửi, Shift+Enter để xuống dòng
     inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); formEl.dispatchEvent(new Event('submit')); }});
+
+    // ====== Submit =========
     formEl.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const text = inputEl.value.trim(); if(!text) return; inputEl.value='';
+      const text = inputEl.value.trim(); if(!text) return;
+
+      // Giới hạn độ dài
+      if (text.length > MAX_CHARS) {
+        setStatus(`Câu hỏi quá dài (${text.length}/${MAX_CHARS}). Vui lòng rút gọn.`, true);
+        return;
+      }
+      // Cooldown
+      const now = Date.now();
+      const remain = COOLDOWN_MS - (now - lastSentAt);
+      if (remain > 0) {
+        setStatus(`Vui lòng đợi ${Math.ceil(remain/1000)} giây trước khi gửi tiếp.`, true);
+        return;
+      }
+      lastSentAt = now;
+
+      // push & render
+      inputEl.value='';
       chat.push({ role:'user', content:text }); save(); render(); setBusy(true);
+
       try{
-        const res = await fetch(CONFIG.SERVER_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ messages: chat }) });
+        const res = await fetch(CONFIG.SERVER_URL, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ messages: chat })
+        });
         if(!res.ok) throw new Error('Bad response: '+res.status);
         const data = await res.json();
+
+        // pseudo-streaming
         const full = data.reply || '';
-        // Hiệu ứng chữ chạy
         chat.push({ role:'assistant', content:'' }); save(); render();
         let acc=''; for(let i=0;i<full.length;i++){ acc+=full[i]; chat[chat.length-1].content=acc;
           if(i%3===0){ save(); render(); await new Promise(r=>setTimeout(r,8)); } }
-      }catch(err){ chat.push({ role:'assistant', content:'Xin lỗi, hệ thống đang bận hoặc API chưa sẵn sàng.' }); }
-      finally{ setBusy(false); save(); render(); }
+        setStatus('Đã trả lời.');
+      }catch(err){
+        chat.push({ role:'assistant', content:'Xin lỗi, hệ thống đang bận hoặc API chưa sẵn sàng.' });
+        setStatus('Có lỗi khi gọi API.', true);
+      } finally{
+        setBusy(false); save(); render();
+      }
     });
 
-    function setBusy(b){ sendBtn.disabled=b; }
+    function setBusy(b){ sendBtn.disabled=b; statusEl.textContent = b? 'Đang trả lời…' : 'Sẵn sàng.'; }
+    function setStatus(msg, isError=false){
+      statusEl.textContent = msg; statusEl.className = 'status' + (isError ? ' error' : '');
+      // tự xóa sau 4s nếu là lỗi tạm
+      if(isError) { setTimeout(()=>{ statusEl.textContent='Sẵn sàng.'; statusEl.className='status'; }, 4000); }
+    }
+
+    // ====== Công cụ: Sao chép / Chia sẻ / Tải .txt ======
+    function getLastAssistant(){
+      for(let i=chat.length-1;i>=0;i--){ if(chat[i].role==='assistant') return chat[i].content; }
+      return '';
+    }
+    function plainConversation(){
+      return chat
+        .filter(x=>x.role!=='system')
+        .map(x=> (x.role==='user' ? 'Bạn: ' : 'Chatbot: ') + x.content)
+        .join('\n\n');
+    }
+
+    copyBtn.addEventListener('click', async ()=>{
+      const text = getLastAssistant();
+      if(!text){ setStatus('Chưa có câu trả lời để sao chép.', true); return; }
+      await navigator.clipboard.writeText(text);
+      setStatus('Đã sao chép câu trả lời.');
+    });
+
+    shareBtn.addEventListener('click', async ()=>{
+      const text = getLastAssistant() || 'Pháp Bảo Phúc Lạc Chatbot';
+      const shareData = {
+        title: 'Pháp Bảo Phúc Lạc • Chatbot',
+        text,
+        url: location.href
+      };
+      if (navigator.share) {
+        try { await navigator.share(shareData); setStatus('Đã mở hộp thoại chia sẻ.'); }
+        catch(e){ setStatus('Chia sẻ bị hủy.', true); }
+      } else {
+        await navigator.clipboard.writeText(`${shareData.title}\n\n${text}\n\n${shareData.url}`);
+        setStatus('Thiết bị không hỗ trợ chia sẻ — đã sao chép nội dung.');
+      }
+    });
+
+    downloadBtn.addEventListener('click', ()=>{
+      const content = plainConversation();
+      if(!content.trim()){ setStatus('Chưa có nội dung để tải.', true); return; }
+      const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
+      a.href = url; a.download = `PBPL-chat-${ts}.txt`; a.click();
+      URL.revokeObjectURL(url);
+      setStatus('Đã tải hội thoại (.txt).');
+    });
   </script>
 </body>
 </html>
