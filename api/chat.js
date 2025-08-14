@@ -1,7 +1,13 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
   try {
-    const { messages = [] } = req.body || {};
+    // Parse JSON body cho chắc chắn (Vercel Node func có thể đưa body dạng string)
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch { body = {}; }
+    }
+    const { messages = [] } = body || {};
     if (!Array.isArray(messages)) return res.status(400).json({ error: 'messages must be an array' });
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -20,9 +26,9 @@ export default async function handler(req, res) {
     if (!r.ok) return res.status(502).json({ error: 'Upstream error', detail: await r.text() });
     const data = await r.json();
     const reply = data?.choices?.[0]?.message?.content?.trim() || '';
-    res.json({ reply });
+    return res.json({ reply });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error' });
   }
 }
