@@ -4,79 +4,146 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pháp Bảo Phúc Lạc • Chatbot</title>
-  <meta name="description" content="Pháp Bảo Phúc Lạc Chatbot — Hỏi đáp Phật pháp" />
+  <meta name="description" content="Pháp Bảo Phúc Lạc Chatbot — Hỏi điều bạn muốn học hôm nay." />
   <style>
     :root{
-      --bg:#faf9f7; --card:#ffffff; --ink:#3b0f14; --muted:#6e4b50;
-      --brand:#7a1f2a; --ring: rgba(122,31,42,.18);
+      /* bảng màu dịu như ảnh demo */
+      --bg:#f4f3f1;         /* nền ngoài */
+      --surface:#ffffff;    /* nền thẻ */
+      --ink:#3b3b3b;        /* màu chữ chính */
+      --muted:#777;         /* chữ phụ */
+      --brand:#a4383e;      /* nhấn đỏ sen trầm */
+      --ring:rgba(164,56,62,.12);
+      --chip:#f8eef0;       /* nền hồng nhạt */
+      --chip-border:#ead2d6;
     }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-         background:var(--bg);color:var(--ink);display:flex;align-items:center;justify-content:center}
-    .app{width:100%;max-width:920px;height:100dvh;padding:12px;display:flex;flex-direction:column;gap:12px}
-    .header{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:16px;
-            box-shadow:0 4px 20px rgba(0,0,0,.06)}
-    .logo{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:#fff;border:1px solid #efe3e5;}
-    .title h1{margin:0;font-size:18px;color:#7a1f2a}
-    .title p{margin:2px 0 0;font-size:12px;color:var(--muted)}
-    .chat{flex:1;background:var(--card);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:12px;
-          box-shadow:0 4px 20px rgba(0,0,0,.06)}
-    .greeting{font-size:14px;color:#7a1f2a;background:#fff3f5;border:1px solid #f0d7dc;padding:10px 12px;border-radius:12px}
-    .messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:var(--bg);
+      color:var(--ink);
+    }
+
+    /* khung tổng */
+    .wrap{
+      max-width:880px;
+      margin:32px auto;
+      padding:0 12px;
+    }
+
+    /* header theo ảnh demo */
+    .card{
+      background:var(--surface);
+      border-radius:20px;
+      padding:24px;
+      box-shadow:0 8px 30px rgba(0,0,0,.06);
+    }
+    .header{
+      display:flex; gap:16px; align-items:center; justify-content:center; text-align:center;
+      padding:24px 12px;
+    }
+    .logo{
+      width:72px;height:72px;border-radius:50%;display:grid;place-items:center;
+      background:#fff;border:1px solid #eee; box-shadow:0 2px 10px rgba(0,0,0,.05)
+    }
+    .logo img{max-width:64px;height:auto;display:block}
+    .title h1{margin:0;font-size:28px;font-weight:800;color:#7d2f34;letter-spacing:.3px}
+    .title .sub1{margin-top:6px;font-size:12px;color:#b07f3e;letter-spacing:.12em}
+    .title .sub2{margin-top:4px;font-size:13px;color:#666;font-style:italic}
+
+    /* khu vực chat */
+    .chat{
+      margin-top:18px;
+      background:var(--surface);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:0 8px 30px rgba(0,0,0,.06);
+      display:flex; flex-direction:column; gap:12px;
+      min-height:60vh;
+    }
+
+    .greeting{
+      color:#7d2f34;
+      background:var(--chip);
+      border:1px solid var(--chip-border);
+      padding:10px 12px; border-radius:12px; font-size:14px; display:flex; gap:6px; align-items:center
+    }
+    .pin{font-size:18px}
+
+    .messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;padding-right:4px}
+
     .msg{display:flex;gap:10px;align-items:flex-start}
-    .msg .bubble{max-width:80%;padding:10px 12px;border-radius:14px;line-height:1.45;font-size:14px;
-                 box-shadow:0 2px 10px rgba(0,0,0,.04)}
-    .msg.assistant .bubble{background:#f1f5f9}
-    .msg.user{justify-content:flex-end}
-    .msg.user .bubble{background:#fff3f5;border:1px solid #f0d7dc}
-    .composer{display:flex;gap:10px;align-items:flex-end}
-    .box{flex:1;position:relative}
-    textarea{width:100%;min-height:48px;max-height:220px;resize:vertical;padding:12px 44px 12px 12px;border-radius:14px;
-             border:1px solid #e5e7eb;outline:none;background:#fff;font-size:14px;line-height:1.35;
-             box-shadow:0 2px 10px rgba(0,0,0,.04)}
-    textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--ring)}
-    .send{border:none;background:var(--brand);color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;cursor:pointer}
+    .bubble{
+      max-width:820px;
+      padding:12px 14px; border-radius:14px; line-height:1.55; font-size:15px;
+      box-shadow:0 2px 12px rgba(0,0,0,.04)
+    }
+    .assistant .bubble{background:#eef2f6}
+    .user{justify-content:flex-end}
+    .user .bubble{background:#f7e9eb;border:1px solid #e9cfd3}
+
+    .composer{position:sticky; bottom:0; background:var(--surface); padding-top:8px}
+    .form{display:flex; gap:10px; align-items:flex-end}
+    .box{flex:1; position:relative}
+    textarea{
+      width:100%; min-height:58px; max-height:240px; resize:vertical;
+      padding:14px 48px 14px 14px; border-radius:14px; border:1px solid #e4e4e4; outline:none;
+      font-size:15px; line-height:1.45; background:#fff;
+      box-shadow:0 2px 10px rgba(0,0,0,.04)
+    }
+    textarea:focus{border-color:var(--brand); box-shadow:0 0 0 4px var(--ring)}
+    .send{
+      border:none; background:var(--brand); color:#fff; padding:12px 18px; border-radius:14px;
+      font-weight:700; cursor:pointer
+    }
     .send:disabled{opacity:.6;cursor:not-allowed}
-    .right-icons{position:absolute;right:6px;bottom:6px;display:flex;gap:6px}
-    .pill{font-size:10px;color:#7a1f2a;background:#f6e6e9;border:1px solid #e6c5cb;padding:4px 6px;border-radius:999px}
-    .footer{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}
-    .link{color:#7a1f2a;text-decoration:none}
-    .spinner{width:16px;height:16px;border:2px solid #e2e8f0;border-top-color:#7a1f2a;border-radius:50%;animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @media (max-width:640px){.msg .bubble{max-width:90%}.header{border-radius:12px}.chat{border-radius:12px}}
+    .hint{margin-top:10px; text-align:center; color:var(--muted); font-size:13px}
+
+    /* nút lên đầu trang */
+    .topbtn{
+      position:fixed; right:18px; bottom:18px; width:42px; height:42px; border-radius:999px; border:1px solid #e2cdd1;
+      display:grid; place-items:center; background:#fff; color:#7d2f34; box-shadow:0 6px 20px rgba(0,0,0,.12);
+      cursor:pointer;
+    }
+
+    @media (max-width:640px){
+      .wrap{margin:16px auto}
+      .title h1{font-size:22px}
+    }
   </style>
 </head>
 <body>
-  <main class="app" id="app">
-    <header class="header">
-      <div class="logo" aria-hidden="true">
-        <img src="logo.png" alt="Pháp Bảo Phúc Lạc" style="max-width:42px;height:auto;display:block" />
-      </div>
+  <div class="wrap">
+    <div class="card header">
+      <div class="logo"><img src="logo.png" alt="Pháp Bảo Phúc Lạc"></div>
       <div class="title">
         <h1>Pháp Bảo Phúc Lạc • Chatbot</h1>
-        <p>Nam mô Bổn Sư Thích Ca Mâu Ni Phật — Hỏi điều bạn muốn học hôm nay.</p>
+        <div class="sub1">NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT</div>
+        <div class="sub2">“Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</div>
       </div>
-    </header>
+    </div>
 
-    <section class="chat" role="region" aria-label="Khu vực hội thoại">
-      <div class="greeting">🙏 Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
-      <div class="messages" id="messages" aria-live="polite" aria-busy="false"></div>
+    <div class="chat card" role="region" aria-label="Khu vực hội thoại">
+      <div class="greeting"><span class="pin">📌</span>Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
 
-      <form class="composer" id="composer" autocomplete="off">
-        <div class="box">
-          <label class="sr-only" for="input">Nhập câu hỏi...</label>
-          <textarea id="input" placeholder="Gõ câu hỏi của bạn… (Shift+Enter xuống dòng)" rows="2"></textarea>
-          <div class="right-icons"><span class="pill" title="Lưu hội thoại trên thiết bị">Tự lưu</span></div>
-        </div>
-        <button class="send" id="send" type="submit">Gửi</button>
-      </form>
+      <div id="messages" class="messages" aria-live="polite" aria-busy="false"></div>
 
-      <div class="footer">
-        <div><span id="status">Sẵn sàng.</span></div>
-        <div><a class="link" href="#" id="clear">Xóa hội thoại</a></div>
+      <div class="composer">
+        <form id="composer" class="form" autocomplete="off">
+          <div class="box">
+            <label class="sr-only" for="input">Nhập câu hỏi...</label>
+            <textarea id="input" placeholder="Gõ câu hỏi của bạn… (Shift+Enter xuống dòng)" rows="3"></textarea>
+          </div>
+          <button class="send" id="send" type="submit">Gửi</button>
+        </form>
+        <div class="hint">Bạn muốn tìm hiểu điều gì trong Phật pháp? Bạn cứ hỏi nhé, mình ở đây đồng hành với bạn.</div>
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
+
+  <a class="topbtn" href="#" id="topBtn" title="Lên đầu trang">▲</a>
 
   <script>
     const CONFIG = {
@@ -87,47 +154,50 @@
     const inputEl = document.getElementById('input');
     const formEl = document.getElementById('composer');
     const sendBtn = document.getElementById('send');
-    const statusEl = document.getElementById('status');
-    const clearBtn = document.getElementById('clear');
-    const STORAGE_KEY = 'pbpl_chat_v1';
+    const STORAGE_KEY = 'pbpl_chat_v2';
     let chat = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     if (!chat.length) chat = [{ role:'system', content: CONFIG.SYSTEM_PROMPT }];
 
     function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(chat)); }
-    function toHTML(t){ const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      t = esc(t); t=t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br/>');
-      t=t.replace(/(https?:\/\/[^\s]+)/g,'<a class="link" target="_blank" rel="noopener">$1</a>'); return t; }
-    function render(){ messagesEl.innerHTML=''; for(const m of chat){ if(m.role==='system') continue;
-      const row=document.createElement('div'); row.className='msg '+(m.role==='assistant'?'assistant':'user');
-      const bubble=document.createElement('div'); bubble.className='bubble'; bubble.innerHTML=toHTML(m.content);
-      row.appendChild(bubble); messagesEl.appendChild(row);} messagesEl.scrollTop=messagesEl.scrollHeight; }
+    function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function toHTML(t){
+      t = esc(t).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br/>');
+      return t.replace(/(https?:\/\/[^\s]+)/g,'<a target="_blank" rel="noopener">$1</a>');
+    }
+    function render(){
+      messagesEl.innerHTML='';
+      for(const m of chat){ if(m.role==='system') continue;
+        const row=document.createElement('div'); row.className='msg '+(m.role==='assistant'?'assistant':'user');
+        const bubble=document.createElement('div'); bubble.className='bubble'; bubble.innerHTML=toHTML(m.content);
+        row.appendChild(bubble); messagesEl.appendChild(row);
+      }
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
     render();
 
-    clearBtn.addEventListener('click', e=>{ e.preventDefault(); if(confirm('Xóa toàn bộ hội thoại?')){ chat=[{role:'system',content:CONFIG.SYSTEM_PROMPT}]; save(); render(); }});
-    inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); formEl.dispatchEvent(new Event('submit')); }});
+    // scroll-to-top
+    document.getElementById('topBtn').addEventListener('click', e=>{ e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); });
 
+    // form behaviors
+    inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); formEl.dispatchEvent(new Event('submit')); }});
     formEl.addEventListener('submit', async (e)=>{
-      e.preventDefault(); const text = inputEl.value.trim(); if(!text) return; inputEl.value='';
+      e.preventDefault();
+      const text = inputEl.value.trim(); if(!text) return; inputEl.value='';
       chat.push({ role:'user', content:text }); save(); render(); setBusy(true);
       try{
         const res = await fetch(CONFIG.SERVER_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ messages: chat }) });
         if(!res.ok) throw new Error('Bad response: '+res.status);
         const data = await res.json();
-
-        // hiệu ứng chữ chạy (pseudo-streaming)
         const full = data.reply || '';
-        let acc = '';
-        chat.push({ role:'assistant', content: '' }); save(); render();
-        for (let i=0;i<full.length;i++){
-          acc += full[i];
-          chat[chat.length-1].content = acc;
-          if (i % 3 === 0) { save(); render(); await new Promise(r=>setTimeout(r, 8)); }
-        }
+        // Hiệu ứng chữ chạy
+        chat.push({ role:'assistant', content:'' }); save(); render();
+        let acc=''; for(let i=0;i<full.length;i++){ acc+=full[i]; chat[chat.length-1].content=acc;
+          if(i%3===0){ save(); render(); await new Promise(r=>setTimeout(r,8)); } }
       }catch(err){ chat.push({ role:'assistant', content:'Xin lỗi, hệ thống đang bận hoặc API chưa sẵn sàng.' }); }
       finally{ setBusy(false); save(); render(); }
     });
 
-    function setBusy(b){ messagesEl.setAttribute('aria-busy', b?'true':'false'); statusEl.innerHTML = b? '<span class="spinner"></span> Đang trả lời…':'Sẵn sàng.'; sendBtn.disabled=b; }
+    function setBusy(b){ sendBtn.disabled=b; }
   </script>
 </body>
 </html>
