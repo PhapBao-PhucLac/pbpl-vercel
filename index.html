@@ -442,5 +442,144 @@ newChatBtn.onclick = ()=>{
   });
 </script>
 <!-- /PBPL :: New Chat -->
+  <!-- ===== PBPL: PRESET PROMPTS (paste as-is) ===== -->
+<script>
+(function () {
+  // ---- CSS nhúng (không cần sửa file styles.css) ----
+  const css = `
+  .pbpl-templates { position: relative; display: inline-block; }
+  .pbpl-btn {
+    appearance: none; border: 1px solid var(--line, #E5E7EB);
+    background: #fff; border-radius: 10px; height: 36px; width: 36px;
+    display: grid; place-items: center; cursor: pointer;
+    transition: box-shadow .15s ease, transform .05s ease;
+  }
+  .pbpl-btn:hover { box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .pbpl-btn:active { transform: translateY(1px); }
+  .pbpl-menu {
+    position: absolute; top: 44px; left: 0; z-index: 40; min-width: 320px;
+    background: #fff; border: 1px solid var(--line,#E5E7EB); border-radius: 12px;
+    box-shadow: 0 14px 45px rgba(0,0,0,.10), 0 10px 18px rgba(0,0,0,.06);
+    padding: 8px; display: none;
+  }
+  .pbpl-menu.show { display: block; }
+  .pbpl-menu h4 { font-size: 13px; font-weight: 700; margin: 6px 8px 10px; color: #111827;}
+  .pbpl-item {
+    display: flex; gap: 10px; width: 100%; text-align: left;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer; border: 1px solid transparent;
+    background: transparent;
+  }
+  .pbpl-item:hover { background: #F9FAFB; border-color: #EEF2F7; }
+  .pbpl-item b { font-size: 13px; color: #111827; }
+  .pbpl-item span { font-size: 12px; color: #6B7280; }
+  .pbpl-kbd {
+    font: 500 11px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    background:#F3F4F6; border:1px solid #E5E7EB; padding:2px 5px; border-radius:6px; color:#374151;
+  }
+  .pbpl-row { display:flex; align-items:center; gap:8px; }
+  .pbpl-icon { width:18px; height:18px; color:#6B7280; }
+  `;
+  const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+  // ---- Tìm thanh công cụ hiện có, chèn nút "Mẫu hỏi" vào bên phải ----
+  // Toolbars của bạn có nhiều nút icon (copy, download, …) – ta gắn vào ngay sau phần đó
+  // Ưu tiên tìm dòng chứa nút dấu gạch (`…`) nếu có, nếu không, gắn vào thanh công cụ đầu tiên tìm được.
+  const toolbar = document.querySelector('.toolbar, .tools, .actions, .topbar, .icons') 
+               || document.querySelector('form .flex, form .actions, .header') 
+               || document.querySelector('body'); // fallback (hiếm khi dùng)
+  if (!toolbar) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'pbpl-templates';
+  wrap.style.marginLeft = '6px';
+
+  const btn = document.createElement('button');
+  btn.className = 'pbpl-btn'; btn.type = 'button'; btn.title = 'Mẫu hỏi (Alt+M)';
+  btn.setAttribute('aria-label', 'Mẫu hỏi');
+  btn.innerHTML = `
+    <svg class="pbpl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5V6.5A2.5 2.5 0 0 1 6.5 4H19"/>
+      <path d="M6 17.5A2.5 2.5 0 0 1 8.5 15H20V6.5A2.5 2.5 0 0 0 17.5 4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/>
+      <path d="M8.5 15V6.5A2.5 2.5 0 0 1 11 4"/>
+    </svg>
+  `;
+
+  const menu = document.createElement('div');
+  menu.className = 'pbpl-menu';
+  menu.innerHTML = `
+    <h4>Chèn mẫu câu hỏi</h4>
+    <button class="pbpl-item" data-key="k1">
+      <div class="pbpl-row"><b>① Giải thích khái niệm</b><span> – Định nghĩa • Nguồn gốc • Ví dụ • Ứng dụng</span></div>
+      <span class="pbpl-kbd">Ctrl/Cmd + 1</span>
+    </button>
+    <button class="pbpl-item" data-key="k2">
+      <div class="pbpl-row"><b>② Phân tích câu kinh</b><span> – Bối cảnh • Ý nghĩa • Liên hệ • Ứng dụng</span></div>
+      <span class="pbpl-kbd">Ctrl/Cmd + 2</span>
+    </button>
+    <button class="pbpl-item" data-key="k3">
+      <div class="pbpl-row"><b>③ Hướng dẫn thực hành</b><span> – Chuẩn bị • Các bước • Lợi ích • Lỗi thường gặp</span></div>
+      <span class="pbpl-kbd">Ctrl/Cmd + 3</span>
+    </button>
+    <button class="pbpl-item" data-key="k4">
+      <div class="pbpl-row"><b>④ So sánh giáo lý</b><span> – Giống • Khác • Bối cảnh • Bài học</span></div>
+      <span class="pbpl-kbd">Ctrl/Cmd + 4</span>
+    </button>
+    <button class="pbpl-item" data-key="k5">
+      <div class="pbpl-row"><b>⑤ Câu hỏi tình huống</b><span> – Nguyên nhân • Giải pháp • Duy trì an lạc</span></div>
+      <span class="pbpl-kbd">Ctrl/Cmd + 5</span>
+    </button>
+  `;
+
+  wrap.appendChild(btn);
+  wrap.appendChild(menu);
+
+  // Chèn vào thanh công cụ (cố gắng đặt ở cuối hàng icon)
+  toolbar.appendChild(wrap);
+
+  // ---- Nội dung mẫu (có thể chỉnh sửa tuỳ ý) ----
+  const TEMPLATES = {
+    k1: `Trình bày như một giảng sư Phật học.\nHãy giải thích rõ ràng và chi tiết khái niệm **[từ khóa Phật học]**, gồm:\n1) Định nghĩa chuẩn theo Kinh–Luật–Luận\n2) Nguồn gốc và ý nghĩa\n3) Ví dụ minh họa dễ hiểu\n4) Ứng dụng thực hành cho cư sĩ hiện nay\nTrình bày ~500 từ, chia mục rõ ràng.`,
+    k2: `Trình bày như một giảng sư Phật học.\nPhân tích ý nghĩa câu kinh: “**[trích câu kinh]**”.\n1) Bối cảnh xuất hiện trong Kinh điển\n2) Ý nghĩa sâu xa\n3) Liên hệ với các giáo lý khác\n4) Cách áp dụng trong đời sống hàng ngày của cư sĩ\nTrình bày có tiêu đề, gạch đầu dòng.`,
+    k3: `Trình bày như một giảng sư Phật học.\nHãy hướng dẫn chi tiết cách thực hành **[pháp môn/giáo lý]** cho cư sĩ tại gia:\n1) Chuẩn bị tâm và hoàn cảnh\n2) Các bước thực hành cụ thể\n3) Lợi ích đạt được\n4) Lỗi thường gặp & cách khắc phục\n5) Lời khuyên thực tế của các bậc Thầy.`,
+    k4: `Trình bày như một giảng sư Phật học.\nSo sánh **[giáo lý A]** và **[giáo lý B]**:\n1) Giống nhau về mục tiêu/ý nghĩa\n2) Khác nhau về phương pháp/ứng dụng\n3) Bối cảnh sử dụng\n4) Bài học rút ra cho người tu học hiện nay.`,
+    k5: `Trình bày như một giảng sư Phật học.\nGiả sử tình huống: **[mô tả tình huống thực tế]**.\nHãy vận dụng giáo lý Phật giáo để đưa ra lời khuyên chi tiết:\n1) Phân tích nguyên nhân theo giáo lý\n2) Giải pháp thực hành cụ thể\n3) Cách duy trì sự an lạc lâu dài\nKèm trích dẫn Kinh/Luật/Luận nếu có.`
+  };
+
+  // ---- Tiện ích chung ----
+  const getTA = () => document.querySelector('textarea') || document.getElementById('textarea');
+  const applyTemplate = (key) => {
+    const ta = getTA(); if (!ta) return;
+    const tpl = TEMPLATES[key]; if (!tpl) return;
+    ta.value = tpl + "\n\n";
+    ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+    // đóng menu nếu đang mở
+    menu.classList.remove('show');
+  };
+
+  // ---- Sự kiện UI ----
+  btn.addEventListener('click', () => menu.classList.toggle('show'));
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) menu.classList.remove('show');
+  });
+  menu.querySelectorAll('.pbpl-item').forEach(el => {
+    el.addEventListener('click', () => applyTemplate(el.dataset.key));
+  });
+
+  // ---- Phím tắt: Alt+M mở menu; Cmd/Ctrl + [1..5] chèn mẫu ----
+  document.addEventListener('keydown', (e) => {
+    const cmd = e.metaKey || e.ctrlKey;
+    if (e.altKey && (e.key === 'm' || e.key === 'M')) {
+      e.preventDefault(); menu.classList.toggle('show'); return;
+    }
+    if (cmd && !e.shiftKey) {
+      if (['1','2','3','4','5'].includes(e.key)) {
+        e.preventDefault();
+        applyTemplate('k' + e.key);
+      }
+    }
+  });
+})();
+</script>
+<!-- ===== /PBPL: PRESET PROMPTS ===== -->
 </body>
 </html>
