@@ -70,3 +70,14 @@ textarea{
 .actions .icon-btn svg,
 .newchat svg,
 .send svg { stroke-width: 1.3; }
+/* Vị trí & style nút New Chat */
+.newchat{
+  position:absolute; top:10px; left:10px;
+  width:36px; height:36px;
+  border:1px solid var(--line); border-radius:10px;
+  background:#fff; color:#0f172a;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.newchat:hover{ background:#f8fafc; }
+.newchat svg{ width:20px; height:20px; }
