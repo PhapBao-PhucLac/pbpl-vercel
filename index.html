@@ -381,5 +381,66 @@ newChatBtn.onclick = ()=>{
 })();
 </script>
 <!-- /PBPL :: New Chat -->
+  <!-- PBPL :: New Chat (compact patch) -->
+<!-- Nút New Chat -->
+<button id="pbpl-new"
+  class="pbpl-new"
+  title="New chat (Ctrl/Cmd + Shift + K)"
+  aria-label="New chat">
+  <!-- Icon plus mảnh, màu xám -->
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+    stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 5v14M5 12h14"/>
+  </svg>
+</button>
+
+<!-- Style nút -->
+<style>
+  .pbpl-new{
+    position:fixed; bottom:16px; right:16px; z-index:1000;
+    width:36px; height:36px; border:1px solid #e5e7eb; border-radius:12px;
+    background:#fff; color:#a0a0a0; /* xám nhẹ */
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:background .18s, color .18s, box-shadow .18s, transform .12s;
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.06);
+  }
+  .pbpl-new:hover{ background:#f8f8f8; color:#111827; box-shadow: 2px 3px 6px rgba(0,0,0,0.08); }
+  .pbpl-new:active{ transform:translateY(.5px); }
+</style>
+
+<!-- Logic nút -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('pbpl-new');
+    if (!btn) return;
+    const resetChat = () => {
+      try { window.abortController?.abort(); } catch(e){}
+      const list = document.querySelector('.msgs') || document.getElementById('messages');
+      if (list) list.innerHTML = '';
+      localStorage.removeItem('pbpl_history');
+      sessionStorage.removeItem('pbpl_history');
+      if (window.chatHistory) window.chatHistory = [];
+      const ta = document.querySelector('textarea');
+      if (ta) { ta.value = ''; ta.focus(); }
+      if (list && list.classList.contains('msgs')) {
+        const note = document.createElement('div');
+        note.className = 'msg ai typing';
+        note.textContent = 'Bắt đầu cuộc hội thoại mới.';
+        list.appendChild(note);
+        list.scrollTop = list.scrollHeight;
+        setTimeout(() => note.remove(), 1200);
+      }
+    };
+    btn.addEventListener('click', resetChat);
+    // Phím tắt Ctrl/Cmd + Shift + K
+    document.addEventListener('keydown', (ev) => {
+      if ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && ev.key.toLowerCase() === 'k') {
+        ev.preventDefault();
+        resetChat();
+      }
+    });
+  });
+</script>
+<!-- /PBPL :: New Chat -->
 </body>
 </html>
