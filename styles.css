@@ -65,3 +65,8 @@ textarea{
 .actions{display:flex;gap:8px;flex-wrap:wrap;padding:10px}
 .ghost{background:#fff;border:1px solid var(--line)}
 .muted{color:var(--muted);font-size:13px;margin-left:auto;padding:10px 0}
+/* Icon nét mảnh */
+.icon-btn svg,
+.actions .icon-btn svg,
+.newchat svg,
+.send svg { stroke-width: 1.3; }
