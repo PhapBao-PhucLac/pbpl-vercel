@@ -254,16 +254,23 @@ newChatBtn.onclick = ()=>{
 })();
 </script>
   <script>
-/* ===== PBPL New Chat – All-in-one (auto install) ===== */
-(function(){
-  // 1) Tìm các phần tử chính
-  const panel   = document.querySelector('.panel') || document.body;
-  const msgList = document.querySelector('.msgs') || document.getElementById('messages');
-  const textarea= document.querySelector('textarea');
+/* ===== PBPL New Chat – robust version (with reload fallback) ===== */
+(function () {
+  // ---- định vị các phần tử chính (đa cú pháp + dự phòng) ----
+  const panel =
+    document.querySelector(".panel, .chat, main, .container") || document.body;
 
-  // 2) Nếu chưa có CSS cho .newchat thì chèn vào <head>
-  if (!document.getElementById('pbpl-newchat-style')) {
-    const css = `
+  const msgList =
+    document.querySelector(".msgs, #messages, .chat-body, .conversation, [data-messages]") || null;
+
+  const textarea =
+    document.querySelector("textarea, .chat-input, [data-input]") || null;
+
+  // ---- chèn CSS cho nút nếu chưa có ----
+  if (!document.getElementById("pbpl-newchat-style")) {
+    const style = document.createElement("style");
+    style.id = "pbpl-newchat-style";
+    style.textContent = `
       .panel{ position: relative; }
       .newchat{
         position:absolute; top:10px; left:10px;
@@ -275,23 +282,22 @@ newChatBtn.onclick = ()=>{
       .newchat:hover{ background:#f8fafc; }
       .newchat:disabled{ cursor:default; }
       .newchat svg{ width:20px; height:20px; stroke-width:1.6; }
-      .msgs .note{ font-size:13px; color:#64748b; margin:8px 0; }
-    `.trim();
-    const style = document.createElement('style');
-    style.id = 'pbpl-newchat-style';
-    style.textContent = css;
+    `;
     document.head.appendChild(style);
   }
 
-  // 3) Lấy / hoặc tự tạo nút New Chat
-  let btn = document.getElementById('newChatBtn');
+  // ---- tạo/lấy nút New Chat ----
+  let btn =
+    document.getElementById("newChatBtn") ||
+    document.querySelector("[data-newchat]");
+
   if (!btn) {
-    btn = document.createElement('button');
-    btn.id = 'newChatBtn';
-    btn.className = 'newchat';
-    btn.type = 'button';
-    btn.title = 'Bắt đầu cuộc trò chuyện mới';
-    btn.setAttribute('aria-label','Bắt đầu cuộc trò chuyện mới');
+    btn = document.createElement("button");
+    btn.id = "newChatBtn";
+    btn.className = "newchat";
+    btn.type = "button";
+    btn.title = "Bắt đầu cuộc trò chuyện mới";
+    btn.setAttribute("aria-label", "Bắt đầu cuộc trò chuyện mới");
     btn.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -300,69 +306,88 @@ newChatBtn.onclick = ()=>{
     (panel || document.body).appendChild(btn);
   }
 
-  // 4) Các tiện ích
-  function isEmpty(){
-    return !msgList || msgList.children.length === 0;
+  // ---- tiện ích ----
+  function hasMessages() {
+    return !!(msgList && msgList.children && msgList.children.length > 0);
   }
-  function updateTip(){
-    btn.title = isEmpty() ? 'Bắt đầu cuộc trò chuyện mới' : 'Xoá hội thoại & bắt đầu mới';
+  function updateTip() {
+    btn.title = hasMessages()
+      ? "Xoá hội thoại & bắt đầu mới"
+      : "Bắt đầu cuộc trò chuyện mới";
   }
-  function toggleBtn(){
-    const off = isEmpty();
+  function toggleBtn() {
+    const off = !hasMessages();
     btn.disabled = off;
-    btn.style.opacity = off ? .5 : 1;
+    btn.style.opacity = off ? 0.5 : 1;
   }
-  function addNote(text){
-    if (!msgList) return;
-    const d = document.createElement('div');
-    d.className = 'note';
-    d.textContent = text;
-    msgList.appendChild(d);
-    msgList.scrollTop = msgList.scrollHeight;
-    setTimeout(()=> d.remove(), 1400);
-  }
-  function safeAbort(){
-    try { window.abortController?.abort(); } catch(e){}
+  function focusInput() {
+    if (textarea) {
+      textarea.focus();
+      // đưa caret về cuối
+      const val = textarea.value;
+      textarea.value = "";
+      textarea.value = val;
+    }
   }
 
-  // 5) Reset hội thoại
-  function resetChat(){
-    safeAbort();
-    if (msgList) msgList.innerHTML = '';
+  // ---- xoá sạch hội thoại (khi xác định đúng DOM) ----
+  function softReset() {
+    try { window.abortController?.abort(); } catch (e) {}
+    if (msgList) msgList.innerHTML = "";
+    if (textarea) textarea.value = "";
+    focusInput();
+    updateTip();
+    toggleBtn();
+  }
+
+  // ---- fallback: reload trang (siêu chắc chắn) ----
+  function reloadReset() {
     try {
-      localStorage.removeItem('pbpl_history');
-      sessionStorage.removeItem('pbpl_history');
-      if (window.chatHistory) window.chatHistory = [];
-    } catch(e){}
-    if (textarea){ textarea.value=''; textarea.focus(); }
-    msgList?.scrollTo({ top:0, behavior:'smooth' });
-    updateTip(); toggleBtn();
-    if (msgList) addNote('Đã bắt đầu cuộc trò chuyện mới.');
+      localStorage.removeItem("pbpl_history");
+      sessionStorage.setItem("pbpl_new_after_reload", "1");
+    } catch (e) {}
+    location.reload();
   }
 
-  // 6) Gắn sự kiện cho nút
-  btn.addEventListener('click', ()=>{
-    const hasText = !!(textarea && textarea.value.trim().length);
-    const hasMsgs = !isEmpty();
-    if (hasText || hasMsgs){
-      if (!confirm('Xoá hội thoại hiện tại và bắt đầu mới?')) return;
+  // sau reload: tự focus
+  document.addEventListener("DOMContentLoaded", () => {
+    if (sessionStorage.getItem("pbpl_new_after_reload") === "1") {
+      sessionStorage.removeItem("pbpl_new_after_reload");
+      focusInput();
     }
-    resetChat();
   });
-  btn.addEventListener('mouseenter', updateTip);
 
-  // 7) Phím tắt: Ctrl/Cmd + Shift + K
-  document.addEventListener('keydown',(e)=>{
-    const key = String(e.key || '').toLowerCase();
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && key==='k'){
+  // ---- hành vi nút ----
+  btn.addEventListener("mouseenter", updateTip);
+
+  btn.addEventListener("click", () => {
+    const typing = textarea && textarea.value.trim().length > 0;
+    const existed = hasMessages();
+    if (typing || existed) {
+      if (!confirm("Xoá hội thoại hiện tại và bắt đầu mới?")) return;
+    }
+
+    // nếu xác định được danh sách tin nhắn => xoá mềm, ngược lại => reload
+    if (msgList) {
+      softReset();
+    } else {
+      reloadReset();
+    }
+  });
+
+  // phím tắt Ctrl/Cmd + Shift + K
+  document.addEventListener("keydown", (e) => {
+    const key = String(e.key || "").toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && key === "k") {
       e.preventDefault();
-      if (btn.disabled) return;
-      btn.click();
+      if (!btn.disabled) btn.click();
     }
   });
 
-  // 8) Khởi tạo
-  updateTip(); toggleBtn();
+  // khởi tạo
+  updateTip();
+  toggleBtn();
+  focusInput();
 })();
 </script>
 </body>
