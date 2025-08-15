@@ -253,5 +253,117 @@ newChatBtn.onclick = ()=>{
   btn.addEventListener('click', resetChat);
 })();
 </script>
+  <script>
+/* ===== PBPL New Chat – All-in-one (auto install) ===== */
+(function(){
+  // 1) Tìm các phần tử chính
+  const panel   = document.querySelector('.panel') || document.body;
+  const msgList = document.querySelector('.msgs') || document.getElementById('messages');
+  const textarea= document.querySelector('textarea');
+
+  // 2) Nếu chưa có CSS cho .newchat thì chèn vào <head>
+  if (!document.getElementById('pbpl-newchat-style')) {
+    const css = `
+      .panel{ position: relative; }
+      .newchat{
+        position:absolute; top:10px; left:10px;
+        width:36px; height:36px; border:1px solid var(--line, #e5e7eb);
+        border-radius:10px; background:#fff; color:#0f172a;
+        display:flex; align-items:center; justify-content:center;
+        cursor:pointer; transition:background .2s ease, opacity .2s ease;
+      }
+      .newchat:hover{ background:#f8fafc; }
+      .newchat:disabled{ cursor:default; }
+      .newchat svg{ width:20px; height:20px; stroke-width:1.6; }
+      .msgs .note{ font-size:13px; color:#64748b; margin:8px 0; }
+    `.trim();
+    const style = document.createElement('style');
+    style.id = 'pbpl-newchat-style';
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+
+  // 3) Lấy / hoặc tự tạo nút New Chat
+  let btn = document.getElementById('newChatBtn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'newChatBtn';
+    btn.className = 'newchat';
+    btn.type = 'button';
+    btn.title = 'Bắt đầu cuộc trò chuyện mới';
+    btn.setAttribute('aria-label','Bắt đầu cuộc trò chuyện mới');
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>`;
+    (panel || document.body).appendChild(btn);
+  }
+
+  // 4) Các tiện ích
+  function isEmpty(){
+    return !msgList || msgList.children.length === 0;
+  }
+  function updateTip(){
+    btn.title = isEmpty() ? 'Bắt đầu cuộc trò chuyện mới' : 'Xoá hội thoại & bắt đầu mới';
+  }
+  function toggleBtn(){
+    const off = isEmpty();
+    btn.disabled = off;
+    btn.style.opacity = off ? .5 : 1;
+  }
+  function addNote(text){
+    if (!msgList) return;
+    const d = document.createElement('div');
+    d.className = 'note';
+    d.textContent = text;
+    msgList.appendChild(d);
+    msgList.scrollTop = msgList.scrollHeight;
+    setTimeout(()=> d.remove(), 1400);
+  }
+  function safeAbort(){
+    try { window.abortController?.abort(); } catch(e){}
+  }
+
+  // 5) Reset hội thoại
+  function resetChat(){
+    safeAbort();
+    if (msgList) msgList.innerHTML = '';
+    try {
+      localStorage.removeItem('pbpl_history');
+      sessionStorage.removeItem('pbpl_history');
+      if (window.chatHistory) window.chatHistory = [];
+    } catch(e){}
+    if (textarea){ textarea.value=''; textarea.focus(); }
+    msgList?.scrollTo({ top:0, behavior:'smooth' });
+    updateTip(); toggleBtn();
+    if (msgList) addNote('Đã bắt đầu cuộc trò chuyện mới.');
+  }
+
+  // 6) Gắn sự kiện cho nút
+  btn.addEventListener('click', ()=>{
+    const hasText = !!(textarea && textarea.value.trim().length);
+    const hasMsgs = !isEmpty();
+    if (hasText || hasMsgs){
+      if (!confirm('Xoá hội thoại hiện tại và bắt đầu mới?')) return;
+    }
+    resetChat();
+  });
+  btn.addEventListener('mouseenter', updateTip);
+
+  // 7) Phím tắt: Ctrl/Cmd + Shift + K
+  document.addEventListener('keydown',(e)=>{
+    const key = String(e.key || '').toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && key==='k'){
+      e.preventDefault();
+      if (btn.disabled) return;
+      btn.click();
+    }
+  });
+
+  // 8) Khởi tạo
+  updateTip(); toggleBtn();
+})();
+</script>
 </body>
 </html>
