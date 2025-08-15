@@ -6,84 +6,22 @@
 <title>Pháp Bảo Phúc Lạc • Chatbot</title>
 
 <link rel="icon" href="/logo.png">
+<link rel="stylesheet" href="/styles.css"/>
+
 <meta property="og:title" content="Pháp Bảo Phúc Lạc • Chatbot"/>
 <meta property="og:description" content="Hiểu sâu Chánh Pháp – Hướng đạo tu tập."/>
 <meta property="og:image" content="/logo.png"/>
-
-<style>
-  :root{
-    --bg:#ffffff;
-    --ink:#0f172a;
-    --muted:#6b7280;
-    --line:#e5e7eb;
-    --bubble:#f8fafc;         /* nền trợ lý */
-    --radius:14px;
-    --maxw:980px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
-  .wrap{max-width:var(--maxw);margin:24px auto;padding:0 16px}
-
-  /* Header trắng đen, tối giản */
-  .hero{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
-  .hero img{width:56px;height:56px;border-radius:999px}
-  .hero h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.2px}
-  .hero small{display:block;color:var(--muted);margin-top:2px}
-
-  /* câu chào */
-  .greet{margin:16px 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;color:#111}
-
-  /* hàng icon menu */
-  .menu{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
-  .icon-btn{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;
-  }
-  .icon-btn:hover{background:#f8fafc}
-  .icon-btn svg{width:20px;height:20px}
-  .sr{position:absolute;left:-9999px}  /* nhãn ẩn cho trợ năng */
-
-  /* khung chat kiểu ChatGPT: nền trắng, đường viền mảnh */
-  .panel{border:1px solid var(--line);border-radius:12px}
-  .msgs{min-height:320px;max-height:62vh;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
-  .msg{max-width:760px;padding:10px 12px;border-radius:var(--radius);white-space:pre-wrap;border:1px solid var(--line)}
-  .ai{align-self:flex-start;background:var(--bubble)}
-  .me{align-self:flex-end;background:#fff}
-  .typing{opacity:.6;font-style:italic}
-
-  /* composer */
-  .composer{display:flex;gap:10px;align-items:flex-end;padding:10px;border-top:1px solid var(--line)}
-  textarea{
-    flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;min-height:60px;
-    outline:none;resize:vertical;font:inherit;color:inherit;background:#fff;
-  }
-  .send{
-    width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:#111;color:#fff;
-    display:inline-flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer
-  }
-  .send:disabled{opacity:.5;cursor:not-allowed}
-
-  /* action icons dưới khung */
-  .actions{display:flex;gap:8px;flex-wrap:wrap;padding:10px}
-  .ghost{background:#fff;border:1px solid var(--line)}
-  .muted{color:var(--muted);font-size:13px;margin-left:auto;padding:10px 0}
-
-  /* tooltips đơn giản */
-  .icon-btn[title], .send[title]{position:relative}
-</style>
 </head>
 <body>
   <div class="wrap">
     <!-- Header -->
-    <div class="hero">
-      <img src="/logo.png" alt="Logo PBPL"/>
+    <header class="hero">
+      <img src="/logo.png" alt="Logo PBPL" class="logo"/>
       <div>
         <h1>Pháp Bảo Phúc Lạc • Chatbot</h1>
         <small>NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT — “Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</small>
       </div>
-    </div>
+    </header>
 
     <!-- Chào + dãy icon -->
     <div class="greet">Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
@@ -92,63 +30,78 @@
       <!-- Giáo lý -->
       <button class="icon-btn" title="Giáo lý" data-text="Giải thích giúp tôi giáo lý 'Tứ Diệu Đế' thật dễ hiểu.">
         <span class="sr">Giáo lý</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v13M4 19h10M8 6h6" stroke-width="1.7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v13M4 19h10M8 6h6" stroke-width="1.5"/></svg>
       </button>
       <!-- Kinh văn -->
       <button class="icon-btn" title="Kinh văn" data-text="Hãy trích một đoạn kinh ngắn và giải thích ứng dụng thực tế.">
         <span class="sr">Kinh văn</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z" stroke-width="1.7"/><path d="M8 8h8M8 12h8M8 16h6" stroke-width="1.7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h6" stroke-width="1.5"/></svg>
       </button>
       <!-- Sách nói / MP3 -->
       <button class="icon-btn" title="Sách nói / MP3" data-text="Gợi ý 5 pháp thoại MP3 về chánh niệm cho người mới.">
         <span class="sr">Sách nói / MP3</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="8" cy="18" r="2" stroke-width="1.7"/><circle cx="18" cy="18" r="2" stroke-width="1.7"/><path d="M6 18V6h11a1 1 0 0 1 1 1v9" stroke-width="1.7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="8" cy="18" r="2" stroke-width="1.5"/><circle cx="18" cy="18" r="2" stroke-width="1.5"/><path d="M6 18V6h11a1 1 0 0 1 1 1v9" stroke-width="1.5"/></svg>
       </button>
       <!-- Hỏi đáp -->
       <button class="icon-btn" title="Hỏi đáp" data-text="Giải đáp giúp tôi: Làm sao giữ chánh niệm giữa công việc bận rộn?">
         <span class="sr">Hỏi đáp</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" stroke-width="1.7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" stroke-width="1.5"/></svg>
       </button>
       <!-- Tu học theo cấp độ -->
       <button class="icon-btn" title="Tu học theo cấp độ" data-text="Hướng dẫn lộ trình tu tập: nhập môn → căn bản → nâng cao (gợi ý bài học).">
         <span class="sr">Tu học theo cấp độ</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 20h18M6 16h4v4H6zm6-6h4v10h-4zm6-6h4v16h-4z" stroke-width="1.7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 20h18M6 16h4v4H6zm6-6h4v10h-4zm6-6h4v16h-4z" stroke-width="1.5"/></svg>
       </button>
       <!-- Tìm pháp thoại -->
       <button class="icon-btn" title="Tìm pháp thoại" data-text="Tìm pháp thoại của HT. Thích… về chủ đề từ bi (kèm đường dẫn nếu có).">
         <span class="sr">Tìm pháp thoại</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7" stroke-width="1.7"/><path d="m20 20-3.5-3.5" stroke-width="1.7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7" stroke-width="1.5"/><path d="m20 20-3.5-3.5" stroke-width="1.5"/></svg>
       </button>
       <!-- Câu hỏi phổ biến -->
       <button class="icon-btn" title="Câu hỏi phổ biến" data-text="Liệt kê 10 câu hỏi Phật học phổ biến cho người mới, kèm gợi ý trả lời ngắn.">
         <span class="sr">Câu hỏi phổ biến</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 8h10M7 12h10M7 16h8" stroke-width="1.7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 8h10M7 12h10M7 16h8" stroke-width="1.5"/></svg>
       </button>
     </div>
 
-    <!-- Chat -->
-    <div class="panel">
+    <!-- Chat Panel -->
+    <section class="panel">
+      <!-- New Chat -->
+      <button id="newChat" class="newchat" title="Cuộc hội thoại mới">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="4" y="3" width="14" height="18" rx="2" stroke-width="1.5"/><path d="M12 8v8M8 12h8" stroke-width="1.5"/>
+        </svg>
+      </button>
+
       <div class="msgs" id="msgs"></div>
 
       <div class="composer">
         <textarea id="inp" maxlength="800" placeholder="Gõ câu hỏi của bạn… (Shift+Enter xuống dòng)"></textarea>
         <button class="send" id="send" title="Gửi">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m22 2-7 7M22 2l-9 20-3-9-9-3 20-8Z" stroke-width="1.7"/></svg>
+          <!-- giấy bay (kiểu ChatGPT) -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M3 11.5 21 3l-8.5 18-2.5-7-7-2.5Z" stroke-width="1.5"/>
+          </svg>
         </button>
       </div>
 
       <div class="actions">
         <button class="icon-btn ghost" id="copy" title="Sao chép câu trả lời">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="11" height="11" rx="2" stroke-width="1.7"/><rect x="4" y="4" width="11" height="11" rx="2" stroke-width="1.7"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="9" y="9" width="11" height="11" rx="2" stroke-width="1.5"/>
+            <rect x="4" y="4" width="11" height="11" rx="2" stroke-width="1.5"/>
+          </svg>
           <span class="sr">Sao chép câu trả lời</span>
         </button>
         <button class="icon-btn ghost" id="save" title="Tải .txt">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" stroke-width="1.7"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" stroke-width="1.5"/>
+          </svg>
           <span class="sr">Tải .txt</span>
         </button>
         <span class="muted" id="hint">Sẵn sàng.</span>
       </div>
-    </div>
+    </section>
   </div>
 
 <script>
@@ -164,6 +117,7 @@ const inp = document.getElementById('inp');
 const sendBtn = document.getElementById('send');
 const copyBtn = document.getElementById('copy');
 const saveBtn = document.getElementById('save');
+const newChatBtn = document.getElementById('newChat');
 const hint = document.getElementById('hint');
 let history = [];
 let lastSentAt = 0;
@@ -182,7 +136,7 @@ function throttleOK(){
   const now = Date.now();
   if (now - lastSentAt < MIN_INTERVAL_MS) {
     const remain = Math.ceil((MIN_INTERVAL_MS - (now - lastSentAt))/1000);
-    setHint(`Chờ ${remain}s nữa để gửi câu tiếp theo (giữ chánh niệm, tiết kiệm chi phí).`);
+    setHint(`Chờ ${remain}s để gửi câu tiếp theo (giữ chánh niệm, tiết kiệm chi phí).`);
     return false;
   }
   return true;
@@ -200,13 +154,11 @@ async function ask(q){
   inp.value=''; setHint('Đang hỏi…'); sendBtn.disabled=true;
 
   const system = {role:'system',content:
-    'Bạn là Pháp Bảo Phúc Lạc — trợ lý Phật học từ bi, khiêm cung, súc tích; '+
-    'giọng ấm, gợi mở thực hành chánh niệm. Khi phù hợp, trình bày gạch đầu dòng.'};
+    'Bạn là Pháp Bảo Phúc Lạc — trợ lý Phật học từ bi, khiêm cung, súc tích; giọng ấm, gợi mở thực hành chánh niệm. Khi phù hợp, trình bày gạch đầu dòng.'};
   const fewshots = [
     {role:'user',content:'Đạo Phật là gì vậy ạ? Con thấy nhiều người nói mà vẫn chưa hiểu rõ.'},
     {role:'assistant',content:'Dạ, cảm ơn câu hỏi rất đẹp của bạn. Đạo Phật là con đường đưa tới an lạc và giác ngộ, do Đức Phật chỉ dạy. Ngài khuyên mình quan sát thân tâm, nhận diện khổ và nguyên nhân, rồi thực hành từ bi – trí tuệ. Nếu bạn muốn, ta có thể đi lần lượt Tứ Diệu Đế và Bát Chánh Đạo.'}
   ];
-
   const messages=[system, ...fewshots, ...history, {role:'user',content:q}];
 
   try{
@@ -228,11 +180,8 @@ sendBtn.onclick = ()=> ask(inp.value);
 inp.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); ask(inp.value);} });
 
 document.getElementById('quickMenu').addEventListener('click',e=>{
-  if(e.target.closest('.icon-btn')){
-    const btn = e.target.closest('.icon-btn');
-    inp.value = btn.dataset.text || '';
-    inp.focus();
-  }
+  const btn = e.target.closest('.icon-btn'); if(!btn) return;
+  inp.value = btn.dataset.text || ''; inp.focus();
 });
 
 /* Sao chép / Tải txt */
@@ -249,6 +198,88 @@ saveBtn.onclick = ()=>{
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pbpl_chat.txt'; a.click();
   URL.revokeObjectURL(a.href);
 };
+
+/* New Chat */
+newChatBtn.onclick = ()=>{
+  history = [];
+  msgsEl.innerHTML = '';
+  inp.value = '';
+  setHint('Bắt đầu cuộc hội thoại mới.');
+  inp.focus();
+};
 </script>
 </body>
 </html>
+2) styles.css
+Tạo file mới tên styles.css (đặt ở gốc repo hoặc trong public/, miễn là đường dẫn /styles.css hoạt động) với nội dung:
+
+css
+Copy
+Edit
+:root{
+  --bg:#ffffff;
+  --ink:#0f172a;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --bubble:#f8fafc;
+  --radius:14px;
+  --maxw:980px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+     font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+.wrap{max-width:var(--maxw);margin:24px auto;padding:0 16px}
+
+/* Header */
+.hero{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.logo{width:56px;height:56px;border-radius:999px}
+.hero h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.2px}
+.hero small{display:block;color:var(--muted);margin-top:2px}
+
+/* Chào */
+.greet{margin:16px 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;color:#111}
+
+/* Icon menu */
+.menu{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;
+}
+.icon-btn:hover{background:#f8fafc}
+.icon-btn svg{width:20px;height:20px}
+.sr{position:absolute;left:-9999px}
+
+/* Panel chat */
+.panel{border:1px solid var(--line);border-radius:12px;position:relative}
+.newchat{
+  position:absolute;top:10px;left:10px;width:36px;height:36px;border:1px solid var(--line);
+  border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer
+}
+.newchat:hover{background:#f8fafc}
+.newchat svg{width:20px;height:20px}
+
+.msgs{min-height:320px;max-height:62vh;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:760px;padding:10px 12px;border-radius:var(--radius);white-space:pre-wrap;border:1px solid var(--line)}
+.ai{align-self:flex-start;background:var(--bubble)}
+.me{align-self:flex-end;background:#fff}
+.typing{opacity:.6;font-style:italic}
+
+/* Composer */
+.composer{display:flex;gap:10px;align-items:flex-end;padding:10px;border-top:1px solid var(--line)}
+textarea{
+  flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;min-height:60px;
+  outline:none;resize:vertical;font:inherit;color:inherit;background:#fff;
+}
+.send{
+  width:44px;height:44px;border:1px solid var(--line);border-radius:999px;background:#111;color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer
+}
+.send:disabled{opacity:.5;cursor:not-allowed}
+.send svg{width:18px;height:18px;stroke:#fff}
+
+/* Action icons */
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:10px}
+.ghost{background:#fff;border:1px solid var(--line)}
+.muted{color:var(--muted);font-size:13px;margin-left:auto;padding:10px 0}
