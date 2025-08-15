@@ -1,160 +1,164 @@
 <!doctype html>
 <html lang="vi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Pháp Bảo Phúc Lạc • Chatbot</title>
 
-<!-- Favicon & meta image (tuỳ bạn thay bằng ảnh riêng) -->
 <link rel="icon" href="/logo.png">
-<meta property="og:title" content="Pháp Bảo Phúc Lạc • Chatbot" />
-<meta property="og:description" content="Hiểu sâu Chánh Pháp – Hướng đạo tu tập." />
-<meta property="og:image" content="https://pbpl-vercel.vercel.app/logo.png" />
-<meta name="theme-color" content="#0f172a" />
+<meta property="og:title" content="Pháp Bảo Phúc Lạc • Chatbot"/>
+<meta property="og:description" content="Hiểu sâu Chánh Pháp – Hướng đạo tu tập."/>
+<meta property="og:image" content="/logo.png"/>
 
 <style>
   :root{
-    --bg:#f6f7f9;
-    --panel:#ffffff;
+    --bg:#ffffff;
     --ink:#0f172a;
     --muted:#6b7280;
-    --brand:#111827;
-    --ring:#d1d5db;
-    --pill:#111827;
-    --bubble:#eef2ff;
-    --user:#ecfeff;
-    --radius:16px;
-    --maxw:1100px;
+    --line:#e5e7eb;
+    --bubble:#f8fafc;         /* nền trợ lý */
+    --radius:14px;
+    --maxw:980px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{
-    margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-
-  /* Nền sen nhẹ (SVG pattern mờ) */
-  body::before{
-    content:"";
-    position:fixed; inset:0;
-    background:
-      radial-gradient(ellipse at top left, #0000 60%, rgba(0,0,0,.03)) ,
-      url('data:image/svg+xml;utf8,\
-      <svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" fill="none">\
-      <g stroke="%23bdbdbd" stroke-width="1" opacity=".18">\
-      <path d="M300 80c50 80 50 160 0 240c-50-80-50-160 0-240z"/>\
-      <path d="M300 120c85 45 130 110 130 190c-85-45-175-45-260 0c0-80 45-145 130-190z"/>\
-      <circle cx="300" cy="330" r="140" fill="none"/>\
-      </g></svg>') center/700px 700px repeat;
-    pointer-events:none;
-  }
-
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
   .wrap{max-width:var(--maxw);margin:24px auto;padding:0 16px}
 
-  /* Header */
-  .hero{
-    background:var(--panel);
-    border-radius:var(--radius);
-    box-shadow:0 6px 18px rgba(2,6,23,.08);
-    padding:20px 24px;display:flex;gap:16px;align-items:center;
-  }
-  .hero img{width:64px;height:64px;border-radius:999px;flex:0 0 auto;box-shadow:0 0 0 2px #fff, 0 0 0 3px #eee}
-  .hero h1{margin:0;font-weight:700;font-size:22px;letter-spacing:.2px}
-  .hero small{display:block;color:var(--muted)}
-  .hero em{font-style:normal;color:#374151}
-  .greet{
-    margin-top:16px;background:var(--panel);border-radius:var(--radius);
-    padding:14px 16px;color:#374151;border:1px solid var(--ring)
-  }
+  /* Header trắng đen, tối giản */
+  .hero{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+  .hero img{width:56px;height:56px;border-radius:999px}
+  .hero h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.2px}
+  .hero small{display:block;color:var(--muted);margin-top:2px}
 
-  /* Quick menu */
-  .menu{
-    display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 0;
-  }
-  .chip{
-    border:1px solid var(--ring);
-    background:#fff;border-radius:999px;padding:8px 14px;cursor:pointer;
-    color:#111827;font-weight:600;transition:.15s;
-  }
-  .chip:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(2,6,23,.08)}
+  /* câu chào */
+  .greet{margin:16px 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;color:#111}
 
-  /* Chat panel */
-  .panel{
-    margin-top:16px;background:var(--panel);border-radius:var(--radius);
-    box-shadow:0 6px 18px rgba(2,6,23,.06);padding:18px;border:1px solid var(--ring);
+  /* hàng icon menu */
+  .menu{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+  .icon-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;
   }
-  .msgs{min-height:320px;max-height:60vh;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:8px}
-  .msg{max-width:760px;padding:12px 14px;border-radius:14px;white-space:pre-wrap}
-  .me{align-self:flex-end;background:var(--user);border:1px solid #bae6fd}
-  .ai{align-self:flex-start;background:var(--bubble);border:1px solid #c7d2fe}
+  .icon-btn:hover{background:#f8fafc}
+  .icon-btn svg{width:20px;height:20px}
+  .sr{position:absolute;left:-9999px}  /* nhãn ẩn cho trợ năng */
+
+  /* khung chat kiểu ChatGPT: nền trắng, đường viền mảnh */
+  .panel{border:1px solid var(--line);border-radius:12px}
+  .msgs{min-height:320px;max-height:62vh;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+  .msg{max-width:760px;padding:10px 12px;border-radius:var(--radius);white-space:pre-wrap;border:1px solid var(--line)}
+  .ai{align-self:flex-start;background:var(--bubble)}
+  .me{align-self:flex-end;background:#fff}
   .typing{opacity:.6;font-style:italic}
 
-  /* Composer */
-  .composer{display:flex;gap:10px;align-items:flex-end;margin-top:12px}
+  /* composer */
+  .composer{display:flex;gap:10px;align-items:flex-end;padding:10px;border-top:1px solid var(--line)}
   textarea{
-    flex:1;border:1px solid var(--ring);border-radius:14px;padding:14px 14px 16px 14px;min-height:60px;
-    outline:none;resize:vertical;background:#fff;color:var(--ink);
+    flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;min-height:60px;
+    outline:none;resize:vertical;font:inherit;color:inherit;background:#fff;
   }
-  .btn{
-    border:none;background:var(--pill);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer
+  .send{
+    width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:#111;color:#fff;
+    display:inline-flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer
   }
-  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .send:disabled{opacity:.5;cursor:not-allowed}
 
-  /* Footer actions */
-  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .ghost{background:#fff;color:#111;border:1px solid var(--ring)}
-  .muted{color:var(--muted);font-size:13px;margin-top:6px}
+  /* action icons dưới khung */
+  .actions{display:flex;gap:8px;flex-wrap:wrap;padding:10px}
+  .ghost{background:#fff;border:1px solid var(--line)}
+  .muted{color:var(--muted);font-size:13px;margin-left:auto;padding:10px 0}
+
+  /* tooltips đơn giản */
+  .icon-btn[title], .send[title]{position:relative}
 </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- HEADER -->
+    <!-- Header -->
     <div class="hero">
-      <img src="/logo.png" alt="Logo PBPL">
+      <img src="/logo.png" alt="Logo PBPL"/>
       <div>
         <h1>Pháp Bảo Phúc Lạc • Chatbot</h1>
-        <small>NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT — <em>“Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</em></small>
+        <small>NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT — “Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</small>
       </div>
     </div>
 
-    <!-- GREETING -->
+    <!-- Chào + dãy icon -->
     <div class="greet">Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
 
-    <!-- QUICK MENU -->
     <div class="menu" id="quickMenu">
-      <button class="chip" data-text="Giải thích giúp tôi giáo lý 'Tứ Diệu Đế' thật dễ hiểu.">Giáo lý</button>
-      <button class="chip" data-text="Hãy tóm lược và trích dẫn một đoạn kinh phù hợp với đời sống hằng ngày.">Kinh văn</button>
-      <button class="chip" data-text="Gợi ý 5 pháp thoại MP3 về chánh niệm cho người mới.">Sách nói / MP3</button>
-      <button class="chip" data-text="Giải đáp giúp tôi: Làm sao giữ chánh niệm giữa công việc bận rộn?">Hỏi đáp</button>
-      <button class="chip" data-text="Hướng dẫn lộ trình tu tập theo cấp độ: nhập môn → căn bản → nâng cao.">Tu học theo cấp độ</button>
-      <button class="chip" data-text="Tìm kiếm pháp thoại của HT. Thích… về chủ đề từ bi.">Tìm pháp thoại</button>
-      <button class="chip" data-text="Liệt kê 10 câu hỏi Phật học phổ biến cho người mới.">Câu hỏi phổ biến</button>
+      <!-- Giáo lý -->
+      <button class="icon-btn" title="Giáo lý" data-text="Giải thích giúp tôi giáo lý 'Tứ Diệu Đế' thật dễ hiểu.">
+        <span class="sr">Giáo lý</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v13M4 19h10M8 6h6" stroke-width="1.7"/></svg>
+      </button>
+      <!-- Kinh văn -->
+      <button class="icon-btn" title="Kinh văn" data-text="Hãy trích một đoạn kinh ngắn và giải thích ứng dụng thực tế.">
+        <span class="sr">Kinh văn</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z" stroke-width="1.7"/><path d="M8 8h8M8 12h8M8 16h6" stroke-width="1.7"/></svg>
+      </button>
+      <!-- Sách nói / MP3 -->
+      <button class="icon-btn" title="Sách nói / MP3" data-text="Gợi ý 5 pháp thoại MP3 về chánh niệm cho người mới.">
+        <span class="sr">Sách nói / MP3</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="8" cy="18" r="2" stroke-width="1.7"/><circle cx="18" cy="18" r="2" stroke-width="1.7"/><path d="M6 18V6h11a1 1 0 0 1 1 1v9" stroke-width="1.7"/></svg>
+      </button>
+      <!-- Hỏi đáp -->
+      <button class="icon-btn" title="Hỏi đáp" data-text="Giải đáp giúp tôi: Làm sao giữ chánh niệm giữa công việc bận rộn?">
+        <span class="sr">Hỏi đáp</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" stroke-width="1.7"/></svg>
+      </button>
+      <!-- Tu học theo cấp độ -->
+      <button class="icon-btn" title="Tu học theo cấp độ" data-text="Hướng dẫn lộ trình tu tập: nhập môn → căn bản → nâng cao (gợi ý bài học).">
+        <span class="sr">Tu học theo cấp độ</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 20h18M6 16h4v4H6zm6-6h4v10h-4zm6-6h4v16h-4z" stroke-width="1.7"/></svg>
+      </button>
+      <!-- Tìm pháp thoại -->
+      <button class="icon-btn" title="Tìm pháp thoại" data-text="Tìm pháp thoại của HT. Thích… về chủ đề từ bi (kèm đường dẫn nếu có).">
+        <span class="sr">Tìm pháp thoại</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7" stroke-width="1.7"/><path d="m20 20-3.5-3.5" stroke-width="1.7"/></svg>
+      </button>
+      <!-- Câu hỏi phổ biến -->
+      <button class="icon-btn" title="Câu hỏi phổ biến" data-text="Liệt kê 10 câu hỏi Phật học phổ biến cho người mới, kèm gợi ý trả lời ngắn.">
+        <span class="sr">Câu hỏi phổ biến</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 8h10M7 12h10M7 16h8" stroke-width="1.7"/></svg>
+      </button>
     </div>
 
-    <!-- CHAT -->
+    <!-- Chat -->
     <div class="panel">
       <div class="msgs" id="msgs"></div>
 
       <div class="composer">
         <textarea id="inp" maxlength="800" placeholder="Gõ câu hỏi của bạn… (Shift+Enter xuống dòng)"></textarea>
-        <button class="btn" id="send">Gửi</button>
+        <button class="send" id="send" title="Gửi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m22 2-7 7M22 2l-9 20-3-9-9-3 20-8Z" stroke-width="1.7"/></svg>
+        </button>
       </div>
 
       <div class="actions">
-        <button class="btn ghost" id="copy">📋 Sao chép câu trả lời</button>
-        <button class="btn ghost" id="save">💾 Tải .txt</button>
+        <button class="icon-btn ghost" id="copy" title="Sao chép câu trả lời">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="11" height="11" rx="2" stroke-width="1.7"/><rect x="4" y="4" width="11" height="11" rx="2" stroke-width="1.7"/></svg>
+          <span class="sr">Sao chép câu trả lời</span>
+        </button>
+        <button class="icon-btn ghost" id="save" title="Tải .txt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" stroke-width="1.7"/></svg>
+          <span class="sr">Tải .txt</span>
+        </button>
         <span class="muted" id="hint">Sẵn sàng.</span>
       </div>
     </div>
   </div>
 
 <script>
-/* ====== Cấu hình nhỏ để tiết kiệm chi phí ====== */
+/* ===== Cấu hình ===== */
 const SERVER_URL = '/api/chat';
-const TEMPERATURE = 0.5;              // ấm và giàu biểu đạt
-const MAX_LEN = 800;                   // chặn spam input
-const MIN_INTERVAL_MS = 5500;          // độ trễ giữa 2 lần gửi ~5.5s
+const TEMPERATURE = 0.5;
+const MAX_LEN = 800;
+const MIN_INTERVAL_MS = 5500;
 
-/* ====== Trạng thái ====== */
+/* ===== Trạng thái ===== */
 const msgsEl = document.getElementById('msgs');
 const inp = document.getElementById('inp');
 const sendBtn = document.getElementById('send');
@@ -164,7 +168,7 @@ const hint = document.getElementById('hint');
 let history = [];
 let lastSentAt = 0;
 
-/* ====== Tiện ích ====== */
+/* ===== Tiện ích ===== */
 function addMsg(role, text, typing=false){
   const el = document.createElement('div');
   el.className = 'msg ' + (role==='user'?'me':'ai') + (typing?' typing':'');
@@ -178,84 +182,72 @@ function throttleOK(){
   const now = Date.now();
   if (now - lastSentAt < MIN_INTERVAL_MS) {
     const remain = Math.ceil((MIN_INTERVAL_MS - (now - lastSentAt))/1000);
-    setHint(`Chờ ${remain}s nữa để gửi câu tiếp theo (giữ chánh niệm, tiết kiệm chi phí)`);
+    setHint(`Chờ ${remain}s nữa để gửi câu tiếp theo (giữ chánh niệm, tiết kiệm chi phí).`);
     return false;
   }
   return true;
 }
 
-/* ====== Gửi câu hỏi ====== */
+/* ===== Gửi ===== */
 async function ask(q){
-  if (!q.trim()) return;
-  if (!throttleOK()) return;
-  if (q.length > MAX_LEN) { setHint(`Câu hỏi quá dài (${q.length}/${MAX_LEN}). Vui lòng rút gọn.`); return; }
+  if(!q.trim()) return;
+  if(!throttleOK()) return;
+  if(q.length>MAX_LEN){ setHint(`Câu hỏi quá dài (${q.length}/${MAX_LEN}).`); return; }
 
   lastSentAt = Date.now();
-  const u = addMsg('user', q);
-  const aiTyping = addMsg('assistant', '… đang suy niệm và trả lời …', true);
-  inp.value = ''; setHint('Đang hỏi…'); sendBtn.disabled = true;
+  addMsg('user', q);
+  const aiTyping = addMsg('assistant','…',true);
+  inp.value=''; setHint('Đang hỏi…'); sendBtn.disabled=true;
 
-  // Ghép hệ thống + few-shot ấm áp
-  const system = {
-    role: 'system',
-    content:
-      'Bạn là Pháp Bảo Phúc Lạc — trợ lý Phật học từ bi, khiêm cung, ngắn gọn mà ấm áp; ' +
-      'gợi mở thực hành chánh niệm. Khi thích hợp, trình bày gạch đầu dòng dễ đọc.'
-  };
+  const system = {role:'system',content:
+    'Bạn là Pháp Bảo Phúc Lạc — trợ lý Phật học từ bi, khiêm cung, súc tích; '+
+    'giọng ấm, gợi mở thực hành chánh niệm. Khi phù hợp, trình bày gạch đầu dòng.'};
   const fewshots = [
     {role:'user',content:'Đạo Phật là gì vậy ạ? Con thấy nhiều người nói mà vẫn chưa hiểu rõ.'},
-    {role:'assistant',content:'Dạ, cảm ơn câu hỏi rất đẹp của bạn. Đạo Phật là con đường đưa tới an lạc và giác ngộ, do Đức Phật chỉ dạy. Ngài khuyên mình tự quan sát thân tâm, nhận diện khổ, nguyên nhân của khổ, và thực hành từ bi – trí tuệ để chuyển hóa. Nếu bạn muốn, mình có thể đi từng bước: Tứ Diệu Đế và Bát Chánh Đạo.'},
-    {role:'user',content:'Làm sao giữ chánh niệm giữa công việc bận rộn?'},
-    {role:'assistant',content:'Bạn có thể bắt đầu rất nhẹ nhàng: (1) Một hơi thở sâu khi đổi việc; (2) Đặt trọn vẹn sự chú ý vào việc đang làm; (3) Mỗi giờ nghỉ 1 phút lặng; (4) Kết thúc ngày bằng biết ơn. Nhỏ mà bền thì chánh niệm nở hoa.'}
+    {role:'assistant',content:'Dạ, cảm ơn câu hỏi rất đẹp của bạn. Đạo Phật là con đường đưa tới an lạc và giác ngộ, do Đức Phật chỉ dạy. Ngài khuyên mình quan sát thân tâm, nhận diện khổ và nguyên nhân, rồi thực hành từ bi – trí tuệ. Nếu bạn muốn, ta có thể đi lần lượt Tứ Diệu Đế và Bát Chánh Đạo.'}
   ];
-  const payload = {
-    model: "gpt-4o-mini",
-    temperature: TEMPERATURE,
-    messages: [system, ...fewshots, ...history, {role:'user', content: q}]
-  };
+
+  const messages=[system, ...fewshots, ...history, {role:'user',content:q}];
 
   try{
-    const r = await fetch(SERVER_URL, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ messages: payload.messages })
-    });
-    if(!r.ok){ throw new Error(await r.text()); }
+    const r = await fetch(SERVER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages})});
+    if(!r.ok) throw new Error(await r.text());
     const data = await r.json();
-    const reply = data.reply || 'Xin lỗi, hệ thống tạm bận.';
-    aiTyping.classList.remove('typing');
-    aiTyping.textContent = reply;
+    const reply = (data.reply||'').trim() || 'Xin lỗi, hệ thống tạm bận.';
+    aiTyping.classList.remove('typing'); aiTyping.textContent = reply;
     history.push({role:'user',content:q},{role:'assistant',content:reply});
-    setHint('Hoàn tất. Bạn có thể tiếp tục câu hỏi khác.');
+    setHint('Hoàn tất.');
   }catch(e){
-    aiTyping.classList.remove('typing');
-    aiTyping.textContent = 'Xin lỗi, hệ thống đang bận hoặc API chưa sẵn sàng.';
-    setHint('Có lỗi kết nối. Thử lại sau ít phút.');
-  }finally{
-    sendBtn.disabled = false;
-  }
+    aiTyping.classList.remove('typing'); aiTyping.textContent = 'Xin lỗi, hệ thống đang bận hoặc API chưa sẵn sàng.';
+    setHint('Có lỗi kết nối.');
+  }finally{ sendBtn.disabled=false; }
 }
 
-/* ====== Sự kiện ====== */
+/* ===== Sự kiện ===== */
 sendBtn.onclick = ()=> ask(inp.value);
-inp.addEventListener('keydown', (e)=>{
-  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); ask(inp.value); }
-});
-document.getElementById('quickMenu').addEventListener('click', (e)=>{
-  if(e.target.matches('.chip')){ inp.value = e.target.dataset.text; inp.focus(); }
+inp.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); ask(inp.value);} });
+
+document.getElementById('quickMenu').addEventListener('click',e=>{
+  if(e.target.closest('.icon-btn')){
+    const btn = e.target.closest('.icon-btn');
+    inp.value = btn.dataset.text || '';
+    inp.focus();
+  }
 });
 
-/* ====== Sao chép / Tải TXT ====== */
+/* Sao chép / Tải txt */
 copyBtn.onclick = ()=>{
   const lastAI = [...document.querySelectorAll('.ai')].pop();
   if(!lastAI){ setHint('Chưa có câu trả lời để sao chép.'); return; }
   navigator.clipboard.writeText(lastAI.textContent);
-  setHint('Đã sao chép câu trả lời.');
+  setHint('Đã sao chép.');
 };
 saveBtn.onclick = ()=>{
-  const all = [...document.querySelectorAll('.msg')].map(el=> (el.classList.contains('me')?'Bạn: ':'PBPL: ') + el.textContent).join('\n\n');
-  const blob = new Blob([all], {type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'pbpl_chat.txt'; a.click(); URL.revokeObjectURL(a.href);
+  const all = [...document.querySelectorAll('.msg')]
+    .map(el=> (el.classList.contains('me')?'Bạn: ':'PBPL: ')+el.textContent).join('\n\n');
+  const blob = new Blob([all],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pbpl_chat.txt'; a.click();
+  URL.revokeObjectURL(a.href);
 };
 </script>
 </body>
