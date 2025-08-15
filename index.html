@@ -390,5 +390,141 @@ newChatBtn.onclick = ()=>{
   focusInput();
 })();
 </script>
+  <!-- PBPL New Chat v2 (robust + styled) -->
+<script>
+(function () {
+  /* --------- Tìm các phần chính (đa dạng selector) --------- */
+  const panel =
+    document.querySelector(".panel, .chat, .chat-body, main, .container") ||
+    document.querySelector("[role='main']") ||
+    document.body;
+
+  const msgWrap =
+    document.querySelector(
+      "[data-messages], .msgs, #messages, .conversation, .thread, .dialog, [role='log']"
+    ) || null;
+
+  const textarea =
+    document.querySelector("textarea, .chat-input, [data-input]") || null;
+
+  /* --------- CSS cho nút (màu xám, icon mảnh) --------- */
+  if (!document.getElementById("pbpl-newchat-style")) {
+    const style = document.createElement("style");
+    style.id = "pbpl-newchat-style";
+    style.textContent = `
+      .panel{ position: relative; }
+      .pbpl-newchat{
+        position:absolute; top:12px; left:12px; z-index:60;
+        width:34px; height:34px; border:1px solid #e5e7eb;
+        border-radius:12px; background:#fff; color:#6b7280; /* gray-500 */
+        display:flex; align-items:center; justify-content:center;
+        cursor:pointer; transition:background .18s ease, color .18s ease, box-shadow .18s ease;
+        box-shadow:0 1px 2px rgba(0,0,0,.04);
+      }
+      .pbpl-newchat:hover{ background:#f9fafb; color:#111827; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+      .pbpl-newchat:active{ transform:translateY(0.5px); }
+      .pbpl-newchat svg{ width:20px; height:20px; stroke-width:1.4; }
+      @media (max-width: 640px){
+        .pbpl-newchat{ top:8px; left:8px; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  /* --------- Tạo / lấy nút --------- */
+  let btn = document.getElementById("newChatBtn") || document.querySelector("[data-newchat]");
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.id = "newChatBtn";
+    btn.className = "pbpl-newchat";
+    btn.type = "button";
+    btn.title = "New Chat (Ctrl/Cmd + Shift + K)";
+    btn.setAttribute("aria-label", "New Chat");
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>`;
+    (panel || document.body).appendChild(btn);
+  } else {
+    btn.classList.add("pbpl-newchat");
+    btn.title = "New Chat (Ctrl/Cmd + Shift + K)";
+  }
+
+  /* --------- Tiện ích --------- */
+  function focusInput() {
+    if (!textarea) return;
+    textarea.focus();
+    // đưa caret về cuối
+    const v = textarea.value;
+    textarea.value = "";
+    textarea.value = v;
+  }
+
+  function hasMessages() {
+    if (!msgWrap) return false;
+    // cố gắng nhận diện phần tử tin nhắn phổ biến
+    const node = msgWrap.querySelector(
+      ".message, .msg, .bubble, .assistant, .user, .bot, .human, li, article, section, p"
+    );
+    return !!node;
+  }
+
+  function clearSoft() {
+    try { window.abortController?.abort(); } catch(e){}
+    if (msgWrap) msgWrap.innerHTML = "";
+    if (textarea) textarea.value = "";
+    focusInput();
+  }
+
+  // Fallback: reload như ChatGPT (chắc chắn sạch)
+  function clearByReload() {
+    try { sessionStorage.setItem("pbpl_new_after_reload", "1"); } catch(e){}
+    location.reload();
+  }
+
+  // Sau reload, tự focus
+  if (sessionStorage.getItem("pbpl_new_after_reload") === "1") {
+    sessionStorage.removeItem("pbpl_new_after_reload");
+    window.addEventListener("load", focusInput, { once:true });
+  }
+
+  /* --------- Hành vi nút --------- */
+  btn.addEventListener("click", () => {
+    const typing = !!(textarea && textarea.value.trim());
+    const existed = hasMessages();
+    if (typing || existed) {
+      if (!confirm("Xoá hội thoại hiện tại và bắt đầu mới?")) return;
+    }
+    if (msgWrap) {
+      clearSoft();
+    } else {
+      clearByReload();
+    }
+  });
+
+  // Phím tắt: Ctrl/Cmd + Shift + K
+  document.addEventListener("keydown", (e) => {
+    const key = String(e.key || "").toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && key === "k") {
+      e.preventDefault();
+      btn.click();
+    }
+  });
+
+  // Đảm bảo có tooltip hợp ngữ cảnh
+  function setTip(){
+    btn.title = (hasMessages() ? "Xoá & bắt đầu mới" : "New Chat") + " (Ctrl/Cmd + Shift + K)";
+  }
+  setTip();
+  const obs = msgWrap
+    ? new MutationObserver(setTip)
+    : null;
+  if (obs && msgWrap) obs.observe(msgWrap, { childList:true, subtree:true });
+
+  // Cho phép đặt custom vị trí dễ dàng:
+  // -> muốn góc phải dưới? đổi ở CSS: .pbpl-newchat { position:fixed; bottom:16px; right:16px; top:auto; left:auto; }
+})();
+</script>
 </body>
 </html>
