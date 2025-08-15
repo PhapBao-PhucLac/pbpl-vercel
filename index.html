@@ -208,5 +208,50 @@ newChatBtn.onclick = ()=>{
   inp.focus();
 };
 </script>
+  <script>
+(function(){
+  const btn = document.getElementById('newChatBtn');
+  if(!btn) return;
+
+  // các phần tử UI
+  const list = document.querySelector('.msgs')       // khung tin nhắn
+             || document.getElementById('messages'); // fallback nếu bạn dùng id khác
+  const ta   = document.querySelector('textarea');   // ô nhập
+
+  // Hàm reset hội thoại
+  function resetChat(){
+    // 1) dừng yêu cầu đang chạy (nếu bạn có streaming)
+    try { window.abortController?.abort(); } catch(e){}
+
+    // 2) xoá nội dung khung tin nhắn
+    if (list) list.innerHTML = '';
+
+    // 3) xoá lịch sử lưu local (nếu bạn có dùng)
+    try {
+      localStorage.removeItem('pbpl_history');
+      sessionStorage.removeItem('pbpl_history');
+    } catch(e){}
+
+    // 4) xoá mảng lịch sử trong bộ nhớ (tuỳ bạn có đặt hay không)
+    if (window.chatHistory) window.chatHistory = [];
+
+    // 5) đưa con trỏ về ô nhập
+    if (ta) { ta.value = ''; ta.focus(); }
+
+    // (tuỳ chọn) hiện 1 dòng thông báo nhẹ
+    if (list && list.classList.contains('msgs')) {
+      const note = document.createElement('div');
+      note.className = 'msg ai typing';
+      note.textContent = 'Đã bắt đầu cuộc trò chuyện mới.';
+      list.appendChild(note);
+      list.scrollTop = list.scrollHeight;
+      setTimeout(()=> note.remove(), 1400); // tự ẩn sau 1.4s
+    }
+  }
+
+  // Gắn sự kiện click cho nút
+  btn.addEventListener('click', resetChat);
+})();
+</script>
 </body>
 </html>
