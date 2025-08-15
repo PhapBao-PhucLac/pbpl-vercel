@@ -1,5 +1,51 @@
 <!DOCTYPE html>
 <html lang="vi">
+    <!-- PBPL inline CSS (khôi phục giao diện) -->
+<style>
+:root{
+  --bg:#fff; --ink:#111; --muted:#6b7280; --line:#e5e7eb; --bubble:#f3f4f6;
+  --radius:14px; --maxw:980px;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font: 16px/1.6 ui-sans-serif,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+.wrap{max-width:var(--maxw);margin:24px auto;padding:0 16px}
+
+/* Header */
+.hero{display:flex;gap:12px;align-items:center;padding:12px;border-bottom:1px solid var(--line)}
+.hero .logo{width:56px;height:56px;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.hero h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.2px}
+.hero p{margin:0;color:var(--muted);font-size:14px}
+
+/* Chào */
+.greet{margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:12px}
+
+/* thanh icon */
+.toolbar{display:flex;gap:10px;align-items:center;margin:10px 0}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#6b7280;cursor:pointer;transition:.15s}
+.icon-btn:hover{box-shadow:0 1px 4px rgba(0,0,0,.08);color:#111}
+.icon-btn[title]{position:relative}
+
+/* khung chat */
+.chat{display:flex;flex-direction:column;gap:14px;margin:10px 0 18px}
+.msg{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.msg.user{background:#f8fafc}
+.msg .meta{color:#6b7280;font-size:13px;margin-bottom:6px}
+
+/* nhập */
+.inputbar{position:sticky;bottom:8px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px}
+.inputbar form{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;min-height:48px;max-height:220px;resize:vertical;border:0;padding:12px;border-radius:10px;outline:none;background:#fff}
+.send{width:40px;height:40px;border-radius:12px;border:0;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.send:hover{opacity:.9}
+
+/* new chat floating */
+.pbpl-new{position:fixed;bottom:18px;right:18px;z-index:1000;
+  width:56px;height:56px;border:1px solid #d1d5db;border-radius:12px;
+  background:#fff;color:#6b7280}
+.pbpl-new:hover{background:#f3f4f6;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.pbpl-new:active{transform:translateY(1px)}
+.small-note{color:#6b7280;font-size:13px;text-align:right;margin:6px 2px 0;}
+</style>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
