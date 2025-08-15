@@ -254,97 +254,132 @@ newChatBtn.onclick = ()=>{
 })();
 </script>
   <script>
-<!-- ========== PBPL — New Chat (stable) ========== -->
-<!-- Nút nổi -->
-<button id="pbpl-new"
-        class="pbpl-new"
-        title="New Chat (Ctrl/Cmd + Shift + K)"
-        aria-label="New Chat">
-  <!-- icon plus mảnh, màu xám -->
-  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
-       stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 5v14M5 12h14"/>
+<!-- PBPL :: New Chat (compact patch) -->
+<style>
+  /* Nút New Chat nổi góc dưới phải */
+  .pbpl-new {
+    position: fixed;
+    right: 16px;          /* đổi thành left:16px; nếu muốn ở góc trái */
+    bottom: 16px;
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border-radius: 12px;
+    background: #111;     /* nền đen nhã */
+    color: #9ca3af;       /* icon xám nhạt */
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    cursor: pointer;
+    z-index: 9999;
+    border: 1px solid #222;
+    transition: transform .15s ease, color .15s ease, background .15s ease;
+  }
+  .pbpl-new:hover { color:#374151; transform: translateY(-1px); }
+  .pbpl-new:active { transform: translateY(0); }
+  .pbpl-new svg { width: 22px; height: 22px; }
+
+  /* Mobile: tăng hit-area */
+  @media (max-width: 640px){
+    .pbpl-new{ width: 48px; height: 48px; border-radius: 14px; bottom: 20px; right: 14px; }
+  }
+
+  /* Tooltip hotkey dưới ô nhập (được chèn bằng JS) */
+  .pbpl-hotkey-tip{
+    margin-top: 6px; font-size: .85rem; color: #9ca3af;
+    user-select: none;
+  }
+  .pbpl-hotkey-tip kbd{
+    background:#111; color:#e5e7eb; border-radius:4px;
+    padding: 1px 6px; font-size: .8rem; border:1px solid #222;
+  }
+</style>
+
+<!-- Nút New Chat (SVG gọn, nét mảnh) -->
+<button id="newchatbtn" class="pbpl-new" type="button" title="New Chat (Ctrl/Cmd + Shift + K)" aria-label="New Chat">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <!-- biểu tượng “tab mới” giản dị -->
+    <path d="M4 7a3 3 0 0 1 3-3h5" />
+    <rect x="4" y="7" width="16" height="13" rx="3"/>
+    <path d="M13 4h7M20 4v7"/>
   </svg>
 </button>
 
-<!-- Style nút -->
-<style>
-  .pbpl-new{
-    position:fixed; bottom:16px; right:16px; z-index:1000;
-    width:36px; height:36px; border:1px solid #e5e7eb; border-radius:12px;
-    background:#fff; color:#6b7280; /* gray-500 */
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition:background .18s, color .18s, box-shadow .18s, transform .12s;
-    box-shadow:0 1px 2px rgba(0,0,0,.04);
-  }
-  .pbpl-new:hover{ background:#f9fafb; color:#111827; box-shadow:0 2px 8px rgba(0,0,0,.06); }
-  .pbpl-new:active{ transform:translateY(.5px); }
-</style>
-
-<!-- Logic -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const btn = document.getElementById('pbpl-new');
+(function () {
+  /* ====== Tìm các phần tử quan trọng ====== */
+  const btn = document.getElementById('newchatbtn');
 
-  // KHUNG HỘI THOẠI (cố gắng bắt nhiều kiểu)
-  const messages =
-    document.querySelector('#messages, [data-messages], .messages, .conversation, .thread, [role="log"]') || null;
+  // Vùng tin nhắn & ô nhập (cố gắng bắt chắc kể cả class khác nhau)
+  const list = document.getElementById('messages')
+           || document.querySelector('.messages')
+           || document.querySelector('[data-messages]')
+           || document.querySelector('[role="log"]')
+           || document.body; // fallback an toàn (sẽ chỉ xóa nội dung chat nếu list là container đúng)
+  const ta   = document.querySelector('#textarea, textarea, [data-input="message"]');
 
-  // Ô NHẬP
-  const input = document.querySelector('textarea, .chat-input, [data-input]') || null;
+  // Chèn tooltip phím tắt dưới ô nhập (nếu chưa có)
+  (function addTip(){
+    if (!ta) return;
+    const wrap = ta.parentElement;
+    if (!wrap || wrap.querySelector('.pbpl-hotkey-tip')) return;
+    const tip = document.createElement('small');
+    tip.className = 'pbpl-hotkey-tip';
+    tip.innerHTML = 'Mẹo: Nhấn <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> để bắt đầu hội thoại mới';
+    wrap.appendChild(tip);
+  })();
 
-  function focusInput(){
-    if (!input) return;
-    input.focus();
-    // caret về cuối
-    const v = input.value; input.value=''; input.value=v;
-  }
+  /* ====== Hàm reset hội thoại ====== */
+  function resetChat(options = {}) {
+    const { askConfirm = true } = options;
 
-  function clearChat(){
+    // 0) Khoá double click ngắn
+    if (resetChat._locking) return;
+    resetChat._locking = true; setTimeout(()=> resetChat._locking = false, 400);
+
+    // 1) Nếu đang stream dở, cố gắng dừng
     try { window.abortController?.abort(); } catch(e){}
-    // xoá DOM hội thoại nếu có
-    if (messages) messages.innerHTML = '';
-    // dọn input
-    if (input){ input.value=''; focusInput(); }
-    // dọn localStorage (nếu bạn có lưu lịch sử tên này)
-    try { localStorage.removeItem('pbpl_history'); } catch(e){}
+
+    // 2) Hỏi xác nhận (có thể tắt bằng askConfirm:false)
+    const hasDom = list && list.children && list.children.length > 0;
+    const typing = !!document.querySelector('.typing, [data-typing="true"]');
+    if (askConfirm && (hasDom || typing)) {
+      if (!confirm('Xoá cuộc hội thoại hiện tại và bắt đầu cuộc mới?')) return;
+    }
+
+    // 3) Xoá vùng hiển thị tin nhắn
+    try { list.innerHTML = ''; } catch(e){}
+
+    // 4) Xoá lịch sử lưu local (tuỳ app bạn có dùng hay không)
+    try {
+      localStorage.removeItem('pbpl_history');
+      sessionStorage.removeItem('pbpl_history');
+    } catch(e){}
+
+    // 5) Xoá mảng chat trong bộ nhớ (nếu app của bạn có đặt)
+    try { if (window.chathistory) window.chathistory = []; } catch(e){}
+
+    // 6) Đưa con trỏ về ô nhập
+    try { if (ta) { ta.value = ''; ta.focus(); } } catch(e){}
   }
 
-  // Fallback: reload sạch nếu không tìm thấy vùng hội thoại
-  function hardReset(){
-    try { sessionStorage.setItem('pbpl_new_after_reload', '1'); } catch(e){}
-    location.reload();
-  }
+  /* ====== Gán sự kiện ====== */
+  if (btn) btn.addEventListener('click', () => resetChat({ askConfirm: true }));
 
-  // Sau reload, tự focus ô nhập
-  if (sessionStorage.getItem('pbpl_new_after_reload') === '1'){
-    sessionStorage.removeItem('pbpl_new_after_reload');
-    setTimeout(focusInput, 0);
-  }
-
-  btn.addEventListener('click', () => {
-    // Có nội dung? hỏi xác nhận
-    const hasDom = !!(messages && messages.children && messages.children.length);
-    const typing = !!(input && input.value.trim().length);
-    if ((hasDom || typing) && !confirm('Xoá hội thoại hiện tại và bắt đầu mới?')) return;
-
-    if (messages || input){
-      clearChat();
-    } else {
-      hardReset();
+  // Hotkey Ctrl/Cmd + Shift + K
+  window.addEventListener('keydown', (ev) => {
+    const isMac = navigator.platform.toUpperCase().includes('MAC');
+    const cmdOK = isMac ? ev.metaKey : ev.ctrlKey;
+    if (cmdOK && ev.shiftKey && (ev.key === 'K' || ev.key === 'k')) {
+      ev.preventDefault();
+      resetChat({ askConfirm: true });
     }
   });
 
-  // Phím tắt Ctrl/Cmd + Shift + K
-  document.addEventListener('keydown', (e) => {
-    const k = String(e.key || '').toLowerCase();
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && k === 'k'){
-      e.preventDefault();
-      btn.click();
-    }
-  });
-});
+  // Tự focus ô nhập khi trang sẵn sàng lần đầu
+  if (ta) { setTimeout(()=> ta.focus(), 50); }
+
+  // === Tuỳ chọn: nếu KHÔNG muốn hỏi confirm khi xoá, đổi event ở trên thành:
+  // if (btn) btn.addEventListener('click', () => resetChat({ askConfirm: false }));
+})();
 </script>
-<!-- ========== /PBPL — New Chat ========== -->
+<!-- /PBPL :: New Chat -->
 </body>
 </html>
