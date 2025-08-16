@@ -2,56 +2,92 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Pháp Bảo Phúc Lạc • Chatbot</title>
+  <meta name="description" content="Nam mô Bổn Sư Thích Ca Mâu Ni Phật — Hiểu sâu Chánh Pháp – Hướng đạo tu tập" />
+  <link rel="icon" href="logo.png" />
 
-  <!-- (tuỳ chọn) Google Font nhẹ nhàng -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Slab:wght@500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/styles.css" />
-  <link rel="icon" href="/logo.png" />
-  <meta name="description" content="Hiểu sâu Chánh Pháp – Hướng đạo tu tập" />
-  <meta property="og:title" content="Pháp Bảo Phúc Lạc • Chatbot" />
-  <meta property="og:description" content="Hiểu sâu Chánh Pháp – Hướng đạo tu tập" />
-  <meta property="og:image" content="/logo.png" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Markdown + sanitize -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 </head>
 <body>
-  <header class="header">
-    <img src="/logo.png" class="logo" alt="Logo Liên Hoa" />
-    <div>
-      <h1>Pháp Bảo Phúc Lạc • Chatbot</h1>
-      <p class="sub">NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT — “Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</p>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <!-- Gợi ý nhanh -->
-    <div class="quick">
-      <button class="pill" data-q="Giáo lý căn bản là gì? Nói ngắn gọn giúp mình.">Giáo lý</button>
-      <button class="pill" data-q="Gợi ý một bài kinh ngắn dễ thực hành hàng ngày.">Kinh văn</button>
-      <button class="pill" data-q="Gợi ý 3 sách nói / MP3 Phật học nhập môn.">Sách nói / MP3</button>
-      <button class="pill" data-q="Mình có thắc mắc này… (giải thích chậm rãi, dễ hiểu).">Hỏi đáp</button>
-      <button class="pill" data-q="Mình mới bắt đầu—xin lộ trình tu học 4–6 tuần, từng bước rõ ràng.">Lộ trình</button>
-      <button class="pill" data-q="Cho xin pháp thoại chủ đề chánh niệm, 30–45 phút.">Tìm pháp thoại</button>
-    </div>
-
-    <!-- Khung hội thoại -->
-    <section id="messages" class="chat"></section>
-
-    <!-- Ô nhập -->
-    <form id="chatForm" class="composer">
-      <textarea id="input" rows="2" placeholder="Gõ câu hỏi của bạn… (Shift+Enter xuống dòng)"></textarea>
-      <div class="actions">
-        <button type="button" id="newChatBtn" class="ghost" title="New Chat (Ctrl/Cmd + Shift + K)">New Chat</button>
-        <button type="submit" id="sendBtn" class="primary" title="Gửi">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4z"></path></svg>
-        </button>
+  <div class="wrap">
+    <!-- Header -->
+    <header class="hero">
+      <img src="logo.png" alt="Logo" class="logo" />
+      <div class="title">
+        <h1>Pháp Bảo Phúc Lạc • Chatbot</h1>
+        <p>NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT — <span>“Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</span></p>
       </div>
-    </form>
+    </header>
 
-    <p class="hint">Bấm <strong>New Chat</strong> hoặc phím tắt <kbd>Ctrl/Cmd</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd> để bắt đầu cuộc hội thoại mới.</p>
-  </main>
+    <!-- Quick question bar -->
+    <div class="greet">
+      <input id="qbar" type="text" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?" />
+    </div>
 
-  <script src="/script.js"></script>
+    <!-- Shortcuts -->
+    <nav class="shortcuts">
+      <button class="chip" data-q="Giải thích giáo lý căn bản ‘Tứ Diệu Đế’ thật ngắn gọn.">
+        <span class="i i-list"></span><span>Giáo lý</span>
+      </button>
+      <button class="chip" data-q="Hãy trích 1 đoạn kinh ý nghĩa, có nguồn và giải thích ứng dụng thực tế.">
+        <span class="i i-book"></span><span>Kinh văn</span>
+      </button>
+      <button class="chip" data-q="Gợi ý 5 sách nói/MP3 về Phật pháp phù hợp cho người mới bắt đầu.">
+        <span class="i i-headset"></span><span>Sách nói / MP3</span>
+      </button>
+      <button class="chip" data-q="Tôi có câu hỏi: … Hãy giải thích nhẹ nhàng, ví dụ gần gũi.">
+        <span class="i i-chat"></span><span>Hỏi đáp</span>
+      </button>
+      <button class="chip" data-q="Tạo lộ trình học 4 tuần: mỗi tuần 3 chủ đề + bài tập chánh niệm.">
+        <span class="i i-road"></span><span>Lộ trình</span>
+      </button>
+      <button class="chip" data-q="Tìm 3 pháp thoại hay (tên bài • giảng sư • ý chính • đường dẫn).">
+        <span class="i i-search"></span><span>Tìm pháp thoại</span>
+      </button>
+    </nav>
+
+    <!-- Chat area -->
+    <main class="chat">
+      <ul id="messages" class="msgs" aria-live="polite"></ul>
+
+      <div class="composer">
+        <textarea id="textarea" rows="2" placeholder="Gõ câu hỏi của bạn… (Shift+Enter xuống dòng)"></textarea>
+
+        <div class="actions">
+          <button id="newchatbtn" class="btn subtle" title="Bắt đầu cuộc hội thoại mới (Ctrl/Cmd + Shift + K)">
+            <span class="i i-plus"></span> New Chat
+          </button>
+
+          <div class="right">
+            <button id="copybtn" class="iconbtn" title="Sao chép câu trả lời">
+              <span class="i i-copy"></span>
+            </button>
+            <button id="dlbtn" class="iconbtn" title="Tải .txt cuộc hội thoại">
+              <span class="i i-download"></span>
+            </button>
+            <button id="sendbtn" class="btn primary" title="Gửi">
+              <span class="i i-send"></span>
+            </button>
+          </div>
+        </div>
+
+        <p class="hint">Bấm <strong>New Chat</strong> hoặc phím tắt <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> để bắt đầu cuộc hội thoại mới.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+  <script src="chat.js"></script>
 </body>
 </html>
