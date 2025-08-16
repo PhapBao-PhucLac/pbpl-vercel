@@ -1,42 +1,58 @@
-// /api/chat.js
-export default async function handler(req, res) {
-  // CORS nhẹ (nếu bạn nhúng domain khác)
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+// Chat logic — call your Vercel serverless function /api/chat
+const { list, ta } = window.__pbpl;
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { messages = [], temperature = 0.5, max_tokens = 600, model = 'gpt-4o-mini' } = req.body || {};
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
-
-  try {
-    // Gọi OpenAI Chat Completions chuẩn & đơn giản, không stream
-    const reply = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type':'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model,
-        temperature,
-        max_tokens,
-        messages
-      })
-    }).then(r => r.json());
-
-    if (reply.error) {
-      return res.status(500).json({ error: reply.error.message || 'OpenAI error' });
-    }
-
-    const text = reply.choices?.[0]?.message?.content?.trim() || '';
-    return res.status(200).json({ reply: text });
-  } catch (err) {
-    return res.status(500).json({ error: err.message || 'Server error' });
-  }
+// Render helper: Markdown -> HTML (safe)
+function renderMarkdown(md){
+  const html = marked.parse(md || "");
+  return DOMPurify.sanitize(html);
 }
+
+function addMsg(role, html){
+  const li = document.createElement("li");
+  li.className = "msg" + (role === "me" ? " me" : "");
+  li.innerHTML = `<div class="bubble" role="group">${html}</div>`;
+  list.appendChild(li);
+  li.scrollIntoView({behavior:"smooth", block:"end"});
+  return li.querySelector(".bubble");
+}
+
+async function callAPI(prompt){
+  // Bạn đã có endpoint /api/chat trên Vercel dùng OPENAI_API_KEY
+  // Bản này gửi cấu hình theo yêu cầu: temperature=0.5, giới hạn ~320 từ (≈ 480 tokens)
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      prompt,
+      temperature: 0.5,
+      max_tokens: 480,
+      system: [
+        "Bạn là Pháp Bảo Chatbot: giọng từ tốn, ấm, rõ ràng; tránh giáo điều.",
+        "Ưu tiên ví dụ gần gũi, kết thúc bằng gợi ý thực hành ngắn.",
+        "Nếu nội dung chứa Markdown (#, ##, **, - ...), hãy dùng như định dạng trình bày."
+      ].join(" ")
+    })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json(); // { text: "..." } — giữ đúng với /api/chat của bạn
+}
+
+window.sendMessage = async function(){
+  const content = (ta.value || "").trim();
+  if(!content) { ta.focus(); return; }
+
+  // User bubble
+  addMsg("me", renderMarkdown(content));
+  ta.value = "";
+  ta.focus();
+
+  // Assistant placeholder
+  const holder = addMsg("assistant", "<em>Đang xử lý câu hỏi của bạn...</em>");
+
+  try{
+    const data = await callAPI(content);
+    holder.innerHTML = renderMarkdown(data.text || "(không có nội dung)");
+  }catch(err){
+    holder.innerHTML = `<span style="color:#b91c1c">Xin lỗi, có lỗi khi gọi API.</span><br><small>${DOMPurify.sanitize(String(err.message || err))}</small>`;
+  }
+};
