@@ -1,73 +1,81 @@
-/* ====== PBPL – frontend logic ====== */
-const el = (sel) => document.querySelector(sel);
-const list = el('#messages');
-const ta   = el('#input');
-const form = el('#chatForm');
-const send = el('#sendBtn');
-const newBtn = el('#newChatBtn');
+// ===== UI helpers =====
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
-// gợi ý nút nhanh
-document.querySelectorAll('.pill').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    ta.value = btn.getAttribute('data-q') || btn.textContent.trim();
+const list = $("#messages");
+const ta   = $("#textarea");
+const qbar = $("#qbar");
+
+// Populate from quick chips
+$$(".chip").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const v = btn.getAttribute("data-q") || "";
+    ta.value = v;
     ta.focus();
   });
 });
 
-// thêm tin nhắn vào khung
-function push(role, text){
-  const div = document.createElement('div');
-  div.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
-  div.innerHTML = `<pre>${escapeHtml(text)}</pre>`;
-  list.appendChild(div);
-  list.scrollTop = list.scrollHeight;
-}
-function escapeHtml(s){
-  return (s??'').replace(/[&<>]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
-}
-
-// NEW CHAT
-function resetChat(focus=true){
-  list.innerHTML = '';
-  ta.value = '';
-  if (focus) ta.focus();
-}
-newBtn.addEventListener('click', resetChat);
-window.addEventListener('keydown', (e)=>{
-  const k = (e.key||'').toLowerCase();
-  if ((e.ctrlKey||e.metaKey) && e.shiftKey && k === 'k'){ e.preventDefault(); resetChat(); }
-});
-
-// gửi
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const question = ta.value.trim();
-  if(!question) return;
-
-  // UI
-  send.disabled = true; ta.disabled = true;
-  push('user', question);
-  push('assistant', 'Đang xử lý câu hỏi của bạn...');
-
-  try{
-    const res = await fetch('/api/chat', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({
-        messages: [
-          { role:'system', content: 'Bạn là Pháp Bảo Chatbot, trả lời tiếng Việt, ấm áp, tôn trọng, rõ ràng, có ví dụ ngắn khi phù hợp.' },
-          { role:'user', content: question }
-        ],
-        temperature: 0.5,
-        max_tokens: 600
-      })
-    });
-    const data = await res.json();
-    // thay nội dung "đang xử lý…" bằng câu trả lời thật
-    list.lastElementChild.innerHTML = `<pre>${escapeHtml(data.reply || data.error || 'Xin lỗi, chưa nhận được phản hồi.')}</pre>`;
-  }catch(err){
-    list.lastElementChild.innerHTML = `<pre>Xin lỗi, có lỗi kết nối. (${err.message})</pre>`;
-  }finally{
-    send.disabled = false; ta.disabled = false; ta.focus();
+// Send on button / Shift+Enter new line
+$("#sendbtn").addEventListener("click", () => window.sendMessage());
+ta.addEventListener("keydown", (e)=>{
+  if (e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    window.sendMessage();
   }
 });
+
+// New chat
+function resetChatUI(){
+  list.innerHTML = "";
+  ta.value = "";
+  ta.focus();
+}
+$("#newchatbtn").addEventListener("click", resetChatUI);
+
+// Keyboard shortcut New Chat
+document.addEventListener("keydown", (e)=>{
+  const mac = navigator.platform.toUpperCase().includes("MAC");
+  const mod = mac ? e.metaKey : e.ctrlKey;
+  if (mod && e.shiftKey && e.key.toLowerCase() === "k"){
+    e.preventDefault();
+    resetChatUI();
+  }
+});
+
+// Copy & Download
+$("#copybtn").addEventListener("click", ()=>{
+  const all = $$(".bubble").map(n => n.innerText).join("\n\n");
+  navigator.clipboard.writeText(all).then(()=> {
+    toast("Đã sao chép ✨");
+  });
+});
+$("#dlbtn").addEventListener("click", ()=>{
+  const all = $$(".bubble").map(n => n.innerText).join("\n\n");
+  const blob = new Blob([all], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "pbpl_chat.txt";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+// Small toast
+function toast(msg){
+  const note = document.createElement("div");
+  note.className = "toast";
+  note.textContent = msg;
+  document.body.appendChild(note);
+  setTimeout(()=>note.remove(), 1400);
+}
+
+// When users press Enter in greet bar
+qbar.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){
+    e.preventDefault();
+    ta.value = qbar.value;
+    ta.focus();
+  }
+});
+
+// expose list/ta for chat.js
+window.__pbpl = { list, ta };
