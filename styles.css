@@ -86,3 +86,12 @@ kbd{
   background:#f5f5f5;border:1px solid #e5e7eb;border-bottom-color:#d1d5db;border-radius:4px;padding:1px 5px;font-size:12px;
 }
 .hidden{display:none!important}
+/* === PBPL mini patch: send icon & input hint === */
+.send-btn { display:flex; align-items:center; justify-content:center;
+  width: 44px; height: 44px; border-radius: 12px; background:#0f172a; /* xám đen */
+  color:#fff; border:0; cursor:pointer; transition:opacity .18s ease; }
+.send-btn:hover { opacity:.92; }
+.send-btn svg { transform:none !important; }           /* luôn đúng chiều sang phải */
+.send-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+.msg-pending { color:#64748b; font-style:italic; }    /* “Đang xử lý…” */
