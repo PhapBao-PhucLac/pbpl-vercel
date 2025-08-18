@@ -1,93 +1,96 @@
+
 <!doctype html>
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <title>Pháp Bảo Phúc Lạc • Chatbot</title>
-  <meta name="description" content="Nam mô Bổn Sư Thích Ca Mâu Ni Phật — Hiểu sâu Chánh Pháp – Hướng đạo tu tập" />
-  <link rel="icon" href="logo.png" />
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Slab:wght@500;600;700&display=swap" rel="stylesheet" />
-
-  <!-- Styles -->
+  <!-- Font & icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- Markdown + sanitize -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 </head>
 <body>
   <div class="wrap">
     <!-- Header -->
     <header class="hero">
-      <img src="logo.png" alt="Logo" class="logo" />
-      <div class="title">
-        <h1>Pháp Bảo Phúc Lạc • Chatbot</h1>
-        <p>NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT — <span>“Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</span></p>
+      <div class="brand">
+        <img src="Logo.png" alt="PBPL" class="logo" />
+        <div class="brand-text">
+          <h1 class="title"><span>PHÁP BẢO PHÚC LẠC</span> • <span>CHATBOT</span></h1>
+          <p class="subtitle">NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT — “Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</p>
+        </div>
+      </div>
+      <div class="search">
+        <input id="greet" class="greet" type="text" placeholder="Xin chào bạn! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?" />
+      </div>
+      <div class="quickbar">
+        <button class="chip" data-topic="giáo lý">
+          <svg viewBox="0 0 24 24" class="i"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Giáo lý
+        </button>
+        <button class="chip" data-topic="kinh văn">
+          <svg viewBox="0 0 24 24" class="i"><path d="M6 4h12l-2 4 2 4H6l2-4-2-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          Kinh văn
+        </button>
+        <button class="chip" data-topic="sách nói / mp3">
+          <svg viewBox="0 0 24 24" class="i"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+          Sách nói / MP3
+        </button>
+        <button class="chip" data-topic="hỏi đáp">
+          <svg viewBox="0 0 24 24" class="i"><path d="M12 18h.01M8 9a4 4 0 1 1 8 0c0 3-4 3-4 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Hỏi đáp
+        </button>
+        <button class="chip" data-topic="lộ trình">
+          <svg viewBox="0 0 24 24" class="i"><path d="M4 20s3-6 8-6 8-6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Lộ trình
+        </button>
+        <button class="chip" data-topic="tìm pháp thoại">
+          <svg viewBox="0 0 24 24" class="i"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Tìm pháp thoại
+        </button>
       </div>
     </header>
 
-    <!-- Quick question bar -->
-    <div class="greet">
-      <input id="qbar" type="text" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật. Bạn đang muốn tìm hiểu điều gì trong Phật pháp?" />
-    </div>
-
-    <!-- Shortcuts -->
-    <nav class="shortcuts">
-      <button class="chip" data-q="Giải thích giáo lý căn bản ‘Tứ Diệu Đế’ thật ngắn gọn.">
-        <span class="i i-list"></span><span>Giáo lý</span>
-      </button>
-      <button class="chip" data-q="Hãy trích 1 đoạn kinh ý nghĩa, có nguồn và giải thích ứng dụng thực tế.">
-        <span class="i i-book"></span><span>Kinh văn</span>
-      </button>
-      <button class="chip" data-q="Gợi ý 5 sách nói/MP3 về Phật pháp phù hợp cho người mới bắt đầu.">
-        <span class="i i-headset"></span><span>Sách nói / MP3</span>
-      </button>
-      <button class="chip" data-q="Tôi có câu hỏi: … Hãy giải thích nhẹ nhàng, ví dụ gần gũi.">
-        <span class="i i-chat"></span><span>Hỏi đáp</span>
-      </button>
-      <button class="chip" data-q="Tạo lộ trình học 4 tuần: mỗi tuần 3 chủ đề + bài tập chánh niệm.">
-        <span class="i i-road"></span><span>Lộ trình</span>
-      </button>
-      <button class="chip" data-q="Tìm 3 pháp thoại hay (tên bài • giảng sư • ý chính • đường dẫn).">
-        <span class="i i-search"></span><span>Tìm pháp thoại</span>
-      </button>
-    </nav>
-
-    <!-- Chat area -->
-    <main class="chat">
+    <!-- Conversation -->
+    <main class="pane">
+      <div class="prompt-tip" id="promptTip" hidden></div>
       <ul id="messages" class="msgs" aria-live="polite"></ul>
+    </main>
 
-      <div class="composer">
-        <textarea id="textarea" rows="2" placeholder="Gõ câu hỏi của bạn… (Shift+Enter xuống dòng)"></textarea>
+    <!-- Composer -->
+    <footer class="composer">
+      <div class="row">
+        <textarea id="textbox" class="ask" rows="1" placeholder="Gõ câu hỏi của bạn… (Shift + Enter xuống dòng)"></textarea>
 
-        <div class="actions">
-          <button id="newchatbtn" class="btn subtle" title="Bắt đầu cuộc hội thoại mới (Ctrl/Cmd + Shift + K)">
-            <span class="i i-plus"></span> New Chat
+        <div class="tools-left">
+          <button id="newchatBtn" class="btn ghost" title="New Chat (Ctrl/Cmd + Shift + K)">
+            <svg viewBox="0 0 24 24" class="i"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>New Chat</span>
           </button>
-
-          <div class="right">
-            <button id="copybtn" class="iconbtn" title="Sao chép câu trả lời">
-              <span class="i i-copy"></span>
-            </button>
-            <button id="dlbtn" class="iconbtn" title="Tải .txt cuộc hội thoại">
-              <span class="i i-download"></span>
-            </button>
-            <button id="sendbtn" class="btn primary" title="Gửi">
-              <span class="i i-send"></span>
-            </button>
-          </div>
         </div>
 
-        <p class="hint">Bấm <strong>New Chat</strong> hoặc phím tắt <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> để bắt đầu cuộc hội thoại mới.</p>
+        <div class="tools-right">
+          <button id="copyBtn" class="icon-btn" title="Sao chép câu trả lời">
+            <svg class="i" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="4" y="4" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+          <button id="dlBtn" class="icon-btn" title="Tải .txt">
+            <svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v3h16v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+          </button>
+          <button id="sendBtn" class="send" title="Gửi (Enter)">
+            <svg viewBox="0 0 24 24" class="i"><path d="M4 12l16-7-5 7 5 7-16-7Z" fill="currentColor"/></svg>
+          </button>
+        </div>
       </div>
-    </main>
+      <div class="hint">Bấm <b>New Chat</b> hoặc phím tắt: <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> để bắt đầu cuộc hội thoại mới.</div>
+
+      <div class="signature">
+        <hr />
+        <div class="sig-text">Thực hiện: <em>An Nguyên - Liên Hoa Tịnh Thất</em></div>
+      </div>
+    </footer>
   </div>
 
-  <!-- Scripts -->
   <script src="script.js"></script>
-  <script src="chat.js"></script>
 </body>
 </html>
