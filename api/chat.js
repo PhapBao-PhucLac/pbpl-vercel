@@ -279,3 +279,81 @@ function bindUI() {
 }
 
 document.addEventListener("DOMContentLoaded", bindUI);
+/* =========================================================
+   PBPL • Rescue Patch B — Tự bắt lỗi server & trả lời dự phòng
+   Dán ĐOẠN NÀY Ở CUỐI FILE chat.js (sau tất cả các code khác)
+   ========================================================= */
+console.log("[PBPL] chat.js loaded & rescue patch active");
+
+(function watchServerErrors() {
+  // Quan sát toàn bộ trang, khi một node mới (phần lỗi) xuất hiện sẽ xử lý ngay.
+  const obs = new MutationObserver((muts) => {
+    for (const m of muts) {
+      for (const node of m.addedNodes) {
+        if (node.nodeType !== 1) continue; // chỉ xét element
+        const el = /** @type {HTMLElement} */ (node);
+        const text = (el.innerText || "").trim();
+        if (!text) continue;
+
+        // Bắt các biến thể phổ biến của lỗi server
+        const isServerError =
+          text.includes("FUNCTION_INVOCATION_FAILED") ||
+          text.includes("A server error has occurred") ||
+          text.includes("Xin lỗi, đã xảy ra lỗi khi xử lý câu hỏi");
+
+        if (isServerError && !el.dataset.pbplHandled) {
+          el.dataset.pbplHandled = "1";
+
+          // Cố gắng lấy câu hỏi gần nhất (dòng ngay phía trước lỗi)
+          let q = "";
+          try {
+            const root = el.parentElement || el;
+            const allTxt = (root.innerText || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+            const errIdx = allTxt.findIndex(s =>
+              s.includes("FUNCTION_INVOCATION_FAILED") ||
+              s.includes("A server error has occurred")
+            );
+            // Thường câu hỏi nằm 1–2 dòng trước lỗi
+            if (errIdx > 0) q = allTxt[errIdx - 2] || allTxt[errIdx - 1] || "";
+          } catch (_) {}
+
+          if (!q && els.input) q = (els.input.value || "").trim();
+
+          // Tìm đoạn phù hợp trong tài liệu Markdown (nếu đã nạp)
+          let reply = "";
+          const sec = (typeof findSectionByQuery === "function") ? findSectionByQuery(q) : null;
+
+          if (sec) {
+            reply =
+`> 💡 *Máy chủ đang bận, mình tạm hiển thị nội dung tóm lược từ tài liệu có sẵn.*  
+
+${sec}
+
+---
+
+*Bạn muốn mình gợi ý thêm bài đọc liên quan không?*`;
+          } else {
+            reply =
+`**Xin lỗi**, máy chủ đang bận hoặc có lỗi tạm thời.
+
+Bạn có thể hỏi lại, hoặc thử những câu gần nghĩa như:
+- "Giải thích Tứ Diệu Đế thật dễ hiểu"
+- "Sáu căn, sáu trần, sáu thức là gì?"
+- "Bát Chánh Đạo ứng dụng hằng ngày"`;
+          }
+
+          // Chen câu trả lời dự phòng vào khung chat (Markdown)
+          try { addMsg("assistant", reply); } catch (_) {
+            // Nếu chưa có addMsg (rất hiếm), tạo tối thiểu:
+            const div = document.createElement("div");
+            div.style.cssText = "margin:10px 0;padding:12px;border:1px solid #eee;background:#fff;border-radius:10px;white-space:pre-wrap;line-height:1.65";
+            div.textContent = reply.replace(/[*_`>#]/g, ""); // bỏ ký hiệu MD nếu không có renderer
+            (document.querySelector("#messages") || document.body).appendChild(div);
+          }
+        }
+      }
+    }
+  });
+
+  obs.observe(document.body, { childList: true, subtree: true });
+})();
