@@ -1,56 +1,66 @@
-// ================================
-// chat.js - phiên bản đầy đủ + Rescue Patch B
-// ================================
+// api/chat.js — Serverless Function (Node.js) cho Vercel
+export default async function handler(req, res) {
+  // Cho phép thử nhanh từ trình duyệt, không cần sửa CORS lúc đầu
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  if (req.method === "OPTIONS") return res.status(200).end();
 
-// Lấy các phần tử giao diện
-const chatForm = document.querySelector("#chat-form");
-const chatInput = document.querySelector("#chat-input");
-const chatBox = document.querySelector("#chat-box");
-
-// Hàm thêm tin nhắn vào khung chat
-function addMessage(sender, text) {
-  const msg = document.createElement("div");
-  msg.classList.add("message", sender);
-  msg.innerHTML = `<p>${text}</p>`;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// Hàm gửi câu hỏi đến server (API OpenAI)
-async function sendMessage(userText) {
   try {
-    // Hiển thị tin nhắn của người dùng
-    addMessage("user", userText);
-
-    // Gửi request đến server backend (/api/chat)
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message: userText })
-    });
-
-    if (!response.ok) {
-      throw new Error("Lỗi server: " + response.status);
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method Not Allowed" });
     }
 
-    const data = await response.json();
-    const botReply = data.reply || "Xin lỗi, tôi chưa có câu trả lời.";
-    addMessage("bot", botReply);
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    if (!OPENAI_API_KEY) {
+      return res.status(500).json({ error: "Missing OPENAI_API_KEY" });
+    }
 
+    // Lấy dữ liệu client gửi lên (messages hoặc prompt)
+    const body = req.body || {};
+    const messages =
+      body.messages && Array.isArray(body.messages)
+        ? body.messages
+        : [{ role: "user", content: String(body.prompt || "") }];
+
+    // Gọi OpenAI Chat Completions (ổn định, dễ dùng)
+    const payload = {
+      model: "gpt-4o-mini",
+      temperature: 0.3,
+      messages,
+    };
+
+    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await r.json();
+
+    if (!r.ok) {
+      // Trả nguyên lỗi để dễ debug ở client
+      return res.status(r.status).json({
+        error: "OpenAI API error",
+        status: r.status,
+        data,
+      });
+    }
+
+    const text =
+      data?.choices?.[0]?.message?.content?.trim?.() ??
+      "(Không nhận được nội dung trả lời)";
+
+    // Trả về định dạng đơn giản cho frontend
+    return res.status(200).json({ ok: true, text });
   } catch (err) {
-    console.error("❌ Lỗi khi gọi API:", err);
-    addMessage("bot", "⚠️ A server error has occurred. (Rescue Patch B)");
+    console.error("API /api/chat error:", err);
+    return res.status(500).json({
+      error: "Server error",
+      detail: String(err?.message || err),
+    });
   }
 }
-
-// Gắn sự kiện cho form
-chatForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const text = chatInput.value.trim();
-  if (text !== "") {
-    sendMessage(text);
-    chatInput.value = "";
-  }
-});
