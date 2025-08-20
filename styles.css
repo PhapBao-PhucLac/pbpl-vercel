@@ -95,3 +95,12 @@ kbd{
 .send-btn:disabled { opacity:.5; cursor:not-allowed; }
 
 .msg-pending { color:#64748b; font-style:italic; }    /* “Đang xử lý…” */
+/* ===== Header layout (logo + title) ===== */
+.pbpl-header{
+  display:flex; align-items:center; gap:14px;
+  max-width:1000px; margin:20px auto 12px; padding:0 12px;
+}
+.pbpl-logo{ width:72px; height:72px; border-radius:50%; display:block; }
+.pbpl-titlewrap{ line-height:1.25; }
+.pbpl-title{ font-weight:800; font-size:28px; margin:0; }
+.pbpl-sub{ margin:2px 0 0; font-size:14px; color:#5b6472; }
