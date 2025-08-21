@@ -10,7 +10,47 @@
 @media (max-width:640px){
   .hero .brand-logo { width: 60px; height: 60px; }
 }
+/* ===== Logo: ép nhỏ lại (64px) — áp dụng cho <img class="brand-logo"> và <picture> */
+.hero .brand-logo,
+.hero picture img,
+.hero img.brand-logo {
+  width: 64px !important;
+  height: 64px !important;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  margin-bottom: 10px;
+}
 
+/* ===== Tiêu đề: dùng Merriweather có chân, to rõ */
+.hero h1{
+  font-family: 'Merriweather', Georgia, 'Times New Roman', serif !important;
+  font-weight: 900;
+  font-size: 36px;           /* tăng/giảm tùy ý */
+  letter-spacing: .2px;
+  margin: .2rem 0 0;
+}
+
+/* ===== Hai dòng khẩu hiệu dưới tiêu đề: cho to hơn */
+.hero .mantra{
+  font-size: 20px;           /* trước nhỏ -> nay to hơn */
+  font-weight: 700;
+  opacity: .95;
+}
+.hero .sub{
+  font-size: 16px;           /* dòng “Nam mô… – Hiểu sâu…” */
+  color: #475569;            /* đậm hơn #6b7280 một chút */
+}
+
+/* ===== Thu nhỏ trên màn hình nhỏ */
+@media (max-width: 640px){
+  .hero .brand-logo,
+  .hero picture img,
+  .hero img.brand-logo { width: 48px !important; height: 48px !important; }
+  .hero h1    { font-size: 26px; }
+  .hero .mantra{ font-size: 16px; }
+  .hero .sub   { font-size: 14px; }
+}
 /* FONT CÓ CHÂN CHO TIÊU ĐỀ */
 .hero h1{
   font-family: 'Noto Serif', 'Times New Roman', Georgia, serif !important;
