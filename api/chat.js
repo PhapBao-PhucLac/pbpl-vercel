@@ -1,139 +1,92 @@
-// api/chat.js — bản debug có log chi tiết
+// api/chat.js — Vercel Serverless Function
+// Trả về: { reply: string, meta: { model, usage, requestId } }
+
+import OpenAI from "openai";
+
+const allowOrigin = process.env.ALLOW_ORIGIN || "*"; // có thể set domain thật để an toàn
 
 export default async function handler(req, res) {
-  // CORS (cho phép gọi từ trình duyệt)
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", allowOrigin);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method !== "POST") return res.status(405).json({ reply: "Method Not Allowed" });
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  // Chỉ cho POST
-  if (req.method !== "POST") {
-    return res.status(405).json({ ok: false, error: "Method not allowed" });
-  }
-
-  // Kiểm tra API key
   if (!process.env.OPENAI_API_KEY) {
-    console.error("[/api/chat] Missing OPENAI_API_KEY");
-    return res.status(500).json({
-      ok: false,
-      error: "OPENAI_API_KEY is not set on the server",
-    });
+    console.error("[api/chat] Missing OPENAI_API_KEY");
+    return res.status(500).json({ reply: "Thiếu cấu hình máy chủ (OPENAI_API_KEY)." });
   }
+
+  // Lấy body (Vercel parse sẵn, nhưng ta vẫn fallback cho chắc)
+  let body = req.body;
+  if (!body || typeof body !== "object") {
+    try { body = JSON.parse(await readBody(req)); } catch { body = {}; }
+  }
+
+  const message = (body?.message ?? "").toString();
+  const history = Array.isArray(body?.history) ? body.history : [];
+  if (!message) return res.status(400).json({ reply: 'Thiếu "message" trong body.' });
+
+  // Chuẩn hoá lịch sử: chỉ giữ 20 mẩu gần nhất, cắt độ dài để tránh payload lớn
+  const safeHistory = history
+    .slice(-20)
+    .map(m => ({
+      role: m?.role === "user" ? "user" : "assistant",
+      content: (m?.content ?? "").toString().slice(0, 2000),
+    }));
+
+  const messages = [
+    {
+      role: "system",
+      content:
+        "Bạn là Chatbot Pháp Bảo Phúc Lạc. Trả lời ngắn gọn, dễ hiểu, đúng chánh pháp; văn phong từ hòa, lễ độ. Nếu câu hỏi vượt phạm vi, hãy khéo léo hướng dẫn an toàn.",
+    },
+    ...safeHistory,
+    { role: "user", content: message.slice(0, 4000) },
+  ];
+
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   try {
-    // Đọc body
-    const { message, system, model = "gpt-4o-mini" } = req.body || {};
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ ok: false, error: "Missing 'message' string" });
-    }
-
-    // Prompt hệ thống mặc định (giọng điệu nhẹ nhàng – Việt ngữ)
-    const defaultSystem =
-      "Bạn là trợ lý Phật học nói tiếng Việt, giọng điệu từ ái, nhẹ nhàng, gần gũi. " +
-      "Giải thích mạch lạc, ngắn gọn đủ ý, có ví dụ khi phù hợp. " +
-      "Nếu là khái niệm Phật học: nêu định nghĩa (ngắn), ý nghĩa thực hành (ứng dụng đời sống), " +
-      "và gợi ý 1–2 câu hỏi mở để tiếp tục trao đổi.";
-
-    const messages = [
-      { role: "system", content: system || defaultSystem },
-      { role: "user", content: message },
-    ];
-
-    // Timeout an toàn (30s)
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0.2,
-        messages,
-      }),
-    }).catch((err) => {
-      // Lỗi mạng/timeout
-      console.error("[/api/chat] Network error:", err);
-      throw new Error("Network/timeout error when calling OpenAI");
-    });
-    clearTimeout(timeout);
-
-    const requestId =
-      resp.headers.get("x-request-id") ||
-      resp.headers.get("openai-request-id") ||
-      null;
-
-    // Nếu OpenAI trả non-200
-    if (!resp.ok) {
-      let errPayload = null;
-      try {
-        errPayload = await resp.json();
-      } catch {
-        // ignore
-      }
-
-      console.error("[/api/chat] OpenAI non-OK", {
-        status: resp.status,
-        requestId,
-        errPayload,
-      });
-
-      return res.status(500).json({
-        ok: false,
-        error: errPayload?.error?.message || `OpenAI error (${resp.status})`,
-        status: resp.status,
-        requestId,
-      });
-    }
-
-    // Đọc JSON kết quả
-    const data = await resp.json();
-
-    // Trường hợp OpenAI có error trong payload
-    if (data?.error) {
-      console.error("[/api/chat] OpenAI payload error", {
-        requestId,
-        error: data.error,
-      });
-      return res.status(500).json({
-        ok: false,
-        error: data.error.message || "OpenAI returned an error",
-        requestId,
-      });
-    }
-
-    const answer = data?.choices?.[0]?.message?.content?.trim() || "";
-
-    // Ghi log tóm tắt để truy vết nhanh trong Runtime Logs
-    console.log("[/api/chat] OK", {
-      requestId,
-      model: data?.model || model,
-      usage: data?.usage,
-      question: message.slice(0, 80), // cắt để gọn log
-      answerPreview: answer.slice(0, 80),
+    const completion = await client.chat.completions.create({
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      temperature: 0.7,
+      max_tokens: 700,
+      messages,
     });
 
-    return res.status(200).json({
-      ok: true,
-      model: data?.model || model,
-      usage: data?.usage || null,
-      requestId,
-      answer,
-    });
+    const reply = completion?.choices?.[0]?.message?.content || "";
+    const meta = {
+      model: completion?.model || (process.env.OPENAI_MODEL || "gpt-4o-mini"),
+      usage: completion?.usage || null,
+      requestId: completion?.id || null,
+    };
+
+    // Log gọn để tiện theo dõi trên Vercel Logs
+    console.log("[api/chat] OK", meta);
+
+    return res.status(200).json({ reply, meta });
   } catch (err) {
-    // Bắt mọi lỗi còn lại
-    console.error("[/api/chat] Uncaught error", err);
-    return res.status(500).json({
-      ok: false,
-      error: err?.message || "Internal Server Error",
+    const status = err?.status || err?.response?.status || 500;
+    const detail =
+      err?.message ||
+      (typeof err?.response?.data === "string" ? err.response.data : JSON.stringify(err?.response?.data || {}));
+
+    console.error("[api/chat] ERROR", status, detail);
+    return res.status(status).json({
+      reply: "Xin lỗi, máy chủ gặp lỗi. Vui lòng thử lại sau.",
+      error: detail,
     });
   }
+}
+
+// Helpers
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (c) => (data += c));
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
 }
