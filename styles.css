@@ -2,8 +2,8 @@
 .hero .brand-logo,
 .hero picture img,
 .hero img.brand-logo {
-  width: 64px !important;
-  height: 64px !important;
+  width: 96px !important;
+  height: 96px !important;
   object-fit: contain;
   display: inline-block;
   vertical-align: middle;
