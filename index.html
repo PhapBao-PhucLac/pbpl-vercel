@@ -1,109 +1,102 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pháp Bảo Phúc Lạc • Chatbot</title>
+  <meta charset="UTF-8">
+  <title>Pháp Bảo Phúc Lạc Chatbot</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f7f7f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
 
-  <!-- Font & icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+    .chat-box {
+      width: 100%;
+      max-width: 600px;
+      height: 500px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      overflow-y: auto;
+      background: white;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .msg {
+      margin: 8px 0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 80%;
+      line-height: 1.5;
+      font-size: 15px;
+      white-space: pre-wrap;
+    }
+
+    .msg.user {
+      background: #ffffff;       /* user màu trắng */
+      border: 1px solid #e0e0e0;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .msg.bot {
+      background: #f1f1f1;       /* bot màu xám nhạt */
+      border: 1px solid #e0e0e0;
+      align-self: flex-start;
+      margin-right: auto;
+    }
+
+    form {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      gap: 8px;
+    }
+
+    textarea {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      resize: none;
+      height: 50px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 0 20px;
+      border: none;
+      border-radius: 6px;
+      background: #10a37f;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0d8b6a;
+    }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- ========== Header (logo + title) ========== -->
-<header class="pbpl-header">
-  <img src="logo.svg" alt="Pháp Bảo Phúc Lạc" class="pbpl-logo" width="72" height="72" />
-  <div class="pbpl-titlewrap">
-    <h1 class="pbpl-title">Pháp Bảo Phúc Lạc • Chatbot</h1>
-    <p class="pbpl-sub">NAM MÔ BỔN SƯ THÍCH CA MÂU NI PHẬT — “Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</p>
-  </div>
-</header>
-      </div>
-      <div class="search">
-        <input id="greet" class="greet" type="text" placeholder="Xin chào bạn! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?" />
-      </div>
-      <div class="quickbar">
-        <button class="chip" data-topic="giáo lý">
-          <svg viewBox="0 0 24 24" class="i"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Giáo lý
-        </button>
-        <button class="chip" data-topic="kinh văn">
-          <svg viewBox="0 0 24 24" class="i"><path d="M6 4h12l-2 4 2 4H6l2-4-2-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-          Kinh văn
-        </button>
-        <button class="chip" data-topic="sách nói / mp3">
-          <svg viewBox="0 0 24 24" class="i"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
-          Sách nói / MP3
-        </button>
-        <button class="chip" data-topic="hỏi đáp">
-          <svg viewBox="0 0 24 24" class="i"><path d="M12 18h.01M8 9a4 4 0 1 1 8 0c0 3-4 3-4 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Hỏi đáp
-        </button>
-        <button class="chip" data-topic="lộ trình">
-          <svg viewBox="0 0 24 24" class="i"><path d="M4 20s3-6 8-6 8-6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Lộ trình
-        </button>
-        <button class="chip" data-topic="tìm pháp thoại">
-          <svg viewBox="0 0 24 24" class="i"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Tìm pháp thoại
-        </button>
-      </div>
-    </header>
 
-    <!-- Conversation -->
-    <main class="pane">
-      <div class="prompt-tip" id="promptTip" hidden></div>
-      <ul id="messages" class="msgs" aria-live="polite"></ul>
-    </main>
+  <h2>🙏 Pháp Bảo Phúc Lạc Chatbot</h2>
 
-    <!-- Composer -->
-    <footer class="composer">
-      <div class="row">
-        <textarea id="textbox" class="ask" rows="1" placeholder="Gõ câu hỏi của bạn… (Shift + Enter xuống dòng)"></textarea>
-
-        <div class="tools-left">
-          <button id="newchatBtn" class="btn ghost" title="New Chat (Ctrl/Cmd + Shift + K)">
-            <svg viewBox="0 0 24 24" class="i"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <span>New Chat</span>
-          </button>
-        </div>
-
-        <div class="tools-right">
-          <button id="copyBtn" class="icon-btn" title="Sao chép câu trả lời">
-            <svg class="i" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="4" y="4" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-          </button>
-          <button id="dlBtn" class="icon-btn" title="Tải .txt">
-            <svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v3h16v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
-          </button>
-          <!-- SEND BUTTON (mũi tên sang phải, role=button) -->
-<button id="sendBtn" class="send-btn" type="button" title="Gửi">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2" stroke-linecap="round"
-       stroke-linejoin="round" aria-hidden="true">
-    <!-- Feather 'send' -->
-    <path d="M22 2L11 13"></path>
-    <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
-  </svg>
-</button>
-        </div>
-      </div>
-      <div class="hint">Bấm <b>New Chat</b> hoặc phím tắt: <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> để bắt đầu cuộc hội thoại mới.</div>
-
-      <div class="signature">
-        <hr />
-        <div class="sig-text">Thực hiện: <em>An Nguyên - Liên Hoa Tịnh Thất</em></div>
-      </div>
-    </footer>
-  </div>
-
-  <script src="script.js"></script>
+  <!-- Khung chat -->
   <div id="chat-box" class="chat-box"></div>
 
-<form id="chat-form">
-  <textarea placeholder="Nhập câu hỏi..."></textarea>
-  <button type="submit">Gửi</button>
-</form>
+  <!-- Form nhập tin nhắn -->
+  <form id="chat-form">
+    <textarea placeholder="Nhập câu hỏi..."></textarea>
+    <button type="submit">Gửi</button>
+  </form>
+
+  <!-- Nhúng file chat.js -->
+  <script src="chat.js"></script>
 </body>
 </html>
