@@ -1,6 +1,21 @@
-.brand-logo{
-  width:64px; height:64px; object-fit:contain;
-  display:inline-block; vertical-align:middle; margin-right:8px;
+/* KÍCH THƯỚC LOGO Ở ĐẦU TRANG */
+.hero .brand-logo {           /* <img class="brand-logo"> mà đệ đã đặt */
+  width: 96px;                /* ↓ muốn nhỏ nữa, đổi 96 → 72 hoặc 64 */
+  height: 96px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  margin-bottom: 10px;        /* khoảng cách dưới logo */
+}
+@media (max-width:640px){
+  .hero .brand-logo { width: 60px; height: 60px; }
+}
+
+/* FONT CÓ CHÂN CHO TIÊU ĐỀ */
+.hero h1{
+  font-family: 'Noto Serif', 'Times New Roman', Georgia, serif !important;
+  font-weight: 900;           /* đậm đẹp cho tiêu đề */
+  letter-spacing: .2px;
 }
 @media (max-width:640px){
   .brand-logo{ width:40px; height:40px; }
