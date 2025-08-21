@@ -1,28 +1,58 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  try {
-    const { messages = [] } = req.body || {};
-    if (!Array.isArray(messages)) return res.status(400).json({ error: 'messages must be an array' });
+const chatBox = document.getElementById("chat-box");
+const form = document.getElementById("chat-form");
+const textarea = form.querySelector("textarea");
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-    if (!apiKey) return res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
+// Hàm thêm tin nhắn vào khung chat
+function addMessage(text, sender = "bot", typingEffect = false) {
+  const msg = document.createElement("div");
+  msg.classList.add("msg", sender);
 
-    const SYSTEM_PROMPT = 'Bạn là Pháp Bảo Phúc Lạc — trợ lý Phật học từ bi, khiêm cung, trả lời rõ ràng, súc tích; trích dẫn khi phù hợp; nhắc thực hành chánh niệm.';
-    const finalMessages = [{ role: 'system', content: SYSTEM_PROMPT }, ...messages.filter(m => m && m.role && m.content)];
-
-    const r = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({ model, messages: finalMessages, temperature: 0.2 })
-    });
-
-    if (!r.ok) return res.status(502).json({ error: 'Upstream error', detail: await r.text() });
-    const data = await r.json();
-    const reply = data?.choices?.[0]?.message?.content?.trim() || '';
-    res.json({ reply });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Server error' });
+  if (typingEffect) {
+    let i = 0;
+    function typeChar() {
+      if (i < text.length) {
+        msg.textContent += text.charAt(i);
+        i++;
+        chatBox.scrollTop = chatBox.scrollHeight; // luôn cuộn xuống
+        setTimeout(typeChar, 20); // tốc độ chữ chạy
+      }
+    }
+    typeChar();
+  } else {
+    msg.textContent = text;
   }
+
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight; // auto scroll
 }
+
+// Lắng nghe form submit
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = textarea.value.trim();
+  if (!text) return;
+
+  // Hiển thị tin nhắn user
+  addMessage(text, "user");
+  textarea.value = "";
+
+  // Gửi tới API backend
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text }),
+    });
+    const data = await res.json();
+
+    // Hiển thị trả lời bot (chữ chạy)
+    if (data.answer) {
+      addMessage(data.answer, "bot", true);
+    } else {
+      addMessage("❌ Xin lỗi, không nhận được trả lời.", "bot");
+    }
+  } catch (err) {
+    console.error(err);
+    addMessage("⚠️ Lỗi kết nối API.", "bot");
+  }
+});
