@@ -395,7 +395,7 @@
   regenBtn.addEventListener('click', ()=>{ if(!lastUserMsg) return; input.value=lastUserMsg; form.requestSubmit(); });
   clearBtn.addEventListener('click', newChat);
 
-  function greet(){ if (ENABLE_GREETING_BUBBLE) appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn đang muốn tìm hiểu điều gì trong Phật pháp?'); }
+  function greet(){ if (ENABLE_GREETING_BUBBLE) appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?'); }
   if (ENABLE_GREETING_BUBBLE) greet();
 
   console.log('[Chat] Ready ✅');
