@@ -1,45 +1,35 @@
-// chat.js
+// api/chat.js
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-const chatForm = document.querySelector("form");
-const chatInput = document.querySelector("textarea");
-const chatBox = document.querySelector("#chat-box");
-
-chatForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const message = chatInput.value.trim();
-  if (!message) return;
-
-  // Hiển thị câu hỏi của người dùng
-  appendMessage("user", message);
-
-  chatInput.value = "";
-
-  // Gửi request tới API
   try {
-    const res = await fetch("/api/chat", {
+    const { message } = req.body;
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: message }],
+      }),
     });
 
-    const data = await res.json();
+    const data = await response.json();
 
-    if (data.ok && data.answer) {
-      appendMessage("bot", data.answer);
-    } else {
-      appendMessage("bot", "Xin lỗi, chưa có câu trả lời.");
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
     }
-  } catch (err) {
-    console.error(err);
-    appendMessage("bot", "Có lỗi xảy ra khi kết nối máy chủ.");
-  }
-});
 
-// Hàm hiển thị tin nhắn
-function appendMessage(sender, text) {
-  const msg = document.createElement("div");
-  msg.className = sender === "user" ? "msg user" : "msg bot";
-  msg.innerHTML = `<p>${text}</p>`;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
+    res.status(200).json({
+      ok: true,
+      answer: data.choices[0].message.content,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
