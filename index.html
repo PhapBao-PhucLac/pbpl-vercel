@@ -391,11 +391,14 @@ ${Array.from(pane.querySelectorAll('.bubble')).map(el=>{
     if(mod && e.key.toLowerCase()==='s'){ e.preventDefault(); saveMarkdown(); }
   });
 
-  // Lời chào đầu trang
   function greet(){
-    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
+  // nếu muốn bật lại bong bóng chào, đổi giá trị công tắc ở trên thành true
+  if (ENABLE_GREETING_BUBBLE) {
+    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
   }
-  greet();
+}
+// không gọi greet() khi false
+if (ENABLE_GREETING_BUBBLE) greet();
 
   console.log('[Chat] Ready ✅');
   </script>
