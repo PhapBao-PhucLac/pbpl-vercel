@@ -101,60 +101,55 @@
     .kbd{display:inline-block;border:1px solid #ddd;border-bottom-width:2px;border-radius:6px;padding:2px 6px;background:#fff;margin:0 2px;font-size:12px;}
     @media (max-width:720px){ .tip{display:none;} }
   </style>
-<!-- PBPL: Font + CSS override (DÁN TRƯỚC </head>) -->
+<!-- PBPL: Font + CSS override (DÁN TRƯỚC <!-- PBPL: dùng Roboto và tinh chỉnh kích thước header (dán ngay trước </head>) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-/* ===== Dùng Roboto Slab cho 3 dòng tiêu đề ===== */
-.hero h1,
-.hero .mantra,
-.hero .sub{
-  font-family: 'Roboto Slab', Georgia, 'Times New Roman', serif !important;
-}
+  /* Dùng Roboto cho 3 dòng, chữ mảnh */
+  .hero h1, .hero .mantra, .hero .sub{
+    font-family: 'Roboto', system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif !important;
+  }
 
-/* Tiêu đề lớn & trang trọng */
-.hero h1{
-  font-weight: 900;
-  font-size: 40px;           /* ↑ muốn to hơn: 44/48 */
-  letter-spacing: .2px;
-  margin: .2rem 0 0;
-}
+  /* Tiêu đề chính – Roboto Medium, ~70% (28px), không đậm */
+  .hero h1{
+    font-weight: 500 !important;
+    font-size: 28px !important;     /* chỉnh 26–30 tuỳ mắt */
+    letter-spacing: .2px;
+    margin: .2rem 0 0;
+  }
 
-/* “Từ hòa – Chánh kiến – Lợi lạc” */
-.hero .mantra{
-  font-weight: 700;
-  font-size: 22px;           /* ↑/↓ tuỳ ý */
-  opacity: .95;
-}
+  /* “Từ hòa – Chánh kiến – Lợi lạc” – hơi lớn, mảnh */
+  .hero .mantra{
+    font-weight: 500 !important;
+    font-size: 18px !important;
+    opacity: .95;
+  }
 
-/* “Nam mô… – Hiểu sâu…” */
-.hero .sub{
-  font-weight: 500;
-  font-size: 18px;           /* ↑/↓ tuỳ ý */
-  color: #475569;
-}
+  /* “Nam mô… – Hiểu sâu…” – mảnh hơn nữa */
+  .hero .sub{
+    font-weight: 400 !important;
+    font-size: 16px !important;
+    color: #475569 !important;
+  }
 
-/* ===== Logo lớn hơn ===== */
-.brand-logo,
-.hero picture img,
-.hero img.brand-logo{
-  width: 96px !important;    /* ↑ thật lớn: 120px */
-  height: 96px !important;
-  object-fit: contain;
-  display: inline-block;
-  vertical-align: middle;
-  margin-bottom: 12px;
-}
+  /* Logo đầu trang = 96px */
+  .brand-logo, .hero picture img, .hero img.brand-logo{
+    width: 96px !important;
+    height: 96px !important;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
 
-/* Thu gọn trên mobile */
-@media (max-width:640px){
-  .brand-logo, .hero picture img{ width:64px !important; height:64px !important; }
-  .hero h1{ font-size:28px; }
-  .hero .mantra{ font-size:18px; }
-  .hero .sub{ font-size:15px; }
-}
+  /* Trên mobile: nhỏ hơn chút */
+  @media (max-width: 640px){
+    .brand-logo, .hero picture img{ width: 72px !important; height: 72px !important; }
+    .hero h1{ font-size: 22px !important; }
+    .hero .mantra{ font-size: 16px !important; }
+    .hero .sub{ font-size: 14px !important; }
+  }
 </style>
 <body>
   <div class="wrap">
