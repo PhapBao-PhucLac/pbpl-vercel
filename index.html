@@ -217,12 +217,54 @@
     return el;
   }
 
+  <script>
+  // --- Tách phần thân & gợi ý hỏi thêm (parser siêu đơn giản) ---
+  function extractSuggestions(markdown){
+    const lines = (markdown || '').split('\n');
+    let inSug = false, body = [], sug = [];
+    for (let i=0;i<lines.length;i++){
+      const L = lines[i];
+
+      // Khi gặp dòng chứa cụm "Gợi ý hỏi thêm" => bật chế độ thu gợi ý
+      if (!inSug && /gợi ý hỏi thêm/i.test(L)) { inSug = true; continue; }
+
+      if (inSug) {
+        // Lấy các dòng bắt đầu bằng "- " hoặc "• "
+        const m = L.trim().match(/^[-•]\s+(.*)/);
+        if (m) { sug.push(m[1].trim()); continue; }
+        // Cho phép bỏ qua dòng trống giữa các gợi ý
+        if (L.trim()==='') continue;
+        // Gặp dòng khác định dạng => coi như hết block gợi ý
+      }
+
+      if (!inSug) body.push(L);
+    }
+    return { body: body.join('\n').trim(), suggestions: sug.slice(0,5) };
+  }
+
+  // --- Render Markdown + gắn chip gợi ý có thể bấm để hỏi tiếp ---
   function finalizeAsMarkdown(bubbleEl, text){
-    const html = DOMPurify.sanitize(marked.parse(text || ''));
+    const { body, suggestions } = extractSuggestions(text);
+    const html = DOMPurify.sanitize(marked.parse(body || text || ''));
     bubbleEl.innerHTML = html;
     bubbleEl.dataset.md = text || '';
     bubbleEl.classList.add('assistant');
+
+    if (suggestions.length){
+      const wrap = document.createElement('div');
+      wrap.className = 'suggest';
+      suggestions.forEach(s=>{
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip';
+        b.textContent = s;
+        b.addEventListener('click', ()=>{ input.value = s; form.requestSubmit(); });
+        wrap.appendChild(b);
+      });
+      bubbleEl.appendChild(wrap);
+    }
   }
+</script>
 
   function setBusy(b){
     send.disabled = b; input.readOnly = b;
