@@ -86,58 +86,50 @@
       else { send.textContent = send.dataset._t || 'Gửi'; }
     }
 
-    async function callAPI(message, history) {
-      try {
-        const res = await fetch(API_URL, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ message, history }),
-        });
-        if (!res.ok) {
-          const t = await res.text().catch(()=> '');
-          throw new Error(`HTTP ${res.status} ${res.statusText} :: ${t}`);
-        }
-        // Ưu tiên JSON { reply: "..." }
-        const ct = res.headers.get('content-type') || '';
-        if (ct.includes('application/json')) {
-          const data = await res.json();
-          if (data && data.reply) return data.reply;
-          return JSON.stringify(data);
-        }
-        return await res.text();
-      } catch (e) {
-        console.error('[Chat][API]', e);
-        // DEMO fallback: tự trả lời để đệ test giao diện
-        return '🧘‍♂️ (Demo) Máy chủ chưa kết nối. Huynh đã nhận được câu hỏi: “' + message + '”. Vui lòng cấu hình API_URL để nhận trả lời thật.';
-      }
-    }
+    <script>
+  // ... giữ nguyên các biến API_URL, form, pane, input, send ở phía trên
 
-    form.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      try {
-        const msg = (input.value || '').trim();
-        if (!msg) return;
-        appendBubble(msg, 'user');
-        input.value = ''; setBusy(true);
-
-        const history = Array.from(pane.querySelectorAll('.bubble'))
-          .slice(-50)
-          .map(el => ({ role: el.classList.contains('user') ? 'user' : 'assistant', content: el.textContent || '' }));
-
-        const reply = await callAPI(msg, history);
-        appendBubble(reply, 'assistant');
-      } catch (err) {
-        console.error('[Chat][Submit]', err);
-        appendBubble('Lỗi giao diện: ' + (err?.message || err), 'assistant');
-      } finally {
-        setBusy(false); input.focus();
-      }
+  // ⛳ HÀM MỚI — chỉ trả về chuỗi để hiển thị
+  async function callAPI(message, history) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, history }),
     });
 
-    // Lời chào đầu trang
-    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật - Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
-    console.log('[Chat] Ready ✅');
-  })();
-  </script>
+    // Nếu server lỗi, ném ra để UI báo
+    if (!res.ok) {
+      const txt = await res.text().catch(()=> '');
+      throw new Error(`HTTP ${res.status} ${res.statusText} :: ${txt}`);
+    }
+
+    // Ưu tiên JSON { reply: "..." }
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('application/json')) {
+      const data = await res.json();
+
+      // ✅ Trường hợp đúng chuẩn từ api/chat.js do huynh cung cấp
+      if (data && typeof data.reply === 'string' && data.reply.trim()) {
+        return data.reply;
+      }
+
+      // 🔁 Fallback: nếu lỡ trả về nguyên response của OpenAI
+      const maybe = data?.choices?.[0]?.message?.content;
+      if (typeof maybe === 'string' && maybe.trim()) {
+        return maybe;
+      }
+
+      // Cuối cùng: cố ép về chuỗi cho có nội dung
+      return JSON.stringify(data, null, 2);
+    }
+
+    // Nếu không phải JSON (ví dụ text/plain), trả thẳng text
+    return await res.text();
+  }
+
+  // ... dưới đây giữ nguyên submit handler:
+  // const reply = await callAPI(msg, history);
+  // appendBubble(reply, 'assistant');
+</script>
 </body>
 </html>
