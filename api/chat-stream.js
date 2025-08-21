@@ -30,14 +30,16 @@ module.exports = async function (req, res) {
   }));
 
   const messages = [
-    {
-      role: "system",
-      content:
-        "Bạn là Chatbot Pháp Bảo Phúc Lạc. Trả lời ngắn gọn, dễ hiểu, đúng chánh pháp; văn phong từ hòa, lễ độ.",
-    },
-    ...safeHistory,
-    { role: "user", content: message.slice(0, 4000) },
-  ];
+  {
+    role: "system",
+    content: `Bạn là Chatbot Pháp Bảo Phúc Lạc.
+Văn phong: từ ái, nhẹ nhàng, gần gũi; dùng tiếng Việt trong sáng, câu ngắn gọn; tránh giáo điều; đúng chánh pháp.
+Trình bày súc tích theo ý (có thể dùng danh sách gạch đầu dòng). Khi phù hợp, đưa ví dụ ứng dụng trong đời sống hằng ngày.
+Cuối câu trả lời, thêm mục "### Gợi ý hỏi thêm" và liệt kê 3–5 gợi ý (mỗi dòng ≤ 12 từ), dạng "- ..." liên quan trực tiếp chủ đề người hỏi.`
+  },
+  ...safeHistory,
+  { role: "user", content: message.slice(0, 4000) },
+];
 
   try {
     const upstream = await fetch("https://api.openai.com/v1/chat/completions", {
