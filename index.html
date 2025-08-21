@@ -1,102 +1,143 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pháp Bảo Phúc Lạc Chatbot</title>
   <style>
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #f7f7f7;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .chat-box {
-      width: 100%;
-      max-width: 600px;
-      height: 500px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 15px;
-      overflow-y: auto;
-      background: white;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .msg {
-      margin: 8px 0;
-      padding: 10px 14px;
-      border-radius: 12px;
-      max-width: 80%;
-      line-height: 1.5;
-      font-size: 15px;
-      white-space: pre-wrap;
-    }
-
-    .msg.user {
-      background: #ffffff;       /* user màu trắng */
-      border: 1px solid #e0e0e0;
-      align-self: flex-end;
-      margin-left: auto;
-    }
-
-    .msg.bot {
-      background: #f1f1f1;       /* bot màu xám nhạt */
-      border: 1px solid #e0e0e0;
-      align-self: flex-start;
-      margin-right: auto;
-    }
-
-    form {
-      width: 100%;
-      max-width: 600px;
-      display: flex;
-      gap: 8px;
-    }
-
-    textarea {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      resize: none;
-      height: 50px;
-      font-size: 14px;
-    }
-
-    button {
-      padding: 0 20px;
-      border: none;
-      border-radius: 6px;
-      background: #10a37f;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0d8b6a;
-    }
+    :root { --bg:#f7f7f7; --ink:#111; --muted:#f1f1f1; --line:#eee; --brand:#16a085; }
+    body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+           color:var(--ink); background:#fff; }
+    .container { max-width:880px; margin:40px auto; padding:0 16px; }
+    .brand { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .brand .dot { width:10px; height:10px; border-radius:50%; background:#a855f7; box-shadow:0 0 0 3px #f5e1ff; }
+    .card { border:1px solid var(--line); border-radius:16px; background:#fff; }
+    #messages { max-height:60vh; min-height:300px; overflow:auto; padding:14px; contain:content; }
+    .bubble { padding:10px 12px; margin:8px 0; border-radius:14px; }
+    .bubble.user { background:var(--muted); color:var(--ink); margin-left:auto; width:fit-content; max-width:80%; }
+    .bubble.assistant { background:#fff; border:1px solid var(--line); max-width:80%; }
+    .bubble.note { font-size:12px; opacity:.75; text-align:center; background:transparent; border:none; }
+    .composer { display:flex; gap:8px; padding:10px; border-top:1px solid var(--line); background:#fff;
+                border-radius:0 0 16px 16px; }
+    #chat-input { flex:1; padding:10px 12px; border:1px solid #ddd; border-radius:10px; }
+    #send-btn { padding:10px 16px; border-radius:10px; border:0; background:var(--brand); color:#fff; cursor:pointer; }
+    #send-btn:disabled { opacity:.6; cursor:not-allowed; }
+    .hint { font-size:12px; color:#666; margin-top:8px; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <div class="brand">
+      <div class="dot"></div>
+      <h2 style="margin:0">🌸 Pháp Bảo Phúc Lạc Chatbot</h2>
+    </div>
 
-  <h2>🙏 Pháp Bảo Phúc Lạc Chatbot</h2>
+    <form id="chat-form" class="card" autocomplete="off">
+      <div id="messages" aria-live="polite"></div>
+      <div class="composer">
+        <input id="chat-input" name="message" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn muốn hỏi điều gì?" />
+        <button id="send-btn" type="submit">Gửi</button>
+      </div>
+    </form>
 
-  <!-- Khung chat -->
-  <div id="chat-box" class="chat-box"></div>
+    <div class="hint">Nếu trang chậm sau vài ngày dùng, hệ thống sẽ tự rút gọn lịch sử hiển thị để nhẹ máy.</div>
+  </div>
 
-  <!-- Form nhập tin nhắn -->
-  <form id="chat-form">
-    <textarea placeholder="Nhập câu hỏi..."></textarea>
-    <button type="submit">Gửi</button>
-  </form>
+  <script>
+  (() => {
+    const API_URL = '/api/chat';       // <— ĐỔI nếu backend của đệ khác
+    const MAX_NODES = 120;             // tối đa 120 bong bóng giữ trong DOM
+    const TRIM_BATCH = 20;             // cắt bớt theo lô 20 khi quá dài
 
-  <!-- Nhúng file chat.js -->
-  <script src="chat.js"></script>
+    const form  = document.getElementById('chat-form');
+    const pane  = document.getElementById('messages');
+    const input = document.getElementById('chat-input');
+    const send  = document.getElementById('send-btn');
+
+    if (!form || !pane || !input || !send) {
+      console.error('[Chat] Thiếu phần tử giao diện', { form:!!form, pane:!!pane, input:!!input, send:!!send });
+      alert('Lỗi giao diện: thiếu id cần thiết (chat-form / messages / chat-input / send-btn).');
+      return;
+    }
+
+    function appendBubble(text, who='assistant') {
+      const wrap = document.createElement('div');
+      wrap.className = 'bubble ' + (who==='user' ? 'user' : 'assistant');
+      wrap.textContent = text;
+      pane.appendChild(wrap);
+
+      // Trim để tránh chậm
+      if (pane.children.length > MAX_NODES) {
+        for (let i=0;i<TRIM_BATCH;i++) if (pane.firstChild) pane.removeChild(pane.firstChild);
+        if (!pane.dataset.truncated) {
+          const note = document.createElement('div');
+          note.className = 'bubble note';
+          note.textContent = 'Đã rút gọn lịch sử hiển thị để trang mượt hơn.';
+          pane.insertBefore(note, pane.firstChild);
+          pane.dataset.truncated = '1';
+        }
+      }
+      pane.scrollTop = pane.scrollHeight;
+    }
+
+    function setBusy(b) {
+      send.disabled = b; input.readOnly = b;
+      if (b) { send.dataset._t = send.textContent; send.textContent = 'Đang gửi…'; }
+      else { send.textContent = send.dataset._t || 'Gửi'; }
+    }
+
+    async function callAPI(message, history) {
+      try {
+        const res = await fetch(API_URL, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ message, history }),
+        });
+        if (!res.ok) {
+          const t = await res.text().catch(()=> '');
+          throw new Error(`HTTP ${res.status} ${res.statusText} :: ${t}`);
+        }
+        // Ưu tiên JSON { reply: "..." }
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          const data = await res.json();
+          if (data && data.reply) return data.reply;
+          return JSON.stringify(data);
+        }
+        return await res.text();
+      } catch (e) {
+        console.error('[Chat][API]', e);
+        // DEMO fallback: tự trả lời để đệ test giao diện
+        return '🧘‍♂️ (Demo) Máy chủ chưa kết nối. Huynh đã nhận được câu hỏi: “' + message + '”. Vui lòng cấu hình API_URL để nhận trả lời thật.';
+      }
+    }
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      try {
+        const msg = (input.value || '').trim();
+        if (!msg) return;
+        appendBubble(msg, 'user');
+        input.value = ''; setBusy(true);
+
+        const history = Array.from(pane.querySelectorAll('.bubble'))
+          .slice(-50)
+          .map(el => ({ role: el.classList.contains('user') ? 'user' : 'assistant', content: el.textContent || '' }));
+
+        const reply = await callAPI(msg, history);
+        appendBubble(reply, 'assistant');
+      } catch (err) {
+        console.error('[Chat][Submit]', err);
+        appendBubble('Lỗi giao diện: ' + (err?.message || err), 'assistant');
+      } finally {
+        setBusy(false); input.focus();
+      }
+    });
+
+    // Lời chào đầu trang
+    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
+    console.log('[Chat] Ready ✅');
+  })();
+  </script>
 </body>
 </html>
