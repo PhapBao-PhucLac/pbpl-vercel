@@ -1,106 +1,67 @@
+/* Khung danh sách chat */
+#chat-list {
+  list-style: none;
+  margin: 0;
+  padding: 16px;
+  height: 56vh;            /* tuỳ bạn */
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
 
-:root{
-  --bg:#ffffff;
-  --muted:#f6f7f9;
-  --line:#e5e7eb;
-  --ink:#111827;
-  --ink-2:#374151;
-  --primary:#111827;
-  --soft:#f3f4f6;
-  --radius:14px;
-  --shadow:0 6px 18px rgba(17,24,39,.06);
+/* Bong bóng chung */
+.bubble {
+  max-width: 72ch;
+  width: fit-content;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border-radius: 14px;
+  line-height: 1.55;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  font-size: 15px;
 }
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  color:var(--ink);
-  background:var(--bg);
-  font:16px/1.6 "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-}
-.wrap{max-width:980px;margin:0 auto;padding:16px 16px 40px}
-/* Header */
-.hero{display:flex;flex-direction:column;gap:16px;align-items:stretch;margin:8px 0 10px}
-.brand{display:flex;align-items:center;gap:16px}
-.logo{width:64px;height:64px;border-radius:50%;box-shadow:var(--shadow)}
-.brand-text{display:flex;flex-direction:column;gap:2px}
-.title{margin:0;font:700 28px/1.25 "Roboto Slab", serif;letter-spacing:.2px}
-.subtitle{margin:0;color:var(--ink-2);font-size:13px}
-.search .greet{
-  width:100%;padding:14px 16px;border:1px solid var(--line);background:#fff;border-radius:12px;
-}
-.quickbar{display:flex;flex-wrap:wrap;gap:10px}
-.chip{
-  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--soft);
-  padding:10px 12px;border-radius:999px;cursor:pointer;color:var(--ink-2);
-}
-.chip .i{width:18px;height:18px}
-.chip:hover{background:#fff;border-color:#d7dbe0}
 
-/* Pane */
-.pane{background:#fff;border:1px solid var(--line);border-radius:16px;min-height:380px;padding:8px 0 0}
-.prompt-tip{margin:16px auto;max-width:92%;background:var(--muted);border:1px solid var(--line);padding:10px 14px;border-radius:999px;color:var(--ink-2);text-align:center}
-.msgs{list-style:none;margin:0;padding:12px}
-.msg{display:flex;gap:10px;margin:10px 12px}
-.bubble{
-  border:1px solid var(--line);background:var(--soft);padding:12px 14px;border-radius:12px;box-shadow:var(--shadow);
+/* Người dùng – nền trắng */
+.bubble.user {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  margin-left: auto;           /* dạt phải */
+  border-bottom-right-radius: 6px;
 }
-.msg.me .bubble{background:#fdfdfd}
-.msg.bot .bubble{background:var(--muted)}
-.msg .role{flex:0 0 28px;width:28px;height:28px;border-radius:999px;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
-.msg .role svg{width:16px;height:16px}
 
-/* Composer */
-.composer{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(255,255,255,.0), rgba(255,255,255,1) 30%);backdrop-filter:saturate(1.2)}
-.composer .row{display:flex;gap:10px;align-items:flex-end;padding-top:12px}
-.ask{
-  flex:1;padding:14px 16px;border:1px solid var(--line);border-radius:12px;min-height:52px;max-height:200px;resize:vertical;background:#fff;
+/* Bot – nền xám nhạt */
+.bubble.bot {
+  background: #f6f7f9;
+  border: 1px solid #eceff3;
+  margin-right: auto;          /* dạt trái */
+  border-bottom-left-radius: 6px;
 }
-.tools-left{display:flex;gap:8px;align-items:center}
-.tools-right{display:flex;gap:8px;align-items:center;margin-left:auto}
-.btn.ghost{
-  display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:10px;
-  height:42px;padding:0 12px;cursor:pointer;color:var(--ink-2);
-}
-.btn.ghost .i{width:18px;height:18px}
-.icon-btn{
-  width:42px;height:42px;border:1px solid var(--line);background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);
-}
-.icon-btn .i{width:18px;height:18px}
-.send{
-  width:48px;height:42px;border:none;border-radius:10px;background:#111827;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
-}
-.send:disabled{opacity:.5;cursor:not-allowed}
 
-.hint{font-size:12px;color:var(--ink-2);margin:8px 2px 0}
-
-/* Footer Signature */
-.signature{margin-top:12px}
-.signature hr{border:none;border-top:1px solid #e0e0e0;margin:6px 0 8px}
-.sig-text{font-size:10px;color:#6b7280;text-align:right}
-.sig-text em{font-style:italic}
-
-/* Utilities */
-.i{display:block}
-kbd{
-  background:#f5f5f5;border:1px solid #e5e7eb;border-bottom-color:#d1d5db;border-radius:4px;padding:1px 5px;font-size:12px;
+/* Ô nhập + nút gửi */
+#chat-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 }
-.hidden{display:none!important}
-/* === PBPL mini patch: send icon & input hint === */
-.send-btn { display:flex; align-items:center; justify-content:center;
-  width: 44px; height: 44px; border-radius: 12px; background:#0f172a; /* xám đen */
-  color:#fff; border:0; cursor:pointer; transition:opacity .18s ease; }
-.send-btn:hover { opacity:.92; }
-.send-btn svg { transform:none !important; }           /* luôn đúng chiều sang phải */
-.send-btn:disabled { opacity:.5; cursor:not-allowed; }
-
-.msg-pending { color:#64748b; font-style:italic; }    /* “Đang xử lý…” */
-/* ===== Header layout (logo + title) ===== */
-.pbpl-header{
-  display:flex; align-items:center; gap:14px;
-  max-width:1000px; margin:20px auto 12px; padding:0 12px;
+#chat-input {
+  flex: 1;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  outline: none;
 }
-.pbpl-logo{ width:72px; height:72px; border-radius:50%; display:block; }
-.pbpl-titlewrap{ line-height:1.25; }
-.pbpl-title{ font-weight:800; font-size:28px; margin:0; }
-.pbpl-sub{ margin:2px 0 0; font-size:14px; color:#5b6472; }
+#chat-input:focus { border-color: #9ca3af; }
+#send-btn {
+  min-width: 82px;
+  border: none;
+  border-radius: 10px;
+  background: #0ea5e9;   /* xanh dịu */
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+#send-btn:disabled { opacity: .6; cursor: not-allowed; }
