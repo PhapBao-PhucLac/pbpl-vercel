@@ -118,7 +118,7 @@
         <button id="stop-btn" class="tb-btn" type="button" style="display:none">Dừng</button>
       </div>
       <div class="composer">
-        <input id="chat-input" name="message" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn muốn hỏi điều gì?"/>
+        <input id="chat-input" name="message" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn hãy đặt câu hỏi?"/>
         <button id="send-btn" type="submit">Gửi</button>
       </div>
     </form>
@@ -281,7 +281,7 @@
   function saveFile(name,content,mime='text/plain'){ const blob=new Blob([content],{type:mime}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},100); }
   function ymdhs(){ const d=new Date(),p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`; }
 
-  function newChat(){ pane.innerHTML=''; if(ENABLE_GREETING_BUBBLE) appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn đang muốn tìm hiểu điều gì trong Phật pháp?'); lastUserMsg=''; }
+  function newChat(){ pane.innerHTML=''; if(ENABLE_GREETING_BUBBLE) appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?'); lastUserMsg=''; }
   function stepBack(){ const items=Array.from(pane.querySelectorAll('.bubble')); if(!items.length) return; items.pop()?.remove(); const prev=items.pop(); if(prev&&prev.classList.contains('user')) prev.remove(); }
   async function copyTranscript(){ try{ await navigator.clipboard.writeText(bubblesToMarkdown()); }catch{} }
   function saveMarkdown(){ saveFile(`PBPL_Chat_${ymdhs()}.md`,bubblesToMarkdown(),'text/markdown'); }
