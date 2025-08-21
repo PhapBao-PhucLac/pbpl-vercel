@@ -90,8 +90,8 @@
   // ... giữ nguyên các biến API_URL, form, pane, input, send ở phía trên
 
   // ⛳ HÀM MỚI — chỉ trả về chuỗi để hiển thị
-  async function callAPI(message, history) {
-    const res = await fetch(API_URL, {
+  const reply = await callAPI(msg, history);
+appendBubble(reply, 'assistant');
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, history }),
