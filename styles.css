@@ -1,7 +1,7 @@
 /* KÍCH THƯỚC LOGO Ở ĐẦU TRANG */
 .hero .brand-logo {           /* <img class="brand-logo"> mà đệ đã đặt */
-  width: 96px;                /* ↓ muốn nhỏ nữa, đổi 96 → 72 hoặc 64 */
-  height: 96px;
+  width: 64px;                /* ↓ muốn nhỏ nữa, đổi 96 → 72 hoặc 64 */
+  height: 64px;
   object-fit: contain;
   display: inline-block;
   vertical-align: middle;
