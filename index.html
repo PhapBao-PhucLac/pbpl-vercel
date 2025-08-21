@@ -334,7 +334,11 @@
   });
 
   // ====== FOOT MENU actions ======
-  function newChat(){ pane.innerHTML=''; greet(); lastUserMsg=''; }
+  function newChat(){
+  pane.innerHTML='';
+  if (ENABLE_GREETING_BUBBLE) greet();
+  lastUserMsg='';
+}
   function stepBack(){
     // Xóa cặp (assistant + user) cuối cùng nếu có
     const items = Array.from(pane.querySelectorAll('.bubble'));
