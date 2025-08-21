@@ -7,59 +7,63 @@
 
   <!-- Thương hiệu & bố cục -->
   <style>
-    :root {
-      --ink:#111; --muted:#f1f1f1; --line:#eee; --brand:#16a085; --accent:#a855f7;
+    :root{
+      --ink:#121212; --muted:#f4f4f5; --line:#e9e9ee; --brand:#16a085; --accent:#a855f7;
     }
-    html,body { height:100%; }
-    body {
-      margin:0; font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    html,body{height:100%;}
+    body{
+      margin:0; font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       color:var(--ink);
       background:
         radial-gradient(1200px 600px at 10% -10%, #f8f5ff 0, transparent 50%),
-        radial-gradient(1000px 400px at 120% 20%, #e8fff6 0, transparent 45%),
-        #fff;
+        radial-gradient(1000px 400px at 120% 20%, #e8fff6 0, transparent 45%), #fff;
     }
-    .container { max-width:960px; margin:36px auto; padding:0 16px; }
-    .brand { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
-    .brand h1 { margin:0; font-size:28px; font-weight:800; letter-spacing:.2px; }
-    .slogan { font-weight:700; opacity:.9; }
-    .lotus { width:28px; height:28px; display:inline-block; }
+    .wrap{max-width:1024px; margin:28px auto 40px; padding:0 16px;}
+    /* Header */
+    .hero{ text-align:center; margin-bottom:18px;}
+    .hero .lotus{ width:44px; height:44px; display:inline-block; vertical-align:middle; margin-right:8px;}
+    .hero h1{ margin:.2rem 0 0; font-size:32px; font-weight:900; letter-spacing:.2px;}
+    .hero .mantra{ margin:6px 0 0; font-weight:700; opacity:.9;}
+    .hero .sub{ margin:6px 0 0; color:#6b7280; font-size:14px; }
 
-    .toolbar { display:flex; gap:8px; margin-left:auto; align-items:center; }
-    .tb-btn {
-      font:13px/1; padding:8px 10px; border-radius:10px; border:1px solid var(--line);
-      background:#fff; cursor:pointer;
+    /* Chips */
+    .chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0 20px;}
+    .chip{
+      padding:8px 12px; border:1px solid var(--line); background:#fff; border-radius:999px;
+      cursor:pointer; font-size:14px;
     }
-    .tb-btn.primary { background:var(--brand); color:#fff; border-color:transparent; }
-    .tb-btn:disabled { opacity:.6; cursor:not-allowed; }
+    .chip.active{ background:#f0fff7; border-color:#ccefe3; box-shadow:0 0 0 2px #e6faf4 inset; }
 
-    .card { border:1px solid var(--line); border-radius:18px; background:#fff;
-            box-shadow:0 10px 30px rgba(0,0,0,.04); }
-    #messages { max-height:64vh; min-height:320px; overflow:auto; padding:18px; contain:content; }
-    .bubble { padding:12px 14px; margin:10px 0; border-radius:16px; }
-    .bubble.user { background:var(--muted); color:var(--ink); margin-left:auto; width:fit-content; max-width:82%; }
-    .bubble.assistant { background:#fff; border:1px solid var(--line); max-width:82%; }
-    .bubble.note { font-size:12px; opacity:.75; text-align:center; background:transparent; border:none; }
+    /* Chat card */
+    .card{ border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04); }
+    #messages{ max-height:64vh; min-height:320px; overflow:auto; padding:18px; contain:content; }
+    .bubble{ padding:12px 14px; margin:10px 0; border-radius:16px; }
+    .bubble.user{ background:var(--muted); color:var(--ink); margin-left:auto; width:fit-content; max-width:82%; }
+    .bubble.assistant{ background:#fff; border:1px solid var(--line); max-width:82%; }
+    .bubble.note{ font-size:12px; opacity:.75; text-align:center; background:transparent; border:none; }
 
-    .composer { display:flex; gap:10px; padding:12px; border-top:1px solid var(--line); background:#fff;
-                border-radius:0 0 18px 18px; }
-    #chat-input { flex:1; padding:12px 14px; border:1px solid #ddd; border-radius:12px; }
-    #send-btn { padding:12px 18px; border-radius:12px; border:0; background:var(--brand); color:#fff; cursor:pointer; font-weight:600; }
-    #send-btn:disabled { opacity:.6; cursor:not-allowed; }
-    .hint { font-size:12px; color:#666; margin-top:10px; }
+    /* Composer */
+    .composer{ display:flex; gap:10px; padding:12px; border-top:1px solid var(--line); background:#fff; border-radius:0 0 18px 18px; }
+    #chat-input{ flex:1; padding:12px 14px; border:2px solid #ddd; border-radius:12px; outline:none;}
+    #chat-input:focus{ border-color:#c7ece4; box-shadow:0 0 0 3px #eaf8f4;}
+    #send-btn{ padding:12px 18px; border-radius:12px; border:0; background:var(--brand); color:#fff; cursor:pointer; font-weight:700;}
+    #send-btn:disabled{ opacity:.6; cursor:not-allowed; }
+    .hint{ font-size:12px; color:#666; margin:10px 2px; }
+
+    /* Toolbar */
+    .toolbar{ display:flex; gap:8px; justify-content:flex-end; margin:10px 2px; }
+    .tb-btn{ font:13px/1 system-ui; padding:8px 10px; border-radius:10px; border:1px solid var(--line); background:#fff; cursor:pointer;}
+    .tb-btn.primary{ background:var(--brand); color:#fff; border-color:transparent; }
+    .tb-btn:disabled{ opacity:.6; cursor:not-allowed; }
 
     /* Markdown đẹp */
     .assistant h1,.assistant h2,.assistant h3{ margin:6px 0 8px; }
-    .assistant p, .assistant ul, .assistant ol { margin:8px 0; }
-    .assistant ul, .assistant ol { padding-left:22px; }
-    .assistant code { background:#f6f6f6; padding:2px 6px; border-radius:6px; }
-    .assistant a { color:#0ea5e9; text-decoration:none; }
-    .assistant a:hover { text-decoration:underline; }
+    .assistant p,.assistant ul,.assistant ol{ margin:8px 0; }
+    .assistant ul,.assistant ol{ padding-left:22px; }
+    .assistant code{ background:#f6f6f6; padding:2px 6px; border-radius:6px; }
+    .assistant a{ color:#0ea5e9; text-decoration:none; } .assistant a:hover{ text-decoration:underline; }
 
-    @media (max-width:640px){
-      .brand h1 { font-size:22px; }
-      #messages { max-height:58vh; }
-    }
+    @media (max-width:640px){ .hero h1{font-size:24px;} #messages{max-height:58vh;} }
   </style>
 
   <!-- Markdown + XSS sanitize -->
@@ -67,38 +71,54 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="brand">
-      <!-- Logo hoa sen SVG -->
+  <div class="wrap">
+    <!-- Header -->
+    <div class="hero">
+      <!-- Logo SVG (đổi sang <img src="..."> nếu có file logo riêng) -->
       <svg class="lotus" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M12 3c1.8 2.7 2.6 5.1 2.4 7.2 1.7-.7 3.3-2 4.6-4-0.1 3-1.2 5.2-3 6.7 2 .1 4-.5 6-2-1.1 3.8-3.6 6-7.5 6.7.7.6 1.5 1.3 2.3 2.3-2.5-.2-4.3-1-5.2-2-0.9 1-2.7 1.8-5.2 2 .8-1 1.6-1.7 2.3-2.3-3.9-.7-6.4-2.9-7.5-6.7 2 .9 4 1.1 6 2-1.8-1.5-2.9-3.7-3-6.7 1.3 2 2.9 3.3 4.6 4C9.4 8.1 10.2 5.7 12 3z" fill="#a855f7"/>
       </svg>
       <h1>Pháp Bảo Phúc Lạc Chatbot</h1>
-      <div class="slogan">🧘‍♂️ Từ hòa – Chánh kiến – Lợi lạc</div>
+      <div class="mantra">🧘‍♂️ Từ hòa – Chánh kiến – Lợi lạc</div>
+      <div class="sub">Nam mô Bổn Sư Thích Ca Mâu Ni Phật · “Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</div>
+    </div>
 
-      <div class="toolbar">
-        <button id="clear-btn" class="tb-btn" title="Xóa lịch sử">Xóa</button>
-        <button id="regen-btn" class="tb-btn" title="Hỏi lại">Làm mới</button>
-        <button id="stop-btn" class="tb-btn" style="display:none" title="Dừng phát">Dừng</button>
+    <!-- Lời chào / hướng dẫn -->
+    <div class="card" style="padding:18px; margin-bottom:10px; text-align:center;">
+      <div style="font-weight:600;">Xin chào bạn! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
+      <div class="chips" id="chips">
+        <button class="chip" data-topic="Giáo lý">🪷 Giáo lý</button>
+        <button class="chip" data-topic="Kinh văn">📜 Kinh văn</button>
+        <button class="chip" data-topic="Sách nói Phật giáo">🎧 Sách nói Phật giáo</button>
+        <button class="chip" data-topic="Vấn đáp">💬 Vấn đáp</button>
+        <button class="chip" data-topic="Lộ trình tu học">🛤️ Lộ trình</button>
+        <button class="chip" data-topic="Tìm pháp thoại">🔎 Tìm pháp thoại</button>
       </div>
     </div>
 
+    <!-- Chat -->
     <form id="chat-form" class="card" autocomplete="off">
       <div id="messages" aria-live="polite"></div>
+
+      <div class="toolbar">
+        <button id="clear-btn" class="tb-btn" title="Xóa toàn bộ hội thoại">Xóa</button>
+        <button id="regen-btn" class="tb-btn" title="Hỏi lại với cùng câu hỏi">Làm mới</button>
+        <button id="stop-btn" class="tb-btn" style="display:none" title="Dừng phát">Dừng</button>
+      </div>
+
       <div class="composer">
         <input id="chat-input" name="message" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn muốn hỏi điều gì?" />
         <button id="send-btn" type="submit">Gửi</button>
       </div>
     </form>
 
-    <div class="hint">Mẹo: Enter để gửi, Shift+Enter để xuống dòng. Nếu trang chậm sau vài ngày dùng, hệ thống sẽ tự rút gọn lịch sử hiển thị để nhẹ máy.</div>
+    <div class="hint">Mẹo: <b>Enter</b> để gửi, <b>Shift+Enter</b> để xuống dòng. Nếu trang chậm sau vài ngày dùng, hệ thống sẽ tự rút gọn lịch sử hiển thị để nhẹ máy.</div>
   </div>
 
   <script>
   // ===================== CẤU HÌNH =====================
-  const API_URL         = '/api/chat';         // fallback JSON
-  const API_URL_STREAM  = '/api/chat-stream';  // SSE streaming
-
+  const API_URL        = '/api/chat';         // fallback JSON
+  const API_URL_STREAM = '/api/chat-stream';  // SSE streaming
   const MAX_NODES = 120, TRIM_BATCH = 20;
 
   // ===================== THAM CHIẾU UI =====================
@@ -106,14 +126,27 @@
   const pane  = document.getElementById('messages');
   const input = document.getElementById('chat-input');
   const send  = document.getElementById('send-btn');
-  const stopBtn = document.getElementById('stop-btn');
+  const stopBtn  = document.getElementById('stop-btn');
   const regenBtn = document.getElementById('regen-btn');
   const clearBtn = document.getElementById('clear-btn');
 
+  // Chips chủ đề
+  const chipsBox = document.getElementById('chips');
+  let activeTopic = ''; // vd: "Giáo lý"
+
+  chipsBox.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.chip');
+    if(!btn) return;
+    // toggle active
+    chipsBox.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    if(activeTopic === btn.dataset.topic){ activeTopic=''; }
+    else{ activeTopic = btn.dataset.topic; btn.classList.add('active'); }
+  });
+
   // ===================== TIỆN ÍCH =====================
-  function appendBubble(text, who='assistant') {
+  function appendBubble(text, who='assistant'){
     const el = document.createElement('div');
-    el.className = 'bubble ' + (who === 'user' ? 'user' : 'assistant');
+    el.className = 'bubble ' + (who==='user' ? 'user' : 'assistant');
     el.textContent = text ?? '';
     pane.appendChild(el);
 
@@ -131,21 +164,21 @@
     return el;
   }
 
-  function finalizeAsMarkdown(bubbleEl, text) {
+  function finalizeAsMarkdown(bubbleEl, text){
     const html = DOMPurify.sanitize(marked.parse(text || ''));
     bubbleEl.innerHTML = html;
     bubbleEl.classList.add('assistant');
   }
 
-  function setBusy(b) {
+  function setBusy(b){
     send.disabled = b; input.readOnly = b;
-    if (b) { send.dataset._t = send.textContent; send.textContent = 'Đang gửi…'; stopBtn.style.display='inline-block'; }
-    else { send.textContent = send.dataset._t || 'Gửi'; stopBtn.style.display='none'; }
+    if (b){ send.dataset._t = send.textContent; send.textContent = 'Đang gửi…'; stopBtn.style.display='inline-block'; }
+    else  { send.textContent = send.dataset._t || 'Gửi'; stopBtn.style.display='none'; }
   }
 
   // ===================== STREAM =====================
   let currentController = null;
-  async function streamAPI(message, history, onToken, onDone) {
+  async function streamAPI(message, history, onToken, onDone){
     currentController = new AbortController();
     const res = await fetch(API_URL_STREAM, {
       method:'POST',
@@ -161,7 +194,7 @@
     }
 
     if (!ct.includes('text/event-stream')) {
-      // Không phải SSE -> fallback JSON
+      // fallback JSON
       const reply = await callAPI(message, history);
       onToken && onToken(reply, reply);
       onDone && onDone(reply);
@@ -172,25 +205,24 @@
     const decoder = new TextDecoder('utf-8');
     let buffer = '', acc = '';
 
-    try {
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
+    try{
+      while(true){
+        const {value, done} = await reader.read();
+        if(done) break;
+        buffer += decoder.decode(value, {stream:true});
 
-        const events = buffer.split('\n\n'); // gói SSE
-        buffer = events.pop() || '';
-        for (const evt of events) {
+        const events = buffer.split('\n\n'); buffer = events.pop() || '';
+        for(const evt of events){
           const lines = evt.split('\n').filter(Boolean);
-          for (const line of lines) {
-            if (!line.startsWith('data:')) continue;
+          for(const line of lines){
+            if(!line.startsWith('data:')) continue;
             const data = line.slice(5).trim();
-            if (data === '[DONE]') { onDone && onDone(acc); return; }
-            try {
+            if(data === '[DONE]'){ onDone && onDone(acc); return; }
+            try{
               const json = JSON.parse(data);
               const token = json?.choices?.[0]?.delta?.content || '';
-              if (token) { acc += token; onToken && onToken(acc, token); }
-            } catch { /* keepalive/heartbeat */ }
+              if(token){ acc += token; onToken && onToken(acc, token); }
+            }catch{ /* keepalive */ }
           }
         }
       }
@@ -199,24 +231,21 @@
       currentController = null;
     }
   }
-
-  function stopStream() {
-    if (currentController) { currentController.abort(); currentController = null; }
-  }
+  function stopStream(){ if(currentController){ currentController.abort(); currentController=null; } }
 
   // ===================== Fallback JSON =====================
-  async function callAPI(message, history) {
+  async function callAPI(message, history){
     const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ message, history }),
     });
     const ct = res.headers.get('content-type') || '';
-    if (!res.ok) {
-      const errText = ct.includes('application/json') ? JSON.stringify(await res.json(), null, 2) : await res.text();
-      throw new Error(`HTTP ${res.status} ${res.statusText}\n${errText}`);
+    if(!res.ok){
+      const t = ct.includes('application/json')? JSON.stringify(await res.json(), null, 2) : await res.text();
+      throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`);
     }
-    if (ct.includes('application/json')) {
+    if(ct.includes('application/json')){
       const data = await res.json();
       return data?.reply || data?.choices?.[0]?.message?.content || JSON.stringify(data, null, 2);
     }
@@ -225,16 +254,18 @@
 
   // ===================== GỬI TIN =====================
   let lastUserMsg = '';
-  form.addEventListener('submit', async (ev) => {
+  form.addEventListener('submit', async (ev)=>{
     ev.preventDefault();
-    try {
+    try{
       const msg = (input.value || '').trim();
-      if (!msg) return;
+      if(!msg) return;
       lastUserMsg = msg;
 
+      // Nếu có chọn chủ đề, gắn nhãn nhẹ vào đầu câu hỏi (để bot ưu tiên ngữ cảnh)
+      const msgWithTopic = activeTopic ? `[Chủ đề ưu tiên: ${activeTopic}] ${msg}` : msg;
+
       appendBubble(msg, 'user');
-      input.value = '';
-      setBusy(true);
+      input.value=''; setBusy(true);
 
       const history = Array.from(pane.querySelectorAll('.bubble'))
         .slice(-50)
@@ -242,38 +273,36 @@
 
       const botBubble = appendBubble('', 'assistant');
 
-      await streamAPI(msg, history,
+      await streamAPI(msgWithTopic, history,
         acc => { botBubble.textContent = acc; pane.scrollTop = pane.scrollHeight; },
         full => { finalizeAsMarkdown(botBubble, full); });
 
-    } catch (err) {
+    }catch(err){
       console.error('[Chat][Submit]', err);
       appendBubble('Lỗi: ' + (err?.message || err), 'assistant');
-    } finally {
+    }finally{
       setBusy(false); input.focus();
     }
   });
 
-  // Enter: gửi, Shift+Enter: xuống dòng
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+  // Enter gửi, Shift+Enter xuống dòng
+  input.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); form.requestSubmit(); }
   });
 
-  // Nút Dừng / Làm mới / Xóa
-  stopBtn.addEventListener('click', () => stopStream());
-  regenBtn.addEventListener('click', async () => {
-    if (!lastUserMsg) return;
-    input.value = lastUserMsg;
-    form.requestSubmit();
+  // Nút điều khiển
+  stopBtn.addEventListener('click', ()=> stopStream());
+  regenBtn.addEventListener('click', ()=>{
+    if(!lastUserMsg) return;
+    input.value = lastUserMsg; form.requestSubmit();
   });
-  clearBtn.addEventListener('click', () => {
-    pane.innerHTML = '';
-    greet();
+  clearBtn.addEventListener('click', ()=>{
+    pane.innerHTML=''; greet();
   });
 
-  // Lời chào đầu trang
-  function greet() {
-    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
+  // Lời chào đầu trang (bong bóng đầu tiên)
+  function greet(){
+    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
   }
   greet();
 
