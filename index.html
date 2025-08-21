@@ -116,7 +116,19 @@
     .kbd{display:inline-block;border:1px solid #ddd;border-bottom-width:2px;border-radius:6px;padding:2px 6px;background:#fff;margin:0 2px;font-size:12px;}
     @media (max-width:720px){ .tip{display:none;} }
   </style>
-<!-- PBPL: Font + CSS override (DÁN TRƯỚC <!-- PBPL: dùng Roboto và tinh chỉnh kích thước header (dán ngay trước </head>) -->
+<!-- PBPL: Font + CSS override (DÁN TRƯỚC <!-- PBPL: dùng Roboto và tinh chỉnh kích thước header (dán ngay trước <style>
+  .suggest{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; }
+  .suggest .sug-title{ font-weight:600; margin-right:8px; margin-top:2px; }
+  .suggest .chip{
+    padding:8px 12px;
+    font-size:16px;              /* = cỡ chữ thân bài */
+    border:1px solid var(--line);
+    background:#fff; border-radius:999px; cursor:pointer;
+  }
+  .suggest .chip:hover{ background:#f8fafc; }
+  .assistant .lead{ margin:8px 0 6px; color:#374151; font-style:italic; }
+  .assistant .outro{ margin-top:10px; color:#374151; }
+</style></head>) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
