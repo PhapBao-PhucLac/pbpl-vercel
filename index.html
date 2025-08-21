@@ -445,7 +445,77 @@
         const who=el.classList.contains('user')?'Người hỏi':'Trợ lý';
         const md=(el.dataset.md||el.textContent||'').replace(/</g,'&lt;').replace(/\n/g,'<br>');
         return `<div class="msg"><div class="who">${who}</div><div>${md}</div></div>`;
-      }).join('') + '</body></html>';
+      }).join('') + '<!-- PBPL: override finalizeAsMarkdown (DÁN TRƯỚC </body>) -->
+<script>
+(function(){
+  // Nếu trang chưa có extractSuggestions thì định nghĩa nhanh
+  if (typeof extractSuggestions !== 'function') {
+    window.extractSuggestions = function(markdown){
+      const lines = (markdown || '').split('\n');
+      let inSug = false, body = [], sug = [];
+      for (let i=0;i<lines.length;i++){
+        const L = lines[i];
+        if (!inSug && /gợi ý hỏi thêm/i.test(L)) { inSug = true; continue; }
+        if (inSug) {
+          const m = L.trim().match(/^[-•]\s+(.*)/);
+          if (m) { sug.push(m[1].trim()); continue; }
+          if (L.trim()==='') continue;
+        }
+        if (!inSug) body.push(L);
+      }
+      return { body: body.join('\n').trim(), suggestions: sug.slice(0,5) };
+    };
+  }
+
+  // 🔁 GHI ĐÈ hàm hiển thị: thêm câu mở đầu, render nội dung, chip gợi ý, và câu kết
+  window.finalizeAsMarkdown = function(bubbleEl, text){
+    const parts = window.extractSuggestions(text);
+    const bodyMd = parts.body || text || '';
+
+    // 1) Câu mở đầu thân thiện
+    const lead = document.createElement('p');
+    lead.className = 'lead';
+    lead.textContent = 'Trước hết, mình xin chia sẻ ngắn gọn và dễ thực hành:';
+
+    // 2) Thân bài (render Markdown + sanitize)
+    const html = DOMPurify.sanitize(marked.parse(bodyMd));
+    const bodyBox = document.createElement('div');
+    bodyBox.innerHTML = html;
+
+    // Gắn vào bubble
+    bubbleEl.innerHTML = '';
+    bubbleEl.appendChild(lead);
+    bubbleEl.appendChild(bodyBox);
+    bubbleEl.dataset.md = text || '';
+    bubbleEl.classList.add('assistant');
+
+    // 3) Gợi ý hỏi thêm (chip bấm được)
+    if (parts.suggestions && parts.suggestions.length){
+      const wrap = document.createElement('div');
+      wrap.className = 'suggest';
+
+      const title = document.createElement('div');
+      title.className = 'sug-title';
+      title.textContent = 'Gợi ý hỏi thêm:';
+      wrap.appendChild(title);
+
+      parts.suggestions.forEach(s=>{
+        const b = document.createElement('button');
+        b.type='button'; b.className='chip'; b.textContent=s;
+        b.addEventListener('click', ()=>{ input.value = s; form.requestSubmit(); });
+        wrap.appendChild(b);
+      });
+      bubbleEl.appendChild(wrap);
+    }
+
+    // 4) Câu kết thân tình, rủ hỏi tiếp
+    const outro = document.createElement('p');
+    outro.className = 'outro';
+    outro.textContent = 'Bạn muốn mình đào sâu ý nào tiếp theo không? Mình có thể gợi ý bài kinh, ví dụ thực hành, hoặc giải thích kỹ hơn mục bạn đang quan tâm.';
+    bubbleEl.appendChild(outro);
+  };
+})();
+</script></body></html>';
     const w=window.open('','_blank'); if(!w) return; w.document.open(); w.document.write(html); w.document.close(); w.focus(); w.print();
   }
 
