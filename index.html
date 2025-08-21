@@ -89,380 +89,271 @@
     @media (max-width:720px){ .tip{display:none;} .hero h1{font-size:24px;} #messages{max-height:58vh;} }
   </style>
 
-  <!-- Markdown + XSS sanitize -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
-</head>
-<body>
-  <div class="wrap">
-    <!-- Header -->
-    <div class="hero">
-      <!-- Logo: ưu tiên SVG, fallback PNG -->
-<picture>
-  <source srcset="./logo.svg" type="image/svg+xml" />
-  <img src="./logo.png" alt="Pháp Bảo Phúc Lạc" class="brand-logo" />
-</picture>
-        <path d="M12 3c1.8 2.7 2.6 5.1 2.4 7.2 1.7-.7 3.3-2 4.6-4-0.1 3-1.2 5.2-3 6.7 2 .1 4-.5 6-2-1.1 3.8-3.6 6-7.5 6.7.7.6 1.5 1.3 2.3 2.3-2.5-.2-4.3-1-5.2-2-0.9 1-2.7 1.8-5.2 2 .8-1 1.6-1.7 2.3-2.3-3.9-.7-6.4-2.9-7.5-6.7 2 .9 4 1.1 6 2-1.8-1.5-2.9-3.7-3-6.7 1.3 2 2.9 3.3 4.6 4C9.4 8.1 10.2 5.7 12 3z" fill="#a855f7"/>
-      </svg>
-      <h1>PHÁP BẢO PHÚC LẠC – CHATBOT</h1>
-      <div class="mantra">“Từ hòa – Chánh kiến – Lợi lạc”</div>
-      <div class="sub">Nam mô Bổn Sư Thích Ca Mâu Ni Phật · “Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</div>
-    </div>
+  <!-- Markdown + XSS sanitize (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 
-    <!-- Lời chào + chips -->
-    <div class="card" style="padding:18px;margin-bottom:10px;text-align:center;">
-      <div style="font-weight:600;">Xin chào bạn! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
-      <div class="chips" id="chips">
-        <button class="chip" data-topic="Giáo lý">🪷 Giáo lý</button>
-        <button class="chip" data-topic="Kinh văn">📜 Kinh văn</button>
-        <button class="chip" data-topic="Sách nói Phật giáo">🎧 Sách nói Phật giáo</button>
-        <button class="chip" data-topic="Vấn đáp">💬 Vấn đáp</button>
-        <button class="chip" data-topic="Lộ trình tu học">🛤️ Lộ trình</button>
-        <button class="chip" data-topic="Tìm pháp thoại">🔎 Tìm pháp thoại</button>
-      </div>
-    </div>
+<script>
+/* ====== CẤU HÌNH ====== */
+const API_URL        = '/api/chat';
+const API_URL_STREAM = '/api/chat-stream';
+const MAX_NODES = 120, TRIM_BATCH = 20;
+const ENABLE_GREETING_BUBBLE = false; // tắt bong bóng chào dư
 
-    <!-- Chat -->
-    <form id="chat-form" class="card" autocomplete="off">
-      <div id="messages" aria-live="polite"></div>
+/* ====== THAM CHIẾU UI ====== */
+const form   = document.getElementById('chat-form');
+const pane   = document.getElementById('messages');
+const input  = document.getElementById('chat-input');
+const send   = document.getElementById('send-btn');
+const stopBtn  = document.getElementById('stop-btn');
+const regenBtn = document.getElementById('regen-btn');
+const clearBtn = document.getElementById('clear-btn');
 
-      <div class="toolbar">
-        <button id="clear-btn" class="tb-btn" title="Xóa toàn bộ hội thoại">Xóa</button>
-        <button id="regen-btn" class="tb-btn" title="Hỏi lại với cùng câu hỏi">Làm mới</button>
-        <button id="stop-btn" class="tb-btn" style="display:none" title="Dừng phát">Dừng</button>
-      </div>
+const newChatBtn  = document.getElementById('newchat-btn');
+const stepBackBtn = document.getElementById('stepback-btn');
+const copyBtn     = document.getElementById('copy-btn');
+const saveBtn     = document.getElementById('save-btn');
+const printBtn    = document.getElementById('print-btn');
 
-      <div class="composer">
-        <input id="chat-input" name="message" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn muốn hỏi điều gì?" />
-        <button id="send-btn" type="submit">Gửi</button>
-      </div>
-    </form>
+const chipsBox = document.getElementById('chips');
+let activeTopic = '';
 
-    <!-- FOOT MENU (menu phụ như mock) -->
-    <div class="footbar">
-      <div class="fb-left">
-        <button id="newchat-btn" class="mini-btn">＋ New Chat</button>
-        <span class="tip">
-          Bấm <span class="kbd">Ctrl/Cmd</span> + <span class="kbd">Shift</span> + <span class="kbd">K</span> để bắt đầu cuộc hội thoại mới.
-        </span>
-      </div>
-      <div class="fb-right">
-        <button id="stepback-btn" class="mini-icon" title="Lùi một bước" aria-label="Lùi một bước">⮌</button>
-        <button id="copy-btn" class="mini-icon" title="Sao chép hội thoại" aria-label="Sao chép">📋</button>
-        <button id="save-btn" class="mini-icon" title="Lưu (.md)" aria-label="Lưu">💾</button>
-        <button id="print-btn" class="mini-icon primary" title="In ra PDF" aria-label="In/PDF">⤴</button>
-      </div>
-    </div>
-
-    <div class="hint">Mẹo: <b>Enter</b> để gửi, <b>Shift+Enter</b> để xuống dòng. Nếu trang chậm sau vài ngày dùng, hệ thống sẽ tự rút gọn lịch sử hiển thị để nhẹ máy.</div>
-  </div>
-
-  <!-- Markdown + XSS sanitize -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
-
-  <script>
-  // ===================== CẤU HÌNH =====================
-  const API_URL        = '/api/chat';         // fallback JSON
-  const API_URL_STREAM = '/api/chat-stream';  // SSE streaming
-  const MAX_NODES = 120, TRIM_BATCH = 20;
-
-  // ===================== THAM CHIẾU UI =====================
-  const form   = document.getElementById('chat-form');
-  const pane   = document.getElementById('messages');
-  const input  = document.getElementById('chat-input');
-  const send   = document.getElementById('send-btn');
-  const stopBtn  = document.getElementById('stop-btn');
-  const regenBtn = document.getElementById('regen-btn');
-  const clearBtn = document.getElementById('clear-btn');
-
-  // Foot menu
-  const newChatBtn  = document.getElementById('newchat-btn');
-  const stepBackBtn = document.getElementById('stepback-btn');
-  const copyBtn     = document.getElementById('copy-btn');
-  const saveBtn     = document.getElementById('save-btn');
-  const printBtn    = document.getElementById('print-btn');
-
-  // Chips
-  const chipsBox = document.getElementById('chips');
-  let activeTopic = '';
-
-  chipsBox.addEventListener('click', (e)=>{
-    const btn = e.target.closest('.chip'); if(!btn) return;
-    chipsBox.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-    if(activeTopic === btn.dataset.topic){ activeTopic=''; }
-    else{ activeTopic = btn.dataset.topic; btn.classList.add('active'); }
-  });
-
-  // ===================== TIỆN ÍCH =====================
-  function appendBubble(text, who='assistant'){
-    const el = document.createElement('div');
-    el.className = 'bubble ' + (who==='user' ? 'user' : 'assistant');
-    el.textContent = text ?? '';
-    // lưu lại bản Markdown thô để xuất file
-    el.dataset.md = text || '';
-    pane.appendChild(el);
-
-    if (pane.children.length > MAX_NODES) {
-      for (let i=0;i<TRIM_BATCH;i++) if (pane.firstChild) pane.removeChild(pane.firstChild);
-      if (!pane.dataset.truncated) {
-        const note = document.createElement('div');
-        note.className = 'bubble note';
-        note.textContent = 'Đã rút gọn lịch sử hiển thị để trang mượt hơn.';
-        pane.insertBefore(note, pane.firstChild);
-        pane.dataset.truncated = '1';
-      }
+/* ====== STYLE BỔ SUNG (logo + font + chip gợi ý) ====== */
+// Merriweather cho tiêu đề (nếu chưa thêm trong <head>, giữ nguyên)
+/* Logo trên đầu trang: ép 64px */
+(() => {
+  const style = document.createElement('style');
+  style.textContent = `
+    .hero .brand-logo, .hero picture img, .hero img.brand-logo {
+      width:64px!important;height:64px!important;object-fit:contain;display:inline-block;vertical-align:middle;margin-bottom:10px;
     }
-    pane.scrollTop = pane.scrollHeight;
-    return el;
-  }
-
-  <script>
-  // --- Tách phần thân & gợi ý hỏi thêm (parser siêu đơn giản) ---
-  function extractSuggestions(markdown){
-    const lines = (markdown || '').split('\n');
-    let inSug = false, body = [], sug = [];
-    for (let i=0;i<lines.length;i++){
-      const L = lines[i];
-
-      // Khi gặp dòng chứa cụm "Gợi ý hỏi thêm" => bật chế độ thu gợi ý
-      if (!inSug && /gợi ý hỏi thêm/i.test(L)) { inSug = true; continue; }
-
-      if (inSug) {
-        // Lấy các dòng bắt đầu bằng "- " hoặc "• "
-        const m = L.trim().match(/^[-•]\s+(.*)/);
-        if (m) { sug.push(m[1].trim()); continue; }
-        // Cho phép bỏ qua dòng trống giữa các gợi ý
-        if (L.trim()==='') continue;
-        // Gặp dòng khác định dạng => coi như hết block gợi ý
-      }
-
-      if (!inSug) body.push(L);
+    .hero h1{font-family:'Merriweather',Georgia,'Times New Roman',serif!important;font-weight:900;font-size:36px;letter-spacing:.2px;margin:.2rem 0 0;}
+    .hero .mantra{font-size:20px;font-weight:700;opacity:.95;}
+    .hero .sub{font-size:16px;color:#475569;}
+    @media (max-width:640px){
+      .hero .brand-logo, .hero picture img{width:48px!important;height:48px!important;}
+      .hero h1{font-size:26px}.hero .mantra{font-size:16px}.hero .sub{font-size:14px}
     }
-    return { body: body.join('\n').trim(), suggestions: sug.slice(0,5) };
-  }
+    .suggest{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+    .suggest .chip{padding:6px 10px;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:999px;cursor:pointer}
+    .suggest .chip:hover{background:#f8fafc}
+  `;
+  document.head.appendChild(style);
+})();
 
-  // --- Render Markdown + gắn chip gợi ý có thể bấm để hỏi tiếp ---
-  function finalizeAsMarkdown(bubbleEl, text){
-    const { body, suggestions } = extractSuggestions(text);
-    const html = DOMPurify.sanitize(marked.parse(body || text || ''));
-    bubbleEl.innerHTML = html;
-    bubbleEl.dataset.md = text || '';
-    bubbleEl.classList.add('assistant');
-
-    if (suggestions.length){
-      const wrap = document.createElement('div');
-      wrap.className = 'suggest';
-      suggestions.forEach(s=>{
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'chip';
-        b.textContent = s;
-        b.addEventListener('click', ()=>{ input.value = s; form.requestSubmit(); });
-        wrap.appendChild(b);
-      });
-      bubbleEl.appendChild(wrap);
+/* ====== TIỆN ÍCH UI ====== */
+function appendBubble(text, who='assistant'){
+  const el = document.createElement('div');
+  el.className = 'bubble ' + (who==='user' ? 'user':'assistant');
+  el.textContent = text ?? '';
+  el.dataset.md = text || '';
+  pane.appendChild(el);
+  if (pane.children.length > MAX_NODES) {
+    for (let i=0;i<TRIM_BATCH;i++) if (pane.firstChild) pane.removeChild(pane.firstChild);
+    if (!pane.dataset.truncated) {
+      const note = document.createElement('div');
+      note.className='bubble note'; note.textContent='Đã rút gọn lịch sử hiển thị để trang mượt hơn.';
+      pane.insertBefore(note, pane.firstChild); pane.dataset.truncated='1';
     }
   }
-</script>
+  pane.scrollTop = pane.scrollHeight;
+  return el;
+}
 
-  function setBusy(b){
-    send.disabled = b; input.readOnly = b;
-    if (b){ send.dataset._t = send.textContent; send.textContent = 'Đang gửi…'; stopBtn.style.display='inline-block'; }
-    else  { send.textContent = send.dataset._t || 'Gửi'; stopBtn.style.display='none'; }
+/* Tách phần thân & gợi ý hỏi thêm từ Markdown */
+function extractSuggestions(markdown){
+  const lines=(markdown||'').split('\n');
+  let inSug=false, body=[], sug=[];
+  for(let i=0;i<lines.length;i++){
+    const L=lines[i];
+    if(!inSug && /gợi ý hỏi thêm/i.test(L)){ inSug=true; continue; }
+    if(inSug){
+      const m=L.trim().match(/^[-•]\s+(.*)/);
+      if(m){ sug.push(m[1].trim()); continue; }
+      if(L.trim()==='') continue;
+    }
+    if(!inSug) body.push(L);
   }
+  return { body: body.join('\n').trim(), suggestions: sug.slice(0,5) };
+}
 
-  // Export helpers
-  function bubblesToMarkdown(){
-    const out = [];
-    pane.querySelectorAll('.bubble').forEach(el=>{
-      const role = el.classList.contains('user') ? 'Người hỏi' : 'Trợ lý';
-      const md   = (el.dataset.md || el.textContent || '').trim();
-      out.push(`**${role}:**\n\n${md}\n`);
+/* Render Markdown + gắn chip gợi ý */
+function finalizeAsMarkdown(bubbleEl, text){
+  const { body, suggestions } = extractSuggestions(text);
+  const html = DOMPurify.sanitize(marked.parse(body || text || ''));
+  bubbleEl.innerHTML = html;
+  bubbleEl.dataset.md = text || '';
+  bubbleEl.classList.add('assistant');
+
+  if (suggestions.length){
+    const wrap=document.createElement('div'); wrap.className='suggest';
+    suggestions.forEach(s=>{
+      const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=s;
+      b.addEventListener('click', ()=>{ input.value=s; form.requestSubmit(); });
+      wrap.appendChild(b);
     });
-    return out.join('\n').trim() + '\n';
+    bubbleEl.appendChild(wrap);
   }
-  function saveFile(filename, content, mime='text/plain'){
-    const blob = new Blob([content], {type:mime});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 100);
-  }
-  function ymdhs(){
-    const d=new Date();
-    const p=n=>String(n).padStart(2,'0');
-    return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;
-  }
+}
 
-  // ===================== STREAM =====================
-  let currentController = null;
-  async function streamAPI(message, history, onToken, onDone){
-    currentController = new AbortController();
-    const res = await fetch(API_URL_STREAM, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ message, history }), signal: currentController.signal
-    });
-    const ct = res.headers.get('content-type') || '';
-    if(!res.ok){
-      const t = ct.includes('application/json') ? JSON.stringify(await res.json(), null, 2) : await res.text();
-      throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`);
-    }
-    if(!ct.includes('text/event-stream')){
-      const reply = await callAPI(message, history);
-      onToken && onToken(reply, reply); onDone && onDone(reply); return;
-    }
-    const reader = res.body.getReader(); const decoder = new TextDecoder('utf-8');
-    let buffer='', acc='';
-    try{
-      while(true){
-        const {value, done} = await reader.read();
-        if(done) break;
-        buffer += decoder.decode(value, {stream:true});
-        const events = buffer.split('\n\n'); buffer = events.pop() || '';
-        for(const evt of events){
-          const lines = evt.split('\n').filter(Boolean);
-          for(const line of lines){
-            if(!line.startsWith('data:')) continue;
-            const data = line.slice(5).trim();
-            if(data==='[DONE]'){ onDone && onDone(acc); return; }
-            try{ const j=JSON.parse(data);
-              const token=j?.choices?.[0]?.delta?.content||'';
-              if(token){ acc+=token; onToken && onToken(acc, token); }
-            }catch{}
-          }
+function setBusy(b){
+  send.disabled=b; input.readOnly=b;
+  if(b){ send.dataset._t=send.textContent; send.textContent='Đang gửi…'; stopBtn.style.display='inline-block'; }
+  else { send.textContent=send.dataset._t||'Gửi'; stopBtn.style.display='none'; }
+}
+
+/* ====== STREAM ====== */
+let currentController=null;
+async function streamAPI(message, history, onToken, onDone){
+  currentController=new AbortController();
+  const res=await fetch(API_URL_STREAM,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({message,history}),signal:currentController.signal});
+  const ct=res.headers.get('content-type')||'';
+  if(!res.ok){
+    const t=ct.includes('application/json')?JSON.stringify(await res.json(),null,2):await res.text();
+    throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`);
+  }
+  if(!ct.includes('text/event-stream')){
+    const reply=await callAPI(message,history); onToken&&onToken(reply,reply); onDone&&onDone(reply); return;
+  }
+  const reader=res.body.getReader(); const decoder=new TextDecoder('utf-8');
+  let buffer='',acc='';
+  try{
+    while(true){
+      const {value,done}=await reader.read(); if(done) break;
+      buffer+=decoder.decode(value,{stream:true});
+      const events=buffer.split('\n\n'); buffer=events.pop()||'';
+      for(const evt of events){
+        const lines=evt.split('\n').filter(Boolean);
+        for(const line of lines){
+          if(!line.startsWith('data:')) continue;
+          const data=line.slice(5).trim();
+          if(data==='[DONE]'){ onDone&&onDone(acc); return; }
+          try{
+            const j=JSON.parse(data);
+            const token=j?.choices?.[0]?.delta?.content||'';
+            if(token){ acc+=token; onToken&&onToken(acc,token); }
+          }catch{}
         }
       }
-      onDone && onDone(acc);
-    }finally{ currentController=null; }
-  }
-  function stopStream(){ if(currentController){ currentController.abort(); currentController=null; } }
-
-  // ===================== Fallback JSON =====================
-  async function callAPI(message, history){
-    const res = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ message, history }) });
-    const ct = res.headers.get('content-type') || '';
-    if(!res.ok){
-      const t = ct.includes('application/json')? JSON.stringify(await res.json(), null, 2) : await res.text();
-      throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`);
     }
-    if(ct.includes('application/json')){
-      const data = await res.json();
-      return data?.reply || data?.choices?.[0]?.message?.content || JSON.stringify(data, null, 2);
-    }
-    return await res.text();
-  }
-
-  // ===================== GỬI TIN =====================
-  let lastUserMsg = '';
-  form.addEventListener('submit', async (ev)=>{
-    ev.preventDefault();
-    try{
-      const msg = (input.value || '').trim(); if(!msg) return;
-      lastUserMsg = msg;
-
-      const msgWithTopic = activeTopic ? `[Chủ đề ưu tiên: ${activeTopic}] ${msg}` : msg;
-
-      appendBubble(msg, 'user');
-      input.value=''; setBusy(true);
-
-      const history = Array.from(pane.querySelectorAll('.bubble'))
-        .slice(-50)
-        .map(el => ({ role: el.classList.contains('user') ? 'user' : 'assistant', content: el.dataset.md || el.textContent || '' }));
-
-      const botBubble = appendBubble('', 'assistant');
-
-      await streamAPI(msgWithTopic, history,
-        acc => { botBubble.textContent = acc; botBubble.dataset.md = acc; pane.scrollTop = pane.scrollHeight; },
-        full => { finalizeAsMarkdown(botBubble, full); });
-
-    }catch(err){
-      console.error('[Chat][Submit]', err);
-      appendBubble('Lỗi: ' + (err?.message || err), 'assistant');
-    }finally{
-      setBusy(false); input.focus();
-    }
-  });
-
-  // Enter gửi, Shift+Enter xuống dòng
-  input.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); form.requestSubmit(); }
-  });
-
-  // ====== FOOT MENU actions ======
-  function newChat(){
-  pane.innerHTML='';
-  if (ENABLE_GREETING_BUBBLE) greet();
-  lastUserMsg='';
+    onDone&&onDone(acc);
+  }finally{ currentController=null; }
 }
-  function stepBack(){
-    // Xóa cặp (assistant + user) cuối cùng nếu có
-    const items = Array.from(pane.querySelectorAll('.bubble'));
-    if(items.length===0) return;
-    // Nếu phần tử cuối là assistant => xóa nó; nếu trước đó là user => xóa luôn.
-    let last = items.pop(); last.remove();
-    if(items.length){
-      let prev = items.pop();
-      if(prev && prev.classList.contains('user')) prev.remove();
-    }
-  }
-  async function copyTranscript(){
-    const md = bubblesToMarkdown();
-    await navigator.clipboard.writeText(md).catch(()=>{});
-  }
-  function saveMarkdown(){ saveFile(`PBPL_Chat_${ymdhs()}.md`, bubblesToMarkdown(), 'text/markdown'); }
-  function printPDF(){
-    const html = `
-<!doctype html><html><head><meta charset="utf-8">
-<title>PBPL Chat ${ymdhs()}</title>
-<style>
-  body{font:15px/1.6 system-ui,Segoe UI,Roboto,Helvetica,Arial;padding:24px;color:#111;}
-  h1{font-size:20px;margin:0 0 12px;}
-  .msg{margin:10px 0;padding:10px 12px;border-radius:10px;border:1px solid #eee;}
-  .who{font-weight:700;margin-bottom:6px;}
-</style></head><body>
-<h1>Pháp Bảo Phúc Lạc – Chatbot</h1>
-${Array.from(pane.querySelectorAll('.bubble')).map(el=>{
-  const who = el.classList.contains('user')?'Người hỏi':'Trợ lý';
-  const md  = (el.dataset.md || el.textContent || '').replace(/</g,'&lt;');
-  return `<div class="msg"><div class="who">${who}</div><div>${md.replace(/\n/g,'<br>')}</div></div>`;
-}).join('')}
-</body></html>`;
-    const w = window.open('', '_blank'); if(!w) return;
-    w.document.open(); w.document.write(html); w.document.close();
-    w.focus(); w.print();
-  }
+function stopStream(){ if(currentController){ currentController.abort(); currentController=null; } }
 
-  newChatBtn.addEventListener('click', newChat);
-  stepBackBtn.addEventListener('click', stepBack);
-  copyBtn.addEventListener('click', copyTranscript);
-  saveBtn.addEventListener('click', saveMarkdown);
-  printBtn.addEventListener('click', printPDF);
+/* ====== Fallback JSON ====== */
+async function callAPI(message, history){
+  const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({message,history})});
+  const ct=res.headers.get('content-type')||'';
+  if(!res.ok){
+    const t=ct.includes('application/json')?JSON.stringify(await res.json(),null,2):await res.text();
+    throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`);
+  }
+  if(ct.includes('application/json')){
+    const data=await res.json();
+    return data?.reply || data?.choices?.[0]?.message?.content || JSON.stringify(data,null,2);
+  }
+  return await res.text();
+}
 
-  // Toolbar trong card
-  stopBtn.addEventListener('click', ()=> stopStream());
-  regenBtn.addEventListener('click', ()=>{ if(!lastUserMsg) return; input.value=lastUserMsg; form.requestSubmit(); });
-  clearBtn.addEventListener('click', newChat);
+/* ====== HÀNH VI GỬI TIN ====== */
+chipsBox?.addEventListener('click',(e)=>{
+  const btn=e.target.closest('.chip'); if(!btn) return;
+  chipsBox.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  activeTopic = (activeTopic===btn.dataset.topic) ? '' : btn.dataset.topic;
+  if(activeTopic) btn.classList.add('active');
+});
 
-  // Phím tắt: New chat (Ctrl/Cmd + Shift + K), Save (Ctrl/Cmd + S)
-  window.addEventListener('keydown', (e)=>{
-    const mod = e.ctrlKey || e.metaKey;
-    if(mod && e.shiftKey && e.key.toLowerCase()==='k'){ e.preventDefault(); newChat(); }
-    if(mod && e.key.toLowerCase()==='s'){ e.preventDefault(); saveMarkdown(); }
+let lastUserMsg='';
+form.addEventListener('submit', async (ev)=>{
+  ev.preventDefault();
+  try{
+    const msg=(input.value||'').trim(); if(!msg) return;
+    lastUserMsg=msg;
+    const msgWithTopic = activeTopic ? `[Chủ đề ưu tiên: ${activeTopic}] ${msg}` : msg;
+
+    appendBubble(msg,'user');
+    input.value=''; setBusy(true);
+
+    const history = Array.from(pane.querySelectorAll('.bubble'))
+      .slice(-50)
+      .map(el => ({ role: el.classList.contains('user') ? 'user':'assistant', content: el.dataset.md || el.textContent || '' }));
+
+    const botBubble=appendBubble('', 'assistant');
+
+    await streamAPI(msgWithTopic, history,
+      acc => { botBubble.textContent=acc; botBubble.dataset.md=acc; pane.scrollTop=pane.scrollHeight; },
+      full => { finalizeAsMarkdown(botBubble, full); });
+
+  }catch(err){
+    console.error('[Chat][Submit]', err);
+    appendBubble('Lỗi: ' + (err?.message || err), 'assistant');
+  }finally{
+    setBusy(false); input.focus();
+  }
+});
+
+input.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); form.requestSubmit(); }
+});
+
+/* ====== FOOT MENU ====== */
+function bubblesToMarkdown(){
+  const out=[]; pane.querySelectorAll('.bubble').forEach(el=>{
+    const role=el.classList.contains('user')?'Người hỏi':'Trợ lý';
+    const md=(el.dataset.md||el.textContent||'').trim();
+    out.push(`**${role}:**\n\n${md}\n`);
   });
+  return out.join('\n').trim()+'\n';
+}
+function saveFile(filename,content,mime='text/plain'){
+  const blob=new Blob([content],{type:mime}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},100);
+}
+function ymdhs(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;}
 
-  function greet(){
-  // nếu muốn bật lại bong bóng chào, đổi giá trị công tắc ở trên thành true
+function newChat(){ pane.innerHTML=''; if(ENABLE_GREETING_BUBBLE) greet(); lastUserMsg=''; }
+function stepBack(){
+  const items=Array.from(pane.querySelectorAll('.bubble')); if(!items.length) return;
+  let last=items.pop(); last.remove();
+  if(items.length){ let prev=items.pop(); if(prev && prev.classList.contains('user')) prev.remove(); }
+}
+async function copyTranscript(){ try{ await navigator.clipboard.writeText(bubblesToMarkdown()); }catch{} }
+function saveMarkdown(){ saveFile(`PBPL_Chat_${ymdhs()}.md`, bubblesToMarkdown(), 'text/markdown'); }
+function printPDF(){
+  const html = '<!doctype html><html><head><meta charset="utf-8"><title>PBPL Chat '
+    + ymdhs() + '</title><style>body{font:15px/1.6 system-ui,Segoe UI,Roboto,Helvetica,Arial;padding:24px;color:#111;}h1{font-size:20px;margin:0 0 12px}.msg{margin:10px 0;padding:10px 12px;border-radius:10px;border:1px solid #eee}.who{font-weight:700;margin-bottom:6px}</style></head><body><h1>Pháp Bảo Phúc Lạc – Chatbot</h1>'
+    + Array.from(pane.querySelectorAll('.bubble')).map(el=>{
+        const who=el.classList.contains('user')?'Người hỏi':'Trợ lý';
+        const md=(el.dataset.md||el.textContent||'').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+        return `<div class="msg"><div class="who">${who}</div><div>${md}</div></div>`;
+      }).join('')
+    + '</body></html>';
+  const w=window.open('','_blank'); if(!w) return; w.document.open(); w.document.write(html); w.document.close(); w.focus(); w.print();
+}
+
+newChatBtn?.addEventListener('click', newChat);
+stepBackBtn?.addEventListener('click', stepBack);
+copyBtn?.addEventListener('click', copyTranscript);
+saveBtn?.addEventListener('click', saveMarkdown);
+printBtn?.addEventListener('click', printPDF);
+
+stopBtn?.addEventListener('click', ()=> stopStream());
+regenBtn?.addEventListener('click', ()=>{ if(!lastUserMsg) return; input.value=lastUserMsg; form.requestSubmit(); });
+clearBtn?.addEventListener('click', newChat);
+
+/* ====== Lời chào đầu trang ====== */
+function greet(){
   if (ENABLE_GREETING_BUBBLE) {
-    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
+    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
   }
 }
-// không gọi greet() khi false
 if (ENABLE_GREETING_BUBBLE) greet();
 
-  console.log('[Chat] Ready ✅');
-  </script>
+console.log('[Chat] Ready ✅');
+</script>
 </body>
 </html>
