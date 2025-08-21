@@ -65,3 +65,70 @@
   cursor: pointer;
 }
 #send-btn:disabled { opacity: .6; cursor: not-allowed; }
+/* ====== Chat bubbles: trắng – xám nhạt, thanh & sạch ====== */
+#chat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  height: 420px;                 /* chỉnh theo ý */
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+/* Mỗi dòng tin nhắn */
+.msg { display: flex; width: 100%; }
+.msg.user { justify-content: flex-end; }
+.msg.bot  { justify-content: flex-start; }
+
+/* Bong bóng chung */
+.bubble {
+  max-width: 80%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  line-height: 1.55;
+  font-size: 15px;
+  word-wrap: break-word;
+  box-shadow: 0 1px 1px rgba(0,0,0,.02);
+}
+
+/* User: nền trắng + viền nhẹ */
+.bubble.user {
+  background: #fff;
+  color: #111;
+  border: 1px solid #e5e7eb;
+}
+
+/* Bot: nền xám nhạt, không viền */
+.bubble.bot {
+  background: #f1f1f1;
+  color: #111;
+  border: none;
+}
+
+/* Markdown đơn giản */
+.bubble strong, .bubble b { font-weight: 700; }
+.bubble p { margin: 0 0 .5rem 0; }
+
+/* ====== “Đang soạn…” 3 chấm ====== */
+.typing { display: inline-flex; gap: 5px; align-items: center; }
+.typing .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #9aa0a6;
+  animation: typingBlink 1.2s infinite ease-in-out;
+  opacity: .6;
+}
+.typing .dot:nth-child(2){ animation-delay: .2s; }
+.typing .dot:nth-child(3){ animation-delay: .4s; }
+
+@keyframes typingBlink {
+  0%, 80%, 100% { transform: translateY(0); opacity: .5; }
+  40% { transform: translateY(-3px); opacity: 1; }
+}
+
+/* (Tùy chọn) Ẩn thanh cuộn xấu */
+#chat-box::-webkit-scrollbar { width: 8px; }
+#chat-box::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 8px; }
+#chat-box::-webkit-scrollbar-track { background: transparent; }
