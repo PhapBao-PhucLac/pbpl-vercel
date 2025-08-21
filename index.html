@@ -5,33 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pháp Bảo Phúc Lạc Chatbot</title>
 
-  <!-- NỀN THƯƠNG HIỆU -->
+  <!-- Thương hiệu & bố cục -->
   <style>
-    :root { --ink:#111; --muted:#f1f1f1; --line:#eee; --brand:#16a085; --accent:#a855f7; }
+    :root {
+      --ink:#111; --muted:#f1f1f1; --line:#eee; --brand:#16a085; --accent:#a855f7;
+    }
     html,body { height:100%; }
     body {
       margin:0; font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       color:var(--ink);
-      /* nền dịu, có hoa sen mờ */
       background:
         radial-gradient(1200px 600px at 10% -10%, #f8f5ff 0, transparent 50%),
         radial-gradient(1000px 400px at 120% 20%, #e8fff6 0, transparent 45%),
         #fff;
     }
-    .container { max-width:920px; margin:40px auto; padding:0 16px; }
-    .brand { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
-    .brand h1 { margin:0; font-size:26px; font-weight:800; letter-spacing:.2px; }
-    .brand small { color:#6b7280; margin-left:6px; }
-
-    /* Logo sen inline */
+    .container { max-width:960px; margin:36px auto; padding:0 16px; }
+    .brand { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+    .brand h1 { margin:0; font-size:28px; font-weight:800; letter-spacing:.2px; }
+    .slogan { font-weight:700; opacity:.9; }
     .lotus { width:28px; height:28px; display:inline-block; }
 
-    .card { border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04); }
+    .toolbar { display:flex; gap:8px; margin-left:auto; align-items:center; }
+    .tb-btn {
+      font:13px/1; padding:8px 10px; border-radius:10px; border:1px solid var(--line);
+      background:#fff; cursor:pointer;
+    }
+    .tb-btn.primary { background:var(--brand); color:#fff; border-color:transparent; }
+    .tb-btn:disabled { opacity:.6; cursor:not-allowed; }
+
+    .card { border:1px solid var(--line); border-radius:18px; background:#fff;
+            box-shadow:0 10px 30px rgba(0,0,0,.04); }
     #messages { max-height:64vh; min-height:320px; overflow:auto; padding:18px; contain:content; }
     .bubble { padding:12px 14px; margin:10px 0; border-radius:16px; }
     .bubble.user { background:var(--muted); color:var(--ink); margin-left:auto; width:fit-content; max-width:82%; }
     .bubble.assistant { background:#fff; border:1px solid var(--line); max-width:82%; }
     .bubble.note { font-size:12px; opacity:.75; text-align:center; background:transparent; border:none; }
+
     .composer { display:flex; gap:10px; padding:12px; border-top:1px solid var(--line); background:#fff;
                 border-radius:0 0 18px 18px; }
     #chat-input { flex:1; padding:12px 14px; border:1px solid #ddd; border-radius:12px; }
@@ -39,27 +48,39 @@
     #send-btn:disabled { opacity:.6; cursor:not-allowed; }
     .hint { font-size:12px; color:#666; margin-top:10px; }
 
-    /* render Markdown trong câu trả lời */
+    /* Markdown đẹp */
     .assistant h1,.assistant h2,.assistant h3{ margin:6px 0 8px; }
     .assistant p, .assistant ul, .assistant ol { margin:8px 0; }
     .assistant ul, .assistant ol { padding-left:22px; }
     .assistant code { background:#f6f6f6; padding:2px 6px; border-radius:6px; }
     .assistant a { color:#0ea5e9; text-decoration:none; }
     .assistant a:hover { text-decoration:underline; }
+
+    @media (max-width:640px){
+      .brand h1 { font-size:22px; }
+      #messages { max-height:58vh; }
+    }
   </style>
 
-  <!-- Markdown + XSS sanitize (CDN) -->
+  <!-- Markdown + XSS sanitize -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 </head>
 <body>
   <div class="container">
     <div class="brand">
-      <!-- Logo hoa sen inline (SVG) -->
+      <!-- Logo hoa sen SVG -->
       <svg class="lotus" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M12 3c1.8 2.7 2.6 5.1 2.4 7.2 1.7-.7 3.3-2 4.6-4-0.1 3-1.2 5.2-3 6.7 2 .1 4-.5 6-2-1.1 3.8-3.6 6-7.5 6.7.7.6 1.5 1.3 2.3 2.3-2.5-.2-4.3-1-5.2-2-0.9 1-2.7 1.8-5.2 2 .8-1 1.6-1.7 2.3-2.3-3.9-.7-6.4-2.9-7.5-6.7 2 .9 4 1.1 6 2-1.8-1.5-2.9-3.7-3-6.7 1.3 2 2.9 3.3 4.6 4C9.4 8.1 10.2 5.7 12 3z" fill="#a855f7"/>
       </svg>
-      <h1>Pháp Bảo Phúc Lạc Chatbot <small>🧘 Từ hòa – Chánh kiến – Lợi lạc</small></h1>
+      <h1>Pháp Bảo Phúc Lạc Chatbot</h1>
+      <div class="slogan">🧘‍♂️ Từ hòa – Chánh kiến – Lợi lạc</div>
+
+      <div class="toolbar">
+        <button id="clear-btn" class="tb-btn" title="Xóa lịch sử">Xóa</button>
+        <button id="regen-btn" class="tb-btn" title="Hỏi lại">Làm mới</button>
+        <button id="stop-btn" class="tb-btn" style="display:none" title="Dừng phát">Dừng</button>
+      </div>
     </div>
 
     <form id="chat-form" class="card" autocomplete="off">
@@ -70,28 +91,29 @@
       </div>
     </form>
 
-    <div class="hint">Nếu trang chậm sau vài ngày dùng, hệ thống sẽ tự rút gọn lịch sử hiển thị để nhẹ máy.</div>
+    <div class="hint">Mẹo: Enter để gửi, Shift+Enter để xuống dòng. Nếu trang chậm sau vài ngày dùng, hệ thống sẽ tự rút gọn lịch sử hiển thị để nhẹ máy.</div>
   </div>
 
   <script>
   // ===================== CẤU HÌNH =====================
-  const API_URL         = '/api/chat';         // JSON (fallback)
-  const API_URL_STREAM  = '/api/chat-stream';  // SSE (streaming thực)
+  const API_URL         = '/api/chat';         // fallback JSON
+  const API_URL_STREAM  = '/api/chat-stream';  // SSE streaming
 
-  // Giới hạn số bong bóng để tránh chậm
-  const MAX_NODES = 120;
-  const TRIM_BATCH = 20;
+  const MAX_NODES = 120, TRIM_BATCH = 20;
 
   // ===================== THAM CHIẾU UI =====================
   const form  = document.getElementById('chat-form');
   const pane  = document.getElementById('messages');
   const input = document.getElementById('chat-input');
   const send  = document.getElementById('send-btn');
+  const stopBtn = document.getElementById('stop-btn');
+  const regenBtn = document.getElementById('regen-btn');
+  const clearBtn = document.getElementById('clear-btn');
 
+  // ===================== TIỆN ÍCH =====================
   function appendBubble(text, who='assistant') {
     const el = document.createElement('div');
     el.className = 'bubble ' + (who === 'user' ? 'user' : 'assistant');
-    // mặc định hiển thị text thuần (an toàn khi stream)
     el.textContent = text ?? '';
     pane.appendChild(el);
 
@@ -106,22 +128,83 @@
       }
     }
     pane.scrollTop = pane.scrollHeight;
-    return el; // 👉 trả về element để cập nhật nội dung khi stream
+    return el;
   }
 
   function finalizeAsMarkdown(bubbleEl, text) {
-    // Khi stream xong, đổi sang HTML Markdown an toàn (đẹp hơn)
     const html = DOMPurify.sanitize(marked.parse(text || ''));
     bubbleEl.innerHTML = html;
+    bubbleEl.classList.add('assistant');
   }
 
   function setBusy(b) {
     send.disabled = b; input.readOnly = b;
-    if (b) { send.dataset._t = send.textContent; send.textContent = 'Đang gửi…'; }
-    else { send.textContent = send.dataset._t || 'Gửi'; }
+    if (b) { send.dataset._t = send.textContent; send.textContent = 'Đang gửi…'; stopBtn.style.display='inline-block'; }
+    else { send.textContent = send.dataset._t || 'Gửi'; stopBtn.style.display='none'; }
   }
 
-  // ===================== GỌI API (FALLBACK JSON) =====================
+  // ===================== STREAM =====================
+  let currentController = null;
+  async function streamAPI(message, history, onToken, onDone) {
+    currentController = new AbortController();
+    const res = await fetch(API_URL_STREAM, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ message, history }),
+      signal: currentController.signal
+    });
+
+    const ct = res.headers.get('content-type') || '';
+    if (!res.ok) {
+      const t = ct.includes('application/json') ? JSON.stringify(await res.json(), null, 2) : await res.text();
+      throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`);
+    }
+
+    if (!ct.includes('text/event-stream')) {
+      // Không phải SSE -> fallback JSON
+      const reply = await callAPI(message, history);
+      onToken && onToken(reply, reply);
+      onDone && onDone(reply);
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '', acc = '';
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const events = buffer.split('\n\n'); // gói SSE
+        buffer = events.pop() || '';
+        for (const evt of events) {
+          const lines = evt.split('\n').filter(Boolean);
+          for (const line of lines) {
+            if (!line.startsWith('data:')) continue;
+            const data = line.slice(5).trim();
+            if (data === '[DONE]') { onDone && onDone(acc); return; }
+            try {
+              const json = JSON.parse(data);
+              const token = json?.choices?.[0]?.delta?.content || '';
+              if (token) { acc += token; onToken && onToken(acc, token); }
+            } catch { /* keepalive/heartbeat */ }
+          }
+        }
+      }
+      onDone && onDone(acc);
+    } finally {
+      currentController = null;
+    }
+  }
+
+  function stopStream() {
+    if (currentController) { currentController.abort(); currentController = null; }
+  }
+
+  // ===================== Fallback JSON =====================
   async function callAPI(message, history) {
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -140,88 +223,28 @@
     return await res.text();
   }
 
-  // ===================== STREAM TỪ SSE =====================
-  async function streamAPI(message, history, onToken, onDone) {
-    const res = await fetch(API_URL_STREAM, {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ message, history }),
-    });
-
-    const ct = res.headers.get('content-type') || '';
-    if (!res.ok) {
-      // Nếu API stream lỗi, quăng ra để dùng fallback JSON
-      const t = ct.includes('application/json') ? JSON.stringify(await res.json(), null, 2) : await res.text();
-      throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`);
-    }
-
-    // Nếu đúng SSE
-    if (ct.includes('text/event-stream')) {
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let buffer = '';
-      let acc = '';
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-
-        // tách theo gói SSE (kết thúc bằng \n\n)
-        const events = buffer.split('\n\n');
-        buffer = events.pop() || '';
-
-        for (const evt of events) {
-          const lines = evt.split('\n').filter(Boolean);
-          for (const line of lines) {
-            if (!line.startsWith('data:')) continue;
-            const data = line.slice(5).trim();
-            if (data === '[DONE]') { onDone && onDone(acc); return; }
-            try {
-              const json = JSON.parse(data);
-              const token = json?.choices?.[0]?.delta?.content || '';
-              if (token) { acc += token; onToken && onToken(acc, token); }
-            } catch { /* heartbeat / keepalive */ }
-          }
-        }
-      }
-      onDone && onDone(acc);
-      return;
-    }
-
-    // Không phải SSE → fallback: đọc toàn bộ
-    const reply = await callAPI(message, history);
-    onToken && onToken(reply, reply);
-    onDone && onDone(reply);
-  }
-
   // ===================== GỬI TIN =====================
+  let lastUserMsg = '';
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     try {
       const msg = (input.value || '').trim();
       if (!msg) return;
+      lastUserMsg = msg;
 
-      // Bong bóng của user
       appendBubble(msg, 'user');
-      input.value = ''; setBusy(true);
+      input.value = '';
+      setBusy(true);
 
-      // Lấy 50 mẩu gần nhất làm history
       const history = Array.from(pane.querySelectorAll('.bubble'))
         .slice(-50)
         .map(el => ({ role: el.classList.contains('user') ? 'user' : 'assistant', content: el.textContent || '' }));
 
-      // Tạo bubble rỗng cho bot để stream vào
       const botBubble = appendBubble('', 'assistant');
 
-      // STREAM — cập nhật chữ đang chạy (text thuần)
-      await streamAPI(msg, history, (acc) => {
-        botBubble.textContent = acc;
-        pane.scrollTop = pane.scrollHeight;
-      }, (fullText) => {
-        // khi xong, đổi sang HTML Markdown đẹp
-        finalizeAsMarkdown(botBubble, fullText);
-      });
+      await streamAPI(msg, history,
+        acc => { botBubble.textContent = acc; pane.scrollTop = pane.scrollHeight; },
+        full => { finalizeAsMarkdown(botBubble, full); });
 
     } catch (err) {
       console.error('[Chat][Submit]', err);
@@ -231,8 +254,28 @@
     }
   });
 
+  // Enter: gửi, Shift+Enter: xuống dòng
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+  });
+
+  // Nút Dừng / Làm mới / Xóa
+  stopBtn.addEventListener('click', () => stopStream());
+  regenBtn.addEventListener('click', async () => {
+    if (!lastUserMsg) return;
+    input.value = lastUserMsg;
+    form.requestSubmit();
+  });
+  clearBtn.addEventListener('click', () => {
+    pane.innerHTML = '';
+    greet();
+  });
+
   // Lời chào đầu trang
-  appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
+  function greet() {
+    appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
+  }
+  greet();
 
   console.log('[Chat] Ready ✅');
   </script>
