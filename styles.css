@@ -180,3 +180,7 @@
 #chat-box::-webkit-scrollbar { width: 8px; }
 #chat-box::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 8px; }
 #chat-box::-webkit-scrollbar-track { background: transparent; }
+.suggest{ margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; }
+.suggest .chip{ padding:6px 10px; font-size:13px; border:1px solid var(--line);
+  background:#fff; border-radius:999px; cursor:pointer; }
+.suggest .chip:hover{ background:#f8fafc; }
