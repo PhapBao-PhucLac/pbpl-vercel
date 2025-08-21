@@ -16,6 +16,21 @@
   <link rel="apple-touch-icon" href="./logo.png" />
 
   <style>
+  /* Chip gợi ý to ngang thân bài + tiêu đề nhỏ cho khu gợi ý */
+  .suggest{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; }
+  .suggest .sug-title{ font-weight:600; margin-right:8px; margin-top:2px; }
+  .suggest .chip{
+    padding:8px 12px;
+    font-size:16px;           /* = cỡ chữ thân bài */
+    border:1px solid var(--line);
+    background:#fff; border-radius:999px; cursor:pointer;
+  }
+  .suggest .chip:hover{ background:#f8fafc; }
+
+  /* Câu mở đầu & kết – dịu nhẹ, dễ đọc */
+  .assistant .lead{ margin:8px 0 6px; color:#374151; font-style:italic; }
+  .assistant .outro{ margin-top:10px; color:#374151; }
+</style>
     :root{
       --ink:#121212; --muted:#f4f4f5; --line:#e9e9ee;
       --brand:#16a085; --accent:#a855f7; --soft:#fafafa;
