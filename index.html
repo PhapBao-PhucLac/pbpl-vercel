@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pháp Bảo Phúc Lạc Chatbot</title>
   <style>
-    :root { --bg:#f7f7f7; --ink:#111; --muted:#f1f1f1; --line:#eee; --brand:#16a085; }
-    body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-           color:var(--ink); background:#fff; }
+    :root { --ink:#111; --muted:#f1f1f1; --line:#eee; --brand:#16a085; }
+    body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--ink); background:#fff; }
     .container { max-width:880px; margin:40px auto; padding:0 16px; }
     .brand { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
     .brand .dot { width:10px; height:10px; border-radius:50%; background:#a855f7; box-shadow:0 0 0 3px #f5e1ff; }
@@ -15,10 +14,9 @@
     #messages { max-height:60vh; min-height:300px; overflow:auto; padding:14px; contain:content; }
     .bubble { padding:10px 12px; margin:8px 0; border-radius:14px; }
     .bubble.user { background:var(--muted); color:var(--ink); margin-left:auto; width:fit-content; max-width:80%; }
-    .bubble.assistant { background:#fff; border:1px solid var(--line); max-width:80%; }
+    .bubble.assistant { background:#fff; border:1px solid var(--line); max-width:80%; white-space:pre-wrap; }
     .bubble.note { font-size:12px; opacity:.75; text-align:center; background:transparent; border:none; }
-    .composer { display:flex; gap:8px; padding:10px; border-top:1px solid var(--line); background:#fff;
-                border-radius:0 0 16px 16px; }
+    .composer { display:flex; gap:8px; padding:10px; border-top:1px solid var(--line); background:#fff; border-radius:0 0 16px 16px; }
     #chat-input { flex:1; padding:10px 12px; border:1px solid #ddd; border-radius:10px; }
     #send-btn { padding:10px 16px; border-radius:10px; border:0; background:var(--brand); color:#fff; cursor:pointer; }
     #send-btn:disabled { opacity:.6; cursor:not-allowed; }
@@ -44,92 +42,115 @@
   </div>
 
   <script>
-  (() => {
-    const API_URL = '/api/chat';       // <— ĐỔI nếu backend của đệ khác
-    const MAX_NODES = 120;             // tối đa 120 bong bóng giữ trong DOM
-    const TRIM_BATCH = 20;             // cắt bớt theo lô 20 khi quá dài
+  // ===================== CẤU HÌNH =====================
+  // Nếu API cùng domain (Vercel), để nguyên '/api/chat'.
+  // Nếu API ở domain khác, điền full: 'https://phapbaochatbot.com/api/chat'
+  const API_URL = '/api/chat';
 
-    const form  = document.getElementById('chat-form');
-    const pane  = document.getElementById('messages');
-    const input = document.getElementById('chat-input');
-    const send  = document.getElementById('send-btn');
+  // Giới hạn số bong bóng để tránh chậm
+  const MAX_NODES = 120;
+  const TRIM_BATCH = 20;
 
-    if (!form || !pane || !input || !send) {
-      console.error('[Chat] Thiếu phần tử giao diện', { form:!!form, pane:!!pane, input:!!input, send:!!send });
-      alert('Lỗi giao diện: thiếu id cần thiết (chat-form / messages / chat-input / send-btn).');
-      return;
-    }
+  // ===================== THAM CHIẾU UI =====================
+  const form  = document.getElementById('chat-form');
+  const pane  = document.getElementById('messages');
+  const input = document.getElementById('chat-input');
+  const send  = document.getElementById('send-btn');
 
-    function appendBubble(text, who='assistant') {
-      const wrap = document.createElement('div');
-      wrap.className = 'bubble ' + (who==='user' ? 'user' : 'assistant');
-      wrap.textContent = text;
-      pane.appendChild(wrap);
+  if (!form || !pane || !input || !send) {
+    console.error('[Chat] Thiếu phần tử giao diện', { form:!!form, pane:!!pane, input:!!input, send:!!send });
+    alert('Lỗi giao diện: thiếu id cần thiết (chat-form / messages / chat-input / send-btn).');
+  }
 
-      // Trim để tránh chậm
-      if (pane.children.length > MAX_NODES) {
-        for (let i=0;i<TRIM_BATCH;i++) if (pane.firstChild) pane.removeChild(pane.firstChild);
-        if (!pane.dataset.truncated) {
-          const note = document.createElement('div');
-          note.className = 'bubble note';
-          note.textContent = 'Đã rút gọn lịch sử hiển thị để trang mượt hơn.';
-          pane.insertBefore(note, pane.firstChild);
-          pane.dataset.truncated = '1';
-        }
+  // ===================== TIỆN ÍCH UI =====================
+  function appendBubble(text, who='assistant') {
+    const wrap = document.createElement('div');
+    wrap.className = 'bubble ' + (who==='user' ? 'user' : 'assistant');
+    wrap.textContent = text ?? '';
+    pane.appendChild(wrap);
+
+    if (pane.children.length > MAX_NODES) {
+      for (let i=0;i<TRIM_BATCH;i++) if (pane.firstChild) pane.removeChild(pane.firstChild);
+      if (!pane.dataset.truncated) {
+        const note = document.createElement('div');
+        note.className = 'bubble note';
+        note.textContent = 'Đã rút gọn lịch sử hiển thị để trang mượt hơn.';
+        pane.insertBefore(note, pane.firstChild);
+        pane.dataset.truncated = '1';
       }
-      pane.scrollTop = pane.scrollHeight;
     }
+    pane.scrollTop = pane.scrollHeight;
+  }
 
-    function setBusy(b) {
-      send.disabled = b; input.readOnly = b;
-      if (b) { send.dataset._t = send.textContent; send.textContent = 'Đang gửi…'; }
-      else { send.textContent = send.dataset._t || 'Gửi'; }
-    }
+  function setBusy(b) {
+    send.disabled = b; input.readOnly = b;
+    if (b) { send.dataset._t = send.textContent; send.textContent = 'Đang gửi…'; }
+    else { send.textContent = send.dataset._t || 'Gửi'; }
+  }
 
-    <script>
-  // ... giữ nguyên các biến API_URL, form, pane, input, send ở phía trên
-
-  // ⛳ HÀM MỚI — chỉ trả về chuỗi để hiển thị
-  const reply = await callAPI(msg, history);
-appendBubble(reply, 'assistant');
+  // ===================== GỌI API (ĐÃ CHUẨN HÓA) =====================
+  async function callAPI(message, history) {
+    const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, history }),
     });
 
-    // Nếu server lỗi, ném ra để UI báo
+    // Nếu server trả HTML (lỗi 404/500), đừng parse JSON
+    const ct = res.headers.get('content-type') || '';
+
     if (!res.ok) {
-      const txt = await res.text().catch(()=> '');
-      throw new Error(`HTTP ${res.status} ${res.statusText} :: ${txt}`);
+      const errText = ct.includes('application/json') ? JSON.stringify(await res.json(), null, 2)
+                                                      : await res.text().catch(()=> '');
+      throw new Error(`HTTP ${res.status} ${res.statusText}\n${errText}`);
     }
 
-    // Ưu tiên JSON { reply: "..." }
-    const ct = res.headers.get('content-type') || '';
     if (ct.includes('application/json')) {
       const data = await res.json();
 
-      // ✅ Trường hợp đúng chuẩn từ api/chat.js do huynh cung cấp
-      if (data && typeof data.reply === 'string' && data.reply.trim()) {
-        return data.reply;
-      }
+      // Trả chuẩn từ api/chat.js của huynh
+      if (typeof data?.reply === 'string' && data.reply.trim()) return data.reply;
 
-      // 🔁 Fallback: nếu lỡ trả về nguyên response của OpenAI
+      // Fallback: nếu vô tình trả nguyên response của OpenAI
       const maybe = data?.choices?.[0]?.message?.content;
-      if (typeof maybe === 'string' && maybe.trim()) {
-        return maybe;
-      }
+      if (typeof maybe === 'string' && maybe.trim()) return maybe;
 
-      // Cuối cùng: cố ép về chuỗi cho có nội dung
       return JSON.stringify(data, null, 2);
     }
 
-    // Nếu không phải JSON (ví dụ text/plain), trả thẳng text
+    // text/plain hoặc các loại khác
     return await res.text();
   }
 
-  // ... dưới đây giữ nguyên submit handler:
-  // const reply = await callAPI(msg, history);
-  // appendBubble(reply, 'assistant');
-</script>
+  // ===================== XỬ LÝ GỬI TIN =====================
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault(); // Quan trọng: không để form chuyển hướng sang ?message=...
+    try {
+      const msg = (input.value || '').trim();
+      if (!msg) return;
+      appendBubble(msg, 'user');
+      input.value = '';
+      setBusy(true);
+
+      // Chỉ gửi 50 mẩu cuối để nhẹ
+      const history = Array.from(pane.querySelectorAll('.bubble'))
+        .slice(-50)
+        .map(el => ({ role: el.classList.contains('user') ? 'user' : 'assistant', content: el.textContent || '' }));
+
+      const reply = await callAPI(msg, history);
+      appendBubble(reply, 'assistant');
+    } catch (err) {
+      console.error('[Chat][Submit]', err);
+      appendBubble('Lỗi: ' + (err?.message || err), 'assistant');
+    } finally {
+      setBusy(false);
+      input.focus();
+    }
+  });
+
+  // Lời chào đầu trang
+  appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn đang muốn tìm hiểu điều gì trong Phật pháp?');
+  console.log('[Chat] Ready ✅');
+  </script>
 </body>
 </html>
