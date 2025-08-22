@@ -208,26 +208,65 @@
 
   /* ===== Render markdown + lead/outro + chips ===== */
   function finalizeAsMarkdown(bubbleEl, text){
-    const {body, suggestions}=extractSuggestions(text);
-    const lead=document.createElement('p'); lead.className='lead';
-    lead.textContent='Kính chào bạn! mình rất vui xin được trả lời câu hỏi của bạn:';
+    <script>
+(function(){
+  const LEAD_TEXT  = 'Kính chào bạn! mình rất vui xin được trả lời câu hỏi của bạn:';
+  const OUTRO_TEXT = 'Mình rất hoan hỷ được tiếp tục trợ duyên và xin chờ câu hỏi tiếp theo của bạn.';
 
-    const html=DOMPurify.sanitize(marked.parse(body||text||''));
-    const bodyBox=document.createElement('div'); bodyBox.innerHTML=html;
+  // Nếu chưa có extractSuggestions thì tạo nhanh
+  if (typeof extractSuggestions !== 'function') {
+    window.extractSuggestions = function(markdown){
+      const lines=(markdown||'').split('\n'); let inSug=false, body=[], sug=[];
+      for (const L of lines){
+        if (!inSug && /gợi ý hỏi thêm/i.test(L)) { inSug=true; continue; }
+        if (inSug){
+          const m=L.trim().match(/^[-•]\s+(.*)/); if(m){sug.push(m[1].trim()); continue;}
+          if (L.trim()==='') continue;
+        }
+        if (!inSug) body.push(L);
+      }
+      return { body: body.join('\n').trim(), suggestions: sug.slice(0,6) };
+    };
+  }
 
-    bubbleEl.innerHTML=''; bubbleEl.appendChild(lead); bubbleEl.appendChild(bodyBox);
-    bubbleEl.dataset.md=text||''; bubbleEl.classList.add('assistant');
+  // Ghi đè finalizeAsMarkdown: thêm lead + outro (italic) và chip gợi ý
+  window.finalizeAsMarkdown = function(bubbleEl, text){
+    const parts = extractSuggestions(text);
+    const html  = DOMPurify.sanitize(marked.parse(parts.body || text || ''));
 
-    if(suggestions.length){
-      const wrap=document.createElement('div'); wrap.className='suggest';
-      const title=document.createElement('div'); title.className='sug-title'; title.textContent='Gợi ý hỏi thêm:'; wrap.appendChild(title);
-      suggestions.forEach(s=>{ const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=s; b.addEventListener('click',()=>{input.value=s; form.requestSubmit();}); wrap.appendChild(b); });
+    const lead = document.createElement('p');
+    lead.className = 'lead';
+    lead.textContent = LEAD_TEXT;
+
+    const bodyBox = document.createElement('div');
+    bodyBox.innerHTML = html;
+
+    bubbleEl.innerHTML = '';
+    bubbleEl.appendChild(lead);
+    bubbleEl.appendChild(bodyBox);
+    bubbleEl.dataset.md = text || '';
+    bubbleEl.classList.add('assistant');
+
+    if (parts.suggestions && parts.suggestions.length){
+      const wrap  = document.createElement('div'); wrap.className = 'suggest';
+      const title = document.createElement('div'); title.className = 'sug-title'; title.textContent = 'Gợi ý hỏi thêm:';
+      wrap.appendChild(title);
+      parts.suggestions.forEach(s=>{
+        const b = document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=s;
+        b.onclick = ()=>{ input.value = s; form.requestSubmit(); };
+        wrap.appendChild(b);
+      });
       bubbleEl.appendChild(wrap);
     }
-    const outro=document.createElement('p'); outro.className='outro';
-    outro.textContent='Tôi rất hoan hỷ được tiếp tục trợ duyên và xin chờ câu hỏi tiếp theo của bạn.';
+
+    const outro = document.createElement('p');
+    outro.className = 'outro';
+    outro.style.fontStyle = 'italic';             // ← nghiêng
+    outro.textContent = OUTRO_TEXT;               // ← câu đệ muốn
     bubbleEl.appendChild(outro);
-  }
+  };
+})();
+</script>
 
   /* ===== Streaming ===== */
   let currentController=null;
