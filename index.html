@@ -109,6 +109,24 @@
     .brand-subline{ font-size:15px; }
   }
 </style>
+  <style>
+  /* Chỉ justify phần nội dung trả lời (paragraph),
+     TIÊU ĐỀ và DANH SÁCH vẫn canh trái để dễ đọc */
+  .bubble.assistant p{
+    text-align: justify;
+    text-justify: inter-word;
+    line-height: 1.7;
+    /* Tự ngắt từ đẹp hơn trên iOS/Android */
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+  .bubble.assistant h1,
+  .bubble.assistant h2,
+  .bubble.assistant h3,
+  .bubble.assistant li{
+    text-align: left;
+  }
+</style>
 <!-- PBPL: CSS cho icon (dán ngay trước </head>) -->
 <style>
   .chip .ico{
