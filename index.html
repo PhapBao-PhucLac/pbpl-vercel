@@ -92,6 +92,23 @@
   /* Chip = đúng bằng thân bài, đặt sau cùng để ghi đè */
   .suggest .chip{ font-size:1em; }   /* 1em = bằng .bubble.assistant */
 </style>
+  <style>
+  /* Hero / Brand */
+  #hero{ text-align:center; margin: 24px 0 12px; }
+  .brand-logo{ width:112px; height:auto; margin-bottom:8px; }
+  .brand-title{ font-size:30px; font-weight:700; letter-spacing:.3px; }
+  .brand-motto{ font-size:18px; color:#3b3b3b; margin-top:6px; }
+  .brand-sub{ margin-top:6px; color:#566; }
+  .brand-subline{ display:block; font-size:16px; line-height:1.5; }
+
+  /* Mobile tweak */
+  @media (max-width: 480px){
+    .brand-logo{ width:96px; }
+    .brand-title{ font-size:26px; }
+    .brand-motto{ font-size:16px; }
+    .brand-subline{ font-size:15px; }
+  }
+</style>
 <!-- PBPL: CSS cho icon (dán ngay trước </head>) -->
 <style>
   .chip .ico{
