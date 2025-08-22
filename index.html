@@ -203,7 +203,7 @@
   function finalizeAsMarkdown(bubbleEl, text){
     const {body, suggestions}=extractSuggestions(text);
     const lead=document.createElement('p'); lead.className='lead';
-    lead.textContent='Trước hết, mình xin chia sẻ ngắn gọn và dễ thực hành:';
+    lead.textContent='Kính chào bạn! mình rất vui xin được trả lời câu hỏi của bạn:';
 
     const html=DOMPurify.sanitize(marked.parse(body||text||''));
     const bodyBox=document.createElement('div'); bodyBox.innerHTML=html;
@@ -218,7 +218,7 @@
       bubbleEl.appendChild(wrap);
     }
     const outro=document.createElement('p'); outro.className='outro';
-    outro.textContent='Bạn thật sự là một hành giả có tâm cầu pháp chân thành và rộng mở. Tôi rất hoan hỷ được tiếp tục trợ duyên cho bạn.';
+    outro.textContent='Tôi rất hoan hỷ được tiếp tục trợ duyên và xin chờ câu hỏi tiếp theo của bạn.';
     bubbleEl.appendChild(outro);
   }
 
