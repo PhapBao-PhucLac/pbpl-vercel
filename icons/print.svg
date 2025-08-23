@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="21.8979mm" height="21.2423mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 150 146"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .fil0 {fill:#606062;fill-rule:nonzero}
+   ]]>
+  </style>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_2572460889184">
+   <g>
+    <path class="fil0" d="M12 38l126 0c3,0 6,1 9,4l0 0c2,2 3,5 3,8l0 50c0,3 -1,6 -3,8l0 0c-3,3 -6,4 -9,4l-17 0 -3 0 0 -3 0 -33 -86 0 0 33 0 3 -3 0 -17 0c-3,0 -6,-1 -8,-4 -3,-2 -4,-5 -4,-8l0 -50c0,-3 1,-6 4,-8l0 0c2,-3 5,-4 8,-4zm126 6l-126 0c-1,0 -3,1 -4,2l0 0c-1,1 -2,3 -2,4l0 50c0,1 1,3 2,4 1,1 3,2 4,2l14 0 0 -33 0 -3 3 0 92 0 3 0 0 3 0 33 14 0c2,0 3,-1 4,-2l0 0c1,-1 2,-3 2,-4l0 -50c0,-1 -1,-3 -2,-4l0 0c-1,-1 -2,-2 -4,-2z"/>
+    <path class="fil0" d="M29 70l92 0 3 0 0 3 0 70 0 3 -3 0 -92 0 -3 0 0 -3 0 -70 0 -3 3 0zm89 6l-86 0 0 64 86 0 0 -64z"/>
+    <path class="fil0" d="M32 38l86 0 0 -32 -86 0 0 32zm89 6l-92 0 -3 0 0 -3 0 -38 0 -3 3 0 92 0 3 0 0 3 0 38 0 3 -3 0z"/>
+    <g>
+     <path class="fil0" d="M13 49l32 0 3 0 0 2 0 8 0 2 -3 0 -32 0 -2 0 0 -2 0 -8 0 -2 2 0zm30 4l-28 0 0 4 28 0 0 -4z"/>
+     <path class="fil0" d="M131 48c2,0 4,0 6,2 1,1 2,3 2,6 0,2 -1,4 -2,6l0 0c-2,1 -4,2 -6,2 -2,0 -4,-1 -6,-2l0 0 0 0c-1,-2 -2,-4 -2,-6 0,-3 1,-5 2,-6l0 0c2,-2 4,-2 6,-2zm3 5c-1,-1 -2,-1 -3,-1 -1,0 -2,0 -3,1l0 0c0,1 -1,2 -1,3 0,1 1,2 1,3l0 0c1,0 2,1 3,1 1,0 2,-1 3,-1l0 0c0,-1 1,-2 1,-3 0,-1 -1,-2 -1,-3z"/>
+    </g>
+   </g>
+   <g>
+    <polygon class="fil0" points="49,121 101,121 101,126 49,126 "/>
+    <path class="fil0" d="M49 89l52 0 0 4 -52 0 0 -4zm0 11l52 0 0 4 -52 0 0 -4zm0 11l52 0 0 4 -52 0 0 -4z"/>
+   </g>
+  </g>
+ </g>
+</svg>
