@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Pháp Bảo Phúc Lạc – Chatbot</title>
 
-  <!-- Font Roboto (400/500) -->
+  + // ====== Font Roboto (400/500) ======
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- Favicon (đổi đường dẫn nếu để trong /assets/) -->
+  + // ====== Favicon (đổi đường dẫn nếu để trong /assets/) ======
   <link rel="icon" href="./logo.svg" type="image/svg+xml">
   <link rel="alternate icon" href="./logo.png" type="image/png">
   <link rel="apple-touch-icon" href="./logo.png"/>
@@ -127,7 +127,7 @@
     text-align: left;
   }
 </style>
-<!-- PBPL: CSS cho icon (dán ngay trước </head>) -->
++ // ====== PBPL: CSS cho icon (dán ngay trước </head>) ======
 <style>
   .chip .ico{
     width:18px; height:18px; margin-right:6px; vertical-align:-3px;
@@ -136,7 +136,7 @@
     width:18px; height:18px; display:block;
   }
 </style>
-<!-- hết CSS icon -->
++ // ====== hết CSS icon ======
 </head>
 <body>
   <header id="hero">
@@ -217,7 +217,7 @@
     <div class="hint">Mẹo: <b>Enter</b> để gửi, <b>Shift+Enter</b> để xuống dòng. Nếu trang chậm sau vài ngày dùng, hệ thống sẽ tự rút gọn lịch sử hiển thị để nhẹ máy.</div>
   </div>
 
-  <!-- Markdown & Sanitize -->
+  + // ====== Markdown & Sanitize ======
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 
@@ -339,8 +339,8 @@
 })();
 </script>
 
-  <!-- PBPL: scripts (thay từ đây đến hết file) -->
-<!-- Markdown & Sanitize -->
+  + // ====== PBPL: scripts (thay từ đây đến hết file) ======
++ // ====== Markdown & Sanitize ======
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 
@@ -518,7 +518,7 @@ regenBtn.addEventListener('click',()=>{ if(!lastUserMsg) return; input.value=las
 clearBtn.addEventListener('click',newChat);
 
 console.log('[Chat] Ready ✅');
-<!-- ============ PAGE END (SAFE) ============ -->
++ // ================== PAGE END (SAFE) ==================
 <script src="chat.js"></script>
 <script src="script.js"></script>
 </body>
