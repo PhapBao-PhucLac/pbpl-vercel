@@ -32,7 +32,6 @@
     }
   };
 
-  // === Phần code cũ của đệ tiếp tục ở dưới đây ===
   // tiện ích
   const scrollToBottom = () => list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
 
