@@ -1,4 +1,4 @@
-/* script.js – tiện ích UI an toàn, không đụng core logic trong chat.js */
+<!-- script.js -->
 (() => {
   // ===== Lấy phần tử DOM =====
   const form  = document.getElementById('chat-form');
@@ -6,7 +6,7 @@
   const msgs  = document.getElementById('messages');
   let   list  = document.getElementById('chat-list');
 
-  // Nếu thiếu #chat-list thì tạo mới (trước form / trong khung messages nếu có)
+  // Nếu thiếu #chat-list thì tạo mới (trước form)
   if (!list) {
     const d = document.createElement('div');
     d.id = 'chat-list';
@@ -16,14 +16,13 @@
     list = d;
   }
 
-  /* ===== PBPL: cuộn xuống cuối an toàn (1 khối gọn) ===== */
-  function scrollToBottom(){
+  /* ===== PBPL: cuộn xuống cuối (đổi tên để khỏi trùng) ===== */
+  function PBPL_scrollBottom(){
     const target =
       document.getElementById('chat-list') ||
       document.getElementById('messages') ||
       document.getElementById('chat-box') ||
       null;
-
     if (!target) return;
 
     if (typeof target.scrollTo === 'function') {
@@ -33,23 +32,19 @@
     }
   }
 
-  // Sau khi submit form, đợi 80ms rồi cuộn đáy
-  if (form) {
-    form.addEventListener('submit', () => setTimeout(scrollToBottom, 80));
-  }
+  // Sau khi submit form, chờ 80ms rồi cuộn
+  if (form) form.addEventListener('submit', () => setTimeout(PBPL_scrollBottom, 80));
 
-  // Mỗi lần chat.js thêm bubble thì dispatch event này
-  //   document.dispatchEvent(new CustomEvent('pbpl:append'));
-  // Ở đây chỉ lắng nghe 1 lần (không gắn trùng)
-  document.addEventListener('pbpl:append', scrollToBottom);
-// PBPL: tự phát hiện khi có bubble mới ⇒ tự cuộn xuống (không cần sửa chat.js)
-const observer = new MutationObserver(() => setTimeout(scrollToBottom, 20));
-observer.observe(list, { childList: true, subtree: true });
-if (msgs && msgs !== list) observer.observe(msgs, { childList: true, subtree: true });
-  // Chống lỗi khi input chưa có
-  if (!input) {
-    console.warn('[chat] Không tìm thấy #chat-input (script.js vẫn tiếp tục chạy)');
-  }
+  // Nếu chỗ khác có bắn sự kiện này thì cũng cuộn
+  document.addEventListener('pbpl:append', PBPL_scrollBottom);
 
+  // Tự phát hiện có bubble mới ⇒ tự cuộn (không cần sửa chat.js)
+  try {
+    const ob = new MutationObserver(() => setTimeout(PBPL_scrollBottom, 20));
+    if (list) ob.observe(list, { childList: true, subtree: true });
+    if (msgs && msgs !== list) ob.observe(msgs, { childList: true, subtree: true });
+  } catch {}
+
+  if (!input) console.warn('[chat] Không tìm thấy #chat-input (script.js vẫn chạy)');
   console.log('[chat] Ready ✅');
 })();
