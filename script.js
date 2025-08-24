@@ -42,7 +42,10 @@
   //   document.dispatchEvent(new CustomEvent('pbpl:append'));
   // Ở đây chỉ lắng nghe 1 lần (không gắn trùng)
   document.addEventListener('pbpl:append', scrollToBottom);
-
+// PBPL: tự phát hiện khi có bubble mới ⇒ tự cuộn xuống (không cần sửa chat.js)
+const observer = new MutationObserver(() => setTimeout(scrollToBottom, 20));
+observer.observe(list, { childList: true, subtree: true });
+if (msgs && msgs !== list) observer.observe(msgs, { childList: true, subtree: true });
   // Chống lỗi khi input chưa có
   if (!input) {
     console.warn('[chat] Không tìm thấy #chat-input (script.js vẫn tiếp tục chạy)');
