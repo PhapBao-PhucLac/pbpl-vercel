@@ -5,116 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pháp Bảo Phúc Lạc – Chatbot</title>
 
-  <!-- Fonts: Roboto (nội dung) + Roboto Slab (tiêu đề) -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Slab:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <!-- Favicon / PWA icons -->
+  <!-- Favicon -->
   <link rel="icon" href="./logo.svg" type="image/svg+xml">
   <link rel="alternate icon" href="./logo.png" type="image/png">
   <link rel="apple-touch-icon" href="./logo.png">
 
-  <!-- ====== Styles (tất cả CSS nằm gọn trong thẻ <style>) ====== -->
   <style>
-    :root{
-      --ink:#121212; --muted:#f4f4f5; --line:#e9e9ee;
-      --brand:#168085; --soft:#fafafa; --chip:#f6f7f9;
-      --accent:#0ea5e9; /* xanh nút gửi */
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      font:16px/1.6 Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
-      color:var(--ink); margin:0;
-      background: radial-gradient(1200px 600px at 10% -10%, #f8fff0 0, transparent 60%),
-                  radial-gradient(1000px 480px at 120% 20%, #e8f6ff 0, transparent 60%),
-                  #fff;
-    }
+    :root{--ink:#121212;--muted:#f4f4f5;--line:#e9e9ee;--brand:#168085;--soft:#fafafa;--chip:#f6f7f9;--accent:#0ea5e9}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{font:16px/1.6 Roboto,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:var(--ink);margin:0;
+         background:radial-gradient(1200px 600px at 10% -10%,#f8fff0 0,transparent 60%),
+                    radial-gradient(1000px 480px at 120% 20%,#e8f6ff 0,transparent 60%),#fff;}
 
-    /* ===== Header (logo + tiêu đề) ===== */
-    #hero{text-align:center; margin:18px 0 10px}
-    .brand-logo{width:96px; height:96px; object-fit:contain; display:inline-block; margin-bottom:10px}
-    .brand-title{
-      font-family: "Roboto Slab", Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
-      font-weight:500; font-size:28px; letter-spacing:.2px; margin:2px 0;
-    }
-    .brand-motto{font-weight:500; font-size:16px; color:#475569}
-    .brand-sub{font-size:14px; color:#6b7280}
-    @media (max-width:640px){
-      .brand-logo{width:72px; height:72px}
-      .brand-title{font-size:22px}
-      .brand-motto{font-size:14px}
-      .brand-sub{font-size:13px}
-    }
+    /* Header */
+    #hero{text-align:center;margin:18px 0 10px}
+    .brand-logo{width:96px;height:96px;object-fit:contain;display:inline-block;margin-bottom:10px}
+    .brand-title{font-family:"Roboto Slab",Roboto,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif;
+                 font-weight:500;font-size:28px;letter-spacing:.2px;margin:2px 0}
+    .brand-motto{font-weight:500;font-size:16px;color:#475569}
+    .brand-sub{font-size:14px;color:#6b7280}
+    @media (max-width:640px){.brand-logo{width:72px;height:72px}.brand-title{font-size:22px}.brand-motto{font-size:14px}.brand-sub{font-size:13px}}
 
-    /* ===== Thẻ card chung ===== */
-    .card{
-      background:#fff; border:1px solid var(--line);
-      border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.04);
-    }
+    /* Card */
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.04)}
 
-    /* ===== Chips chủ đề ===== */
-    .chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0 20px}
-    .chip{
-      padding:8px 12px; border:1px solid var(--line);
-      background:var(--chip); border-radius:999px; cursor:pointer;
-      font-size:14px; display:inline-flex; align-items:center; gap:6px;
-    }
-    .chip:hover{background:#fff; border-color:#dfe3eb; box-shadow:0 0 0 2px #eef4ff inset}
-    .chip .ico{width:18px; height:18px; vertical-align:-3px; display:block}
+    /* Chips */
+    .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 20px}
+    .chip{padding:8px 12px;border:1px solid var(--line);background:var(--chip);border-radius:999px;cursor:pointer;
+          font-size:14px;display:inline-flex;align-items:center;gap:6px}
+    .chip:hover{background:#fff;border-color:#dfe3eb;box-shadow:0 0 0 2px #eef4ff inset}
+    .chip .ico{width:18px;height:18px;vertical-align:-3px;display:block}
 
-    /* ===== Khu nhắn tin (composer) ===== */
-    #chat-form{display:flex; gap:10px; align-items:flex-end}
-    #chat-input{
-      flex:1; min-height:44px; padding:10px 12px;
-      border:1px solid #e5e7eb; border-radius:10px; outline:none;
-      font:inherit;
-    }
+    /* Composer */
+    #chat-form{display:flex;gap:10px;align-items:flex-end}
+    #chat-input{flex:1;min-height:44px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;outline:none;font:inherit}
     #chat-input:focus{border-color:#93c5fd}
 
-    /* Nút gửi mặc định (có chữ) */
-    #send-btn{
-      min-width:82px; border:none; border-radius:10px;
-      background:var(--accent); color:#fff; font-weight:600; cursor:pointer;
-      height:44px; padding:0 14px;
-    }
-    #send-btn:disabled{opacity:.6; cursor:not-allowed}
+    /* Nút Gửi (mặc định có chữ) */
+    #send-btn{min-width:82px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;
+              cursor:pointer;height:44px;padding:0 14px}
+    #send-btn:disabled{opacity:.6;cursor:not-allowed}
 
-    /* Nút gửi dạng CHỈ ICON (thêm class="icon-only" vào nút) */
-    #send-btn.icon-only{
-      min-width:44px; width:44px; height:44px; padding:0;
-      display:inline-flex; align-items:center; justify-content:center;
-      background:var(--accent); color:#fff;
-    }
-    #send-btn.icon-only .mini-icon{width:20px; height:20px; display:block}
+    /* Nút Gửi chỉ ICON (thêm class="icon-only") */
+    #send-btn.icon-only{min-width:44px;width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--accent);color:#fff}
+    #send-btn.icon-only .mini-icon{width:20px;height:20px;display:block}
 
-    /* ===== Khung hội thoại ===== */
-    #messages{max-height:60vh; overflow:auto; padding:18px; container-type:inline-size}
-
-    .bubble{padding:12px 14px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
+    /* Khung hội thoại */
+    #messages{max-height:60vh;overflow:auto;padding:18px;container-type:inline-size}
+    .bubble{padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
     .assistant .bubble{background:#f9fafb}
-    .user .bubble{background:var(--brand); color:#fff}
-    .bubble h1,.bubble h2,.bubble h3{margin:6px 0 8px; font-weight:700}
-    .bubble ul{margin:8px 0 8px 16px}
-    .bubble li{margin:4px 0}
-    .bubble p{margin:8px 0; text-align:justify}
+    .user .bubble{background:var(--brand);color:#fff}
+    .bubble h1,.bubble h2,.bubble h3{margin:6px 0 8px;font-weight:700}
+    .bubble ul{margin:8px 0 8px 16px}.bubble li{margin:4px 0}
+    .bubble p{margin:8px 0;text-align:justify}
 
-    /* ===== Toolbar mini (sao chép / in / lưu…) ===== */
-    .tb{display:flex; gap:8px; justify-content:center; align-items:center; margin:8px 12px}
-    .tb button{
-      background:#fff; border:1px solid var(--line); border-radius:10px;
-      padding:6px 10px; font-size:13px; cursor:pointer;
-    }
-    .tb .mini-icon{width:18px; height:18px; display:inline-block}
+    /* Toolbar */
+    .tb{display:flex;gap:8px;justify-content:center;align-items:center;margin:8px 12px}
+    .tb button{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;cursor:pointer}
+    .tb .mini-icon{width:18px;height:18px;display:inline-block}
 
-    /* ===== Gợi ý hỏi tiếp ===== */
-    .suggest{margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start}
-    .suggest .chip{background:#fff; border-color:#e5e7eb}
+    /* Gợi ý hỏi tiếp */
+    .suggest{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+    .suggest .chip{background:#fff;border-color:#e5e7eb}
     .suggest .chip:hover{background:#f8fafc}
 
-    /* ===== Console helper ẩn (đừng đụng) ===== */
-    .sr-only{position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+    /* A11y */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   </style>
 </head>
 \<style>
