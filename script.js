@@ -1,9 +1,38 @@
-<!-- script.js -->
+// script.js (PBPL safe header)
 (() => {
-  const form = document.getElementById("chat-form");
-  const input = document.getElementById("chat-input");
-  const list  = document.getElementById("chat-list");   // <ul> hoặc <div> chứa bong bóng
+  // Lấy phần tử (bản an toàn)
+  const formEl = document.getElementById('chat-form');
+  let   input  = document.getElementById('chat-input')  || document.getElementById('user-input');
+  let   list   = document.getElementById('chat-list')
+              || document.getElementById('chat-box')
+              || document.getElementById('messages')
+              || document.querySelector('.chat-list, .chat-box, .messages');
 
+  // Nếu chưa có vùng hiển thị tin nhắn, tự tạo #chat-list và đặt ngay TRƯỚC form
+  if (!list) {
+    const d = document.createElement('div');
+    d.id = 'chat-list';
+    const host = formEl ? formEl.parentElement : document.body;
+    if (formEl) host.insertBefore(d, formEl); else host.appendChild(d);
+    list = d;
+  }
+
+  // Nếu chưa bắt được ô nhập, tìm ô text đầu tiên
+  if (!input) {
+    input = document.querySelector('#chat-input, #user-input, form input[type="text"], input[type="text"]');
+  }
+
+  // Cuộn xuống đáy (bản an toàn)
+  const scrollToBottom = () => {
+    if (!list) return;
+    if (typeof list.scrollTo === 'function') {
+      list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+    } else {
+      list.scrollTop = list.scrollHeight;
+    }
+  };
+
+  // === Phần code cũ của đệ tiếp tục ở dưới đây ===
   // tiện ích
   const scrollToBottom = () => list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
 
