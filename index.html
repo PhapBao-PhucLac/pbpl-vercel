@@ -214,7 +214,27 @@
 <div class="card" style="padding:18px;margin-bottom:10px">
   <div id="messages"></div>
 </div>
-    <div class="card" style="padding:18px;margin-bottom:10px;text-align:center">
+   <!-- Composer (form nhập) -->
+<form id="chat-form" class="tb" autocomplete="off">
+  <input
+    id="chat-input"
+    type="text"
+    placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật…"
+    aria-label="Nội dung câu hỏi">
+  
+  <div class="tb-left">
+    <!-- Nút Gửi chỉ icon -->
+    <button id="send-btn" class="icon-only" type="submit" title="Gửi">
+      <svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 12h12M11 5l7 7-7 7"
+              fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="sr-only">Gửi</span>
+    </button>
+  </div>
+</form> 
+  <div class="card" style="padding:18px;margin-bottom:10px;text-align:center">
       <div style="font-weight:600">Xin chào bạn! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
       <div class="chips" id="chips">
   <button class="chip" data-topic="Giáo lý">
