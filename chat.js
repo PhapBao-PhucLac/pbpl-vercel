@@ -10,7 +10,7 @@ function scrollToBottom(){
   const el = __pbplScrollEl;
   if (!el) return;                           // không có phần tử thì bỏ qua
   if (typeof el.scrollTo === 'function') {
-    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    scrollToBottom();
   } else {
     el.scrollTop = el.scrollHeight;
   }
@@ -22,7 +22,7 @@ const esc = (s) =>
 
 const scrollToBottom = () => {
   // cuộn mượt xuống cuối mỗi khi có tin nhắn
-  chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+  scrollToBottom();
 };
 
 const appendMessage = (role, html) => {
