@@ -26,12 +26,27 @@
     }
   }
 
-  // Khi submit xong, cuộn xuống cuối
-  if (form) {
-    form.addEventListener('submit', () => {
-      setTimeout(scrollToBottom, 80);
-    });
+  /* ===== PBPL: scroll an toàn (một khối gọn) ===== */
+function scrollToBottom(){
+  const list =
+    document.getElementById('chat-list') ||
+    document.getElementById('messages') ||
+    document.getElementById('chat-box') ||
+    null;
+  if (!list) return;
+
+  if (typeof list.scrollTo === 'function') {
+    list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+  } else {
+    list.scrollTop = list.scrollHeight;
   }
+}
+
+if (form) {
+  form.addEventListener('submit', () => setTimeout(scrollToBottom, 80));
+}
+document.addEventListener('pbpl:append', scrollToBottom);
+/* ===== hết khối ===== */
 
   // Nếu chat.js muốn báo “vừa thêm bubble”, có thể dispatch event này:
   // document.dispatchEvent(new CustomEvent('pbpl:append'));
