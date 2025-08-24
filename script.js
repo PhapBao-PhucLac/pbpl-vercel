@@ -1,4 +1,4 @@
-<!-- script.js -->
+/* script.js – tiện ích UI an toàn, không đụng core logic trong chat.js */
 (() => {
   // ===== Lấy phần tử DOM =====
   const form  = document.getElementById('chat-form');
@@ -6,7 +6,7 @@
   const msgs  = document.getElementById('messages');
   let   list  = document.getElementById('chat-list');
 
-  // Nếu thiếu #chat-list thì tạo mới (trước form)
+  // Nếu thiếu #chat-list thì tạo mới (đặt ngay sau msgs hoặc body)
   if (!list) {
     const d = document.createElement('div');
     d.id = 'chat-list';
@@ -16,8 +16,8 @@
     list = d;
   }
 
-  /* ===== PBPL: cuộn xuống cuối (đổi tên để khỏi trùng) ===== */
-  function PBPL_scrollBottom(){
+  /* ===== PBPL: cuộn xuống cuối (đổi tên để tránh trùng) ===== */
+  function PBPL_scrollBottom() {
     const target =
       document.getElementById('chat-list') ||
       document.getElementById('messages') ||
@@ -35,7 +35,7 @@
   // Sau khi submit form, chờ 80ms rồi cuộn
   if (form) form.addEventListener('submit', () => setTimeout(PBPL_scrollBottom, 80));
 
-  // Nếu chỗ khác có bắn sự kiện này thì cũng cuộn
+  // Nếu nơi khác bắn sự kiện này thì cũng cuộn
   document.addEventListener('pbpl:append', PBPL_scrollBottom);
 
   // Tự phát hiện có bubble mới ⇒ tự cuộn (không cần sửa chat.js)
