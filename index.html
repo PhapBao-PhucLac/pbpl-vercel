@@ -1,28 +1,49 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pháp Bảo Phúc Lạc – Chatbot</title>
 
-  + // ====== Font Roboto (400/500) ======
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Slab:wght@400;500&display=swap" rel="stylesheet">
 
-  + // ====== Favicon (đổi đường dẫn nếu để trong /assets/) ======
+  <!-- Favicon / PWA icons -->
   <link rel="icon" href="./logo.svg" type="image/svg+xml">
   <link rel="alternate icon" href="./logo.png" type="image/png">
-  <link rel="apple-touch-icon" href="./logo.png"/>
+  <link rel="apple-touch-icon" href="./logo.png">
 
+  <!-- CSS nội tuyến gọn -->
   <style>
-    :root{--ink:#121212;--muted:#f4f4f5;--line:#e9e9ee;--brand:#16a085;--soft:#fafafa}
+    :root{--ink:#121212;--soft:#fafafa;--brand:#c3182f;}
     html,body{height:100%}
     body{
-      margin:0; font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--ink);
-      background:radial-gradient(1200px 600px at 10% -10%,#f8f5ff 0,transparent 50%),radial-gradient(1000px 400px at 120% 20%,#e8fff6 0,transparent 45%),#fff;
+      font:16px/1.6 Roboto,system-ui,-apple-system,Segoe UI,Helvetica,Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%,#f7fff7 0,transparent 60%),
+        radial-gradient(1000px 400px at 80% 0,#f6f9ff 0,transparent 50%),#fff;
     }
-    .wrap{max-width:1024px;margin:28px auto 40px;padding:0 16px}
+
+    /* Header */
+    .brand-title{font:700 28px "Roboto Slab",serif;letter-spacing:.3px}
+    .brand-motto,.brand-sub{font-weight:500}
+
+    /* Icon cho chips & mini toolbar */
+    .chip .ico{width:18px;height:18px;margin-right:6px;vertical-align:-3px}
+    .mini-icon .ico{width:18px;height:18px;display:block}
+
+    /* Nút gửi: Desktop = chữ | Mobile = icon */
+    #send-btn .txt{display:inline}
+    #send-btn .ico{display:none}
+    @media (max-width:768px){
+      #send-btn .txt{display:none}
+      #send-btn .ico{display:inline-block}
+    }
+  </style>
+</head>
 
     /* Header */
     .hero{text-align:center;margin-bottom:18px}
