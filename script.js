@@ -6,7 +6,7 @@
   const msgs  = document.getElementById('messages');
   let   list  = document.getElementById('chat-list');
 
-  // Nếu thiếu #chat-list thì tạo mới (trước form)
+  // Nếu thiếu #chat-list thì tạo mới (trước form / trong khung messages nếu có)
   if (!list) {
     const d = document.createElement('div');
     d.id = 'chat-list';
@@ -16,34 +16,34 @@
     list = d;
   }
 
-  /* ===== PBPL: scroll an toàn (một khối gọn) ===== */
-function scrollToBottom(){
-  const list =
-    document.getElementById('chat-list') ||
-    document.getElementById('messages') ||
-    document.getElementById('chat-box') ||
-    null;
-  if (!list) return;
+  /* ===== PBPL: cuộn xuống cuối an toàn (1 khối gọn) ===== */
+  function scrollToBottom(){
+    const target =
+      document.getElementById('chat-list') ||
+      document.getElementById('messages') ||
+      document.getElementById('chat-box') ||
+      null;
 
-  if (typeof list.scrollTo === 'function') {
-    list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
-  } else {
-    list.scrollTop = list.scrollHeight;
+    if (!target) return;
+
+    if (typeof target.scrollTo === 'function') {
+      target.scrollTo({ top: target.scrollHeight, behavior: 'smooth' });
+    } else {
+      target.scrollTop = target.scrollHeight;
+    }
   }
-}
 
-if (form) {
-  form.addEventListener('submit', () => setTimeout(scrollToBottom, 80));
-}
-document.addEventListener('pbpl:append', scrollToBottom);
-/* ===== hết khối ===== */
+  // Sau khi submit form, đợi 80ms rồi cuộn đáy
+  if (form) {
+    form.addEventListener('submit', () => setTimeout(scrollToBottom, 80));
+  }
 
-  // Nếu chat.js muốn báo “vừa thêm bubble”, có thể dispatch event này:
-  // document.dispatchEvent(new CustomEvent('pbpl:append'));
+  // Mỗi lần chat.js thêm bubble thì dispatch event này
+  //   document.dispatchEvent(new CustomEvent('pbpl:append'));
+  // Ở đây chỉ lắng nghe 1 lần (không gắn trùng)
   document.addEventListener('pbpl:append', scrollToBottom);
 
-  // Chống lỗi khi chat.js dùng input.value nhưng input chưa có
-  // (không làm gì, chỉ đảm bảo biến tồn tại)
+  // Chống lỗi khi input chưa có
   if (!input) {
     console.warn('[chat] Không tìm thấy #chat-input (script.js vẫn tiếp tục chạy)');
   }
