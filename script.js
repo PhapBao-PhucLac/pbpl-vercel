@@ -6,23 +6,25 @@
   const msgs  = document.getElementById('messages');
   let   list  = document.getElementById('chat-list');
 
-  // Nếu thiếu #chat-list thì tạo mới (đặt ngay sau msgs hoặc body)
+  // Nếu thiếu #chat-list thì tạo mới (đặt trong #messages hoặc body)
   if (!list) {
     const d = document.createElement('div');
     d.id = 'chat-list';
-    d.style.height = '420px';
+    d.className = 'bubble-list';
+    d.style.height   = '420px';
     d.style.overflow = 'auto';
     (msgs || document.body).appendChild(d);
     list = d;
   }
 
-  /* ===== PBPL: cuộn xuống cuối (đổi tên để tránh trùng) ===== */
+  /* ===== PBPL: scroll an toàn (một hàm duy nhất) ===== */
   function PBPL_scrollBottom() {
     const target =
       document.getElementById('chat-list') ||
       document.getElementById('messages') ||
       document.getElementById('chat-box') ||
       null;
+
     if (!target) return;
 
     if (typeof target.scrollTo === 'function') {
@@ -32,19 +34,24 @@
     }
   }
 
-  // Sau khi submit form, chờ 80ms rồi cuộn
-  if (form) form.addEventListener('submit', () => setTimeout(PBPL_scrollBottom, 80));
+  // Xuất ra global an toàn + alias cho tên cũ nếu có code khác gọi
+  window.PBPL_scrollBottom = PBPL_scrollBottom;
+  if (!('scrollToBottom' in window)) {
+    window.scrollToBottom = PBPL_scrollBottom;
+  }
 
-  // Nếu nơi khác bắn sự kiện này thì cũng cuộn
+  // Sau submit, cuộn xuống cuối
+  if (form) {
+    form.addEventListener('submit', () => setTimeout(PBPL_scrollBottom, 80));
+  }
+
+  // Cho phép nơi khác báo “vừa thêm bubble”
   document.addEventListener('pbpl:append', PBPL_scrollBottom);
 
-  // Tự phát hiện có bubble mới ⇒ tự cuộn (không cần sửa chat.js)
-  try {
-    const ob = new MutationObserver(() => setTimeout(PBPL_scrollBottom, 20));
-    if (list) ob.observe(list, { childList: true, subtree: true });
-    if (msgs && msgs !== list) ob.observe(msgs, { childList: true, subtree: true });
-  } catch {}
+  // Nếu thiếu input thì chỉ cảnh báo (không làm vỡ trang)
+  if (!input) {
+    console.warn('[chat] Không tìm thấy #chat-input (script.js vẫn tiếp tục chạy)');
+  }
 
-  if (!input) console.warn('[chat] Không tìm thấy #chat-input (script.js vẫn chạy)');
   console.log('[chat] Ready ✅');
 })();
