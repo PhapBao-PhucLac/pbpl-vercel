@@ -16,16 +16,6 @@
     list = d;
   }
 
-  // ===== Cuộn xuống cuối (an toàn) =====
-  function scrollToBottom(){
-    if (!list) return;
-    if (typeof list.scrollTo === 'function') {
-      list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
-    } else {
-      list.scrollTop = list.scrollHeight;
-    }
-  }
-
   /* ===== PBPL: scroll an toàn (một khối gọn) ===== */
 function scrollToBottom(){
   const list =
