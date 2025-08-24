@@ -90,12 +90,11 @@
 
 /* Nút gửi dạng chỉ icon */
 #send-btn.icon-only{
-  min-width:44px;
-  padding:0 12px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
+  min-width:44px; padding:12px;
+  display:inline-flex; align-items:center; justify-content:center;
 }
+#send-btn.icon-only .mini-icon{ width:20px; height:20px; margin:0; }
+#send-btn .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
 #send-btn.icon-only .mini-icon{
   width:20px;height:20px;margin:0;
 }
