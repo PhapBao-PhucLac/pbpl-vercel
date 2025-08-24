@@ -1,12 +1,12 @@
-/* chat.js — Pháp Bảo Phúc Lạc (PBPL)
-   - Cuộn xuống cuối an toàn
-   - Append bong bóng chat
-   - Gửi API /api/chat (non-stream)
-   - Log chi tiết request/response & lỗi
-   - Không khai báo trùng, không đệ quy vô hạn
+/* chat.js — PBPL Streaming
+   - Streaming qua SSE (text/event-stream) hoặc chunk text thường
+   - Hiện chữ dần, có "đang soạn..."
+   - Log chi tiết, không khai báo trùng
 */
 
-/* ===================== Grab DOM ===================== */
+const API_URL = "/api/chat";
+
+/* ============== Grab DOM ============== */
 const chatBox =
   document.getElementById("chat-box") ||
   document.getElementById("messages") ||
@@ -25,79 +25,67 @@ const userInput =
   (chatForm ? chatForm.querySelector("textarea, input[type='text']") : null) ||
   null;
 
-/* ===================== Helpers ===================== */
-// escape HTML + xuống dòng thành <br>
+/* ============== Helpers ============== */
 function esc(s = "") {
   return String(s)
     .replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]))
     .replace(/\n/g, "<br>");
 }
+function escChunk(s = "") {
+  // dùng cho stream: chỉ escape & < > " ' ; xuống dòng đổi thành <br>
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
 
-// Cuộn xuống cuối an toàn (mượt nếu hỗ trợ)
 function scrollToBottom() {
   const el =
     chatBox ||
     document.getElementById("chat-box") ||
     document.getElementById("messages") ||
     document.getElementById("chat-list");
-
   if (!el) return;
   const max = el.scrollHeight;
   try {
-    if (typeof el.scrollTo === "function") {
-      el.scrollTo({ top: max, behavior: "smooth" });
-    } else {
-      el.scrollTop = max; // fallback
-    }
+    if (typeof el.scrollTo === "function") el.scrollTo({ top: max, behavior: "smooth" });
+    else el.scrollTop = max;
   } catch {
     el.scrollTop = max;
   }
 }
 
-// Tạo & thêm tin nhắn
 function appendMessage(role, html) {
-  if (!chatBox) return console.warn("[PBPL] Không tìm thấy chatBox để append.");
-
+  if (!chatBox) return;
   const row = document.createElement("div");
   row.className = `msg ${role}`;
-
   const bubble = document.createElement("div");
   bubble.className = `bubble ${role}`;
   bubble.innerHTML = html;
-
   row.appendChild(bubble);
   chatBox.appendChild(row);
   scrollToBottom();
+  return bubble; // trả bubble để cập nhật khi stream
 }
 
-// Hiển thị "đang soạn…" của bot
 function showTyping() {
-  if (!chatBox) return;
-  if (document.getElementById("typing-row")) return; // tránh trùng
-
+  if (!chatBox || document.getElementById("typing-row")) return;
   const row = document.createElement("div");
   row.className = "msg bot";
   row.id = "typing-row";
-
   const bubble = document.createElement("div");
   bubble.className = "bubble bot";
   bubble.innerHTML = `
     <div class="typing">
       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-    </div>
-  `;
-
+    </div>`;
   row.appendChild(bubble);
   chatBox.appendChild(row);
   scrollToBottom();
 }
-
 function hideTyping() {
   const el = document.getElementById("typing-row");
   if (el) el.remove();
 }
 
-/* ===================== UX nhỏ: Enter để gửi ===================== */
+/* ============== UX nhỏ: Enter để gửi ============== */
 if (userInput && chatForm) {
   userInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -107,7 +95,74 @@ if (userInput && chatForm) {
   });
 }
 
-/* ===================== Gửi câu hỏi ===================== */
+/* ============== Streaming core ============== */
+async function streamToBubble(res, bubble) {
+  const contentType = res.headers.get("Content-Type") || "";
+  const reader = res.body?.getReader?.();
+  if (!reader) {
+    // fallback đọc 1 lần
+    const text = await res.text();
+    bubble.innerHTML = esc(text);
+    return;
+  }
+
+  const decoder = new TextDecoder("utf-8");
+  let buffer = "";
+  let dirty = false;
+  let rafPending = false;
+
+  const flush = () => {
+    if (!dirty) return;
+    bubble.innerHTML = buffer.replace(/\n/g, "<br>");
+    dirty = false;
+    scrollToBottom();
+    rafPending = false;
+  };
+
+  // Batch update theo frame để mượt
+  const scheduleFlush = () => {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(flush);
+  };
+
+  // SSE mode: "data: ..." kết thúc bằng \n\n, [DONE] để ngắt
+  const useSSE = contentType.includes("text/event-stream");
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    const chunk = decoder.decode(value, { stream: true });
+
+    if (useSSE) {
+      // Gom vào sseBuf rồi tách theo \n\n
+      let sseBuf = chunk;
+      // nếu có buffer sse chưa xử xong thì gắn trước
+      // (ở đây buffer text chung chính là 'buffer' nội dung hiển thị,
+      // còn sseBuf chỉ để tách event)
+      const events = (sseBuf.split("\n\n") || []);
+      for (let i = 0; i < events.length; i++) {
+        const ev = events[i].trim();
+        if (!ev) continue;
+        // hỗ trợ cả nhiều dòng "data: ..." trong 1 event
+        const lines = ev.split("\n").filter(l => l.startsWith("data:"));
+        const data = lines.map(l => l.slice(5).trim()).join("\n");
+        if (!data || data === "[DONE]") continue;
+        buffer += escChunk(data);
+        dirty = true;
+      }
+      scheduleFlush();
+    } else {
+      // Plain text chunk: thêm thẳng
+      buffer += escChunk(chunk);
+      dirty = true;
+      scheduleFlush();
+    }
+  }
+  flush();
+}
+
+/* ============== Submit handler (stream) ============== */
 if (chatForm) {
   chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -123,57 +178,37 @@ if (chatForm) {
 
     showTyping();
 
-    // --- Logging nhóm cho 1 request ---
     const reqId = Math.random().toString(36).slice(2, 8);
     const t0 = performance.now();
-    console.groupCollapsed(`[PBPL ${reqId}] POST /api/chat`);
+    console.groupCollapsed(`[PBPL ${reqId}] POST ${API_URL}`);
     console.log("payload:", { message: q });
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: q }),
+        body: JSON.stringify({ message: q, stream: true }), // gợi ý server bật stream
       });
 
       const t1 = performance.now();
       console.log("status:", res.status, res.statusText, `(${(t1 - t0).toFixed(0)} ms)`);
 
-      // Thử đọc JSON; nếu thất bại thì đọc text để log lỗi máy chủ
-      let data = null;
-      let rawText = null;
-      try {
-        data = await res.clone().json();
-      } catch {
-        rawText = await res.text();
-      }
+      hideTyping();
+
+      // Tạo bubble rỗng để đổ stream vào
+      const botBubble = appendMessage("bot", "");
 
       if (!res.ok) {
-        console.warn("server-error body:", data ?? rawText);
-        hideTyping();
-        appendMessage(
-          "bot",
-          esc(`⚠️ Lỗi máy chủ (${res.status}): ${rawText ?? JSON.stringify(data)}`)
-        );
+        const text = await res.text();
+        botBubble.innerHTML = esc(`⚠️ Lỗi máy chủ (${res.status}): ${text}`);
         return;
       }
 
-      console.log("response JSON:", data);
-
-      hideTyping();
-
-      const answer =
-        data?.answer ??
-        data?.text ??
-        data?.message ??
-        (typeof data === "string" ? data : "") ||
-        "(không có nội dung)";
-
-      appendMessage("bot", esc(answer));
+      await streamToBubble(res, botBubble);
     } catch (err) {
-      console.error("[PBPL] fetch error:", err);
       hideTyping();
       appendMessage("bot", esc(`⚠️ Lỗi kết nối API: ${err?.message || err}`));
+      console.error("[PBPL] fetch error:", err);
     } finally {
       console.groupEnd();
       if (userInput) {
@@ -183,11 +218,11 @@ if (chatForm) {
     }
   });
 } else {
-  console.warn("[PBPL] Không tìm thấy chatForm. Hãy đảm bảo form có id='chat-form' hoặc thêm data-role='chat'.");
+  console.warn("[PBPL] Không tìm thấy chatForm.");
 }
 
-/* ===================== Khởi động ===================== */
+/* ============== Init ============== */
 window.addEventListener("load", () => {
-  console.log("[PBPL] chat.js ready ✔");
+  console.log("[PBPL] chat.js streaming ready ✔");
   scrollToBottom();
 });
