@@ -590,7 +590,20 @@ function newChat(){ pane.innerHTML=''; if(ENABLE_GREETING_BUBBLE) appendBubble('
 function stepBack(){ const items=Array.from(pane.querySelectorAll('.bubble')); if(!items.length) return; items.pop()?.remove(); const prev=items.pop(); if(prev&&prev.classList.contains('user')) prev.remove(); }
 async function copyTranscript(){ try{ await navigator.clipboard.writeText(bubblesToMarkdown()); }catch{} }
 function saveMarkdown(){ saveFile(`PBPL_Chat_${ymdhs()}.md`,bubblesToMarkdown(),'text/markdown'); }
-function printPDF(){ const html='<!doctype html><html><head><meta charset="utf-8"><title>PBPL Chat '+ymdhs()+'</title><style>body{font:15px/1.6 system-ui,Segoe UI,Roboto,Helvetica,Arial;padding:24px;color:#111;}h1{font-size:20px;margin:0 0 12px}.msg{margin:10px 0;padding:10px 12px;border-radius:10px;border:1px solid #eee}.who{font-weight:700;margin-bottom:6px}</style></head><body><h1>Pháp Bảo Phúc Lạc – Chatbot</h1>'+Array.from(pane.querySelectorAll('.bubble')).map(el=>{const who=el.classList.contains('user')?'Người hỏi':'Trợ lý'; const md=(el.dataset.md||el.textContent||'').replace(/</g,'&lt;').replace(/\n/g,'<br>'); return `<div class="msg"><div class="who">${who}</div><div>${md}</div></div>`;}).join('')+'</body></html>'; const w=window.open('','_blank'); if(!w) return; w.document.open(); w.document.write(html); w.document.close(); w.focus(); w.print(); }
+function printPDF(){
+  const html =
+    '<!doctype html><html><head><meta charset="utf-8"></head><body>' +
+    bubblesToMarkdown() +
+    '</body></html>';
+
+  const w = window.open('', '_blank');
+  if (!w) return;
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  w.print();
+}
 
 newChatBtn.addEventListener('click',newChat);
 stepBackBtn.addEventListener('click',stepBack);
