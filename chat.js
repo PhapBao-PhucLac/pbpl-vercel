@@ -1,8 +1,20 @@
 // ===== Grab DOM =====
-const chatBox   = document.getElementById('chat-box');
-const chatForm  = document.getElementById('chat-form');
-const userInput = document.getElementById('user-input');
+// ===== PBPL: cuộn xuống cuối an toàn =====
+const __pbplScrollEl =
+  document.getElementById('chat-list') ||  // nếu có
+  document.getElementById('messages') ||   // nếu có
+  document.getElementById('chat-box') ||   // fallback
+  null;
 
+function scrollToBottom(){
+  const el = __pbplScrollEl;
+  if (!el) return;                           // không có phần tử thì bỏ qua
+  if (typeof el.scrollTo === 'function') {
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+  } else {
+    el.scrollTop = el.scrollHeight;
+  }
+}
 // ===== Helpers =====
 const esc = (s) =>
   s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
