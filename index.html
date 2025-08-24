@@ -314,27 +314,27 @@
 
   <script>
 /* ===== Refs (safe) ===== */
-const form  = document.getElementById('chat-form');
-let   pane  = document.getElementById('messages');
-let   input = document.getElementById('chat-input');
+let  chatBox   = document.getElementById('chat-box');
+const chatForm = document.getElementById('chat-form');
+let  userInput = document.getElementById('user-input');
 
-/* Fallback nếu phần tử chưa sẵn sàng */
-if (!pane) {
-  pane =
-    document.querySelector('#messages, .messages') ||
+/* Nếu chưa có, tự tạo/đặt đúng vị trí để tránh null */
+if (!chatBox) {
+  chatBox =
+    document.querySelector('#chat-box, .messages, .chat-box') ||
     (() => {
       const d = document.createElement('div');
-      d.id = 'messages';
-      const chatForm = document.getElementById('chat-form');
-      const host = chatForm ? chatForm.parentElement : document.body;
-      // Đặt #messages ngay TRƯỚC form để đảm bảo tồn tại
-      if (chatForm) host.insertBefore(d, chatForm); else host.appendChild(d);
+      d.id = 'chat-box';
+      const formEl = document.getElementById('chat-form');
+      const host   = formEl ? formEl.parentElement : document.body;
+      if (formEl) host.insertBefore(d, formEl); else host.appendChild(d);
       return d;
     })();
 }
 
-if (!input) {
-  input = document.querySelector('#chat-input, form input[type="text"], input[type="text"]');
+if (!userInput) {
+  userInput =
+    document.querySelector('#user-input, #chat-input, form input[type="text"], input[type="text"]');
 }
   const send=document.getElementById('send-btn');
   const stopBtn=document.getElementById('stop-btn');
