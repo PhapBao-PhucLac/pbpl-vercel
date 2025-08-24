@@ -5,651 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pháp Bảo Phúc Lạc – Chatbot</title>
 
-  <!-- Fonts -->
+  <!-- Font Roboto -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Slab:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <!-- Favicon -->
-  <link rel="icon" href="./logo.svg" type="image/svg+xml">
-  <link rel="alternate icon" href="./logo.png" type="image/png">
-  <link rel="apple-touch-icon" href="./logo.png">
+  <!-- Favicon / logo (để trong root) -->
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="/logo.png"/>
 
-  <style>
-    :root{--ink:#121212;--muted:#f4f4f5;--line:#e9e9ee;--brand:#168085;--soft:#fafafa;--chip:#f6f7f9;--accent:#0ea5e9}
-    html,body{height:100%} *{box-sizing:border-box}
-    body{font:16px/1.6 Roboto,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:var(--ink);margin:0;
-      background:radial-gradient(1200px 600px at 10% -10%,#f8fff0 0,transparent 60%),
-                 radial-gradient(1000px 480px at 120% 20%,#e8f6ff 0,transparent 60%),#fff;}
-
-    /* Header */
-    #hero{text-align:center;margin:18px 0 10px}
-    .brand-logo{width:96px;height:96px;object-fit:contain;display:inline-block;margin-bottom:10px}
-    .brand-title{font-family:"Roboto Slab",Roboto,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-weight:500;font-size:28px;letter-spacing:.2px;margin:2px 0}
-    .brand-motto{font-weight:500;font-size:16px;color:#475569}
-    .brand-sub{font-size:14px;color:#6b7280}
-    @media (max-width:640px){.brand-logo{width:72px;height:72px}.brand-title{font-size:22px}.brand-motto{font-size:14px}.brand-sub{font-size:13px}}
-
-    /* Card & bubbles */
-    .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.04)}
-    #messages{max-height:60vh;overflow:auto;padding:18px}
-    .bubble{padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
-    .assistant .bubble{background:#f9fafb}
-    .bubble p{margin:8px 0;text-align:justify}
-
-    /* Chips */
-    .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 20px}
-    .chip{padding:8px 12px;border:1px solid var(--line);background:var(--chip);border-radius:999px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:6px}
-    .chip:hover{background:#fff;border-color:#dfe3eb;box-shadow:0 0 0 2px #eef4ff inset}
-    .chip .ico{width:18px;height:18px;display:block;vertical-align:-3px}
-
-    /* Composer */
-    #chat-form{display:flex;gap:10px;align-items:flex-end}
-    #chat-input{flex:1;min-height:44px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;outline:none;font:inherit}
-    #chat-input:focus{border-color:#93c5fd}
-
-    /* Send button (text by default) */
-    #send-btn{min-width:82px;height:44px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;padding:0 14px}
-    #send-btn:disabled{opacity:.6;cursor:not-allowed}
-
-    /* Send button — icon-only (add class="icon-only") */
-    #send-btn.icon-only{min-width:44px;width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center}
-    #send-btn.icon-only .mini-icon{width:20px;height:20px;display:block}
-
-    /* Toolbar (nếu dùng) */
-    .tb{display:flex;gap:8px;justify-content:center;align-items:center;margin:8px 12px}
-    .tb button{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;cursor:pointer}
-    .tb .mini-icon{width:18px;height:18px;display:inline-block}
-  </style>
-</head>
-\<style>
-    /* Header */
-    .hero{text-align:center;margin-bottom:18px}
-    .brand-logo{width:96px;height:96px;object-fit:contain;display:inline-block;margin-bottom:10px}
-    .hero h1,.hero .mantra,.hero .sub{font-family:'Roboto',system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif}
-    .hero h1{font-weight:500;font-size:28px;letter-spacing:.2px;margin:.2rem 0 0}
-    .hero .mantra{font-weight:500;font-size:18px;opacity:.95}
-    .hero .sub{font-weight:400;font-size:16px;color:#475569}
-    @media (max-width:640px){
-      .brand-logo{width:72px;height:72px}
-      .hero h1{font-size:22px}.hero .mantra{font-size:16px}.hero .sub{font-size:14px}
-    }
-
-    /* Chips chủ đề */
-    .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 20px}
-    .chip{padding:8px 12px;border:1px solid var(--line);background:#fff;border-radius:999px;cursor:pointer;font-size:14px}
-    .chip.active{background:#f0fff7;border-color:#ccefe3;box-shadow:0 0 0 2px #e6faf4 inset}
-
-    /* Card & bubbles */
-    .card{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.04)}
-    #messages{max-height:64vh;min-height:320px;overflow:auto;padding:18px;contain:content}
-    .bubble{padding:12px 14px;margin:10px 0;border-radius:16px}
-    .bubble.user{background:var(--muted);margin-left:auto;width:fit-content;max-width:82%}
-    .bubble.assistant{background:#fff;border:1px solid var(--line);max-width:82%}
-    .bubble.note{font-size:12px;opacity:.75;text-align:center;background:transparent;border:none}
-
-    /* Toolbar + composer */
-    .toolbar{display:flex;gap:8px;justify-content:flex-end;margin:8px 12px 0}
-    .tb-btn{font:13px/1 system-ui;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer}
-    .tb-btn:disabled{opacity:.6;cursor:not-allowed}
-    .composer{display:flex;gap:10px;padding:12px;border-top:1px solid var(--line);background:#fff;border-radius:0 0 18px 18px}
-    #chat-input{flex:1;padding:12px 14px;border:2px solid #ddd;border-radius:12px;outline:none}
-    #chat-input:focus{border-color:#c7ece4;box-shadow:0 0 0 3px #eaf8f4}
-    #send-btn{padding:12px 18px;border-radius:12px;border:0;background:var(--brand);color:#fff;cursor:pointer;font-weight:700}
-    #send-btn:disabled{opacity:.6;cursor:not-allowed}
-    .hint{font-size:12px;color:#666;margin:10px 2px}
-
-    /* Markdown */
-    .assistant p,.assistant ul,.assistant ol{margin:8px 0}
-    .assistant ul,.assistant ol{padding-left:22px}
-    .assistant code{background:#f6f6f6;padding:2px 6px;border-radius:6px}
-    .assistant a{color:#0ea5e9;text-decoration:none}.assistant a:hover{text-decoration:underline}
-
-    /* Gợi ý hỏi thêm */
-    .suggest{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
-    .suggest .sug-title{font-weight:600;margin-right:8px;margin-top:2px}
-    .suggest .chip{padding:8px 12px;font-size:16px;border:1px solid var(--line);background:#fff;border-radius:999px;cursor:pointer}
-    .suggest .chip:hover{background:#f8fafc}
-    .assistant .lead{margin:8px 0 6px;color:#374151;font-style:italic}
-    .assistant .outro{margin-top:10px;color:#374151}
-
-    /* Foot menu */
-    .footbar{margin-top:14px;background:var(--soft);border:1px solid var(--line);border-radius:12px;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px}
-    .fb-left{display:flex;align-items:center;gap:10px}
-    .fb-right{display:flex;align-items:center;gap:8px}
-    .mini-btn,.mini-icon{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;font:13px/1 system-ui}
-    .mini-icon{width:38px;height:38px;display:inline-grid;place-items:center}
-    .mini-icon.primary{background:var(--brand);color:#fff;border-color:transparent}
-    .tip{font-size:12px;color:#666}
-    .kbd{display:inline-block;border:1px solid #ddd;border-bottom-width:2px;border-radius:6px;padding:2px 6px;background:#fff;margin:0 2px;font-size:12px}
-    @media (max-width:720px){.tip{display:none}}
-  </style>
-<style>
-  /* Cỡ chữ thân bài mặc định */
-  .bubble.assistant{ font-size:16px; }
-
-  /* Chip = đúng bằng thân bài, đặt sau cùng để ghi đè */
-  .suggest .chip{ font-size:1em; }   /* 1em = bằng .bubble.assistant */
-</style>
-  <style>
-  /* Hero / Brand */
-  #hero{ text-align:center; margin: 24px 0 12px; }
-  .brand-logo{ width:112px; height:auto; margin-bottom:8px; }
-  .brand-title{ font-size:30px; font-weight:700; letter-spacing:.3px; }
-  .brand-motto{ font-size:18px; color:#3b3b3b; margin-top:6px; }
-  .brand-sub{ margin-top:6px; color:#566; }
-  .brand-subline{ display:block; font-size:16px; line-height:1.5; }
-
-  /* Mobile tweak */
-  @media (max-width: 480px){
-    .brand-logo{ width:96px; }
-    .brand-title{ font-size:26px; }
-    .brand-motto{ font-size:16px; }
-    .brand-subline{ font-size:15px; }
-  }
-</style>
-  <style>
-  /* Chỉ justify phần nội dung trả lời (paragraph),
-     TIÊU ĐỀ và DANH SÁCH vẫn canh trái để dễ đọc */
-  .bubble.assistant p{
-    text-align: justify;
-    text-justify: inter-word;
-    line-height: 1.7;
-    /* Tự ngắt từ đẹp hơn trên iOS/Android */
-    hyphens: auto;
-    -webkit-hyphens: auto;
-  }
-  .bubble.assistant h1,
-  .bubble.assistant h2,
-  .bubble.assistant h3,
-  .bubble.assistant li{
-    text-align: left;
-  }
-</style>
-<style>
-  .chip .ico{
-    width:18px; height:18px; margin-right:6px; vertical-align:-3px;
-  }
-  .mini-icon .ico{
-    width:18px; height:18px; display:block;
-  }
-</style>
-+ // ====== hết CSS icon ======
-<style>
-/* PBPL – Typography + Justify + Chip text */
-.brand-title{
-  font-family:"Roboto Slab","Times New Roman",serif;
-  font-weight:500; letter-spacing:.2px;
-  font-size:clamp(22px,3.5vw,36px);
-}
-.brand-motto{ font-size:clamp(14px,2.1vw,22px); }
-.brand-subline{ font-size:clamp(14px,1.9vw,18px); margin-top:4px; }
-
-/* Canh đều nội dung câu trả lời */
-.bubble.assistant p,
-.bubble.assistant li{ text-align:justify; text-justify:inter-word; }
-
-/* Cỡ chữ chip = cỡ chữ nội dung */
-.suggest .chip{ font-size:15px; }
-
-/* Mobile tweak */
-@media (max-width:480px){
-  .brand-title{ font-size:26px; }
-  .brand-motto{ font-size:18px; }
-  .brand-subline{ font-size:16px; }
-}
-</style>
+  <!-- CSS chính của site -->
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  \</style>
+
+  <!-- ===== Header ===== -->
   <header id="hero">
-    <img src="logo.png" alt="Pháp Bảo Phúc Lạc" class="brand-logo">
+    <img src="/logo.png" alt="Pháp Bảo Phúc Lạc" class="brand-logo">
     <h1 class="brand-title">PHÁP BẢO PHÚC LẠC – CHATBOT</h1>
     <div class="brand-motto">“Từ hòa – Chánh kiến – Lợi lạc”</div>
-    <div class="brand-sub">
-      <div class="brand-subline">Nam mô Bổn Sư Thích Ca Mâu Ni Phật</div>
-      <div class="brand-subline">“Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</div>
-    </div>
+    <div class="brand-sub">Nam mô Bổn Sư Thích Ca Mâu Ni Phật</div>
+    <div class="brand-subline">“Hiểu sâu Chánh Pháp – Hướng đạo tu tập”</div>
   </header>
-<div class="card" style="padding:18px;margin-bottom:10px">
-  <div id="messages"></div>
-</div>
-   <!-- Composer (form nhập) -->
-  <div id="chat-box"></div>
-  <div id="chat-list"></div>
-<form id="chat-form" class="tb" autocomplete="off">
-  <input
-    id="chat-input"
-    type="text"
-    placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật…"
-    aria-label="Nội dung câu hỏi">
-  
-  <div class="tb-left">
-    <!-- Nút Gửi chỉ icon -->
-    <button id="send-btn" class="icon-only" type="submit" title="Gửi">
-      <svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 12h12M11 5l7 7-7 7"
-              fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span class="sr-only">Gửi</span>
-    </button>
-  </div>
-</form> 
+
+  <!-- ===== Câu chào + chips ===== -->
   <div class="card" style="padding:18px;margin-bottom:10px;text-align:center">
-      <div style="font-weight:600">Xin chào bạn! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
-      <div class="chips" id="chips">
-  <button class="chip" data-topic="Giáo lý">
-    <img class="ico" src="./icons/giao_ly.svg" alt="" aria-hidden="true"> Giáo lý
-  </button>
-  <button class="chip" data-topic="Kinh văn">
-    <img class="ico" src="./icons/kinh_van.svg" alt="" aria-hidden="true"> Kinh văn
-  </button>
-  <button class="chip" data-topic="Sách nói Phật giáo">
-    <img class="ico" src="./icons/sach_noi.svg" alt="" aria-hidden="true"> Sách nói Phật giáo
-  </button>
-  <button class="chip" data-topic="Vấn đáp">
-    <img class="ico" src="./icons/van_dap.svg" alt="" aria-hidden="true"> Vấn đáp
-  </button>
-  <button class="chip" data-topic="Lộ trình tu học">
-    <img class="ico" src="./icons/lo_trinh.svg" alt="" aria-hidden="true"> Lộ trình
-  </button>
-  <button class="chip" data-topic="Tìm pháp thoại">
-    <img class="ico" src="./icons/tim_phap.svg" alt="" aria-hidden="true"> Tìm pháp thoại
-  </button>
-</div>
-
-    <form id="chat-form" class="card" autocomplete="off">
-      <div id="messages" aria-live="polite"></div>
-      <div class="toolbar">
-        <button id="clear-btn" class="tb-btn" type="button">Xóa</button>
-        <button id="regen-btn" class="tb-btn" type="button">Làm mới</button>
-        <button id="stop-btn" class="tb-btn" type="button" style="display:none">Dừng</button>
-      </div>
-      <div class="composer">
-        <input id="chat-input" name="message" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật! Bạn hãy đặt câu hỏi, tôi luôn sẵn sàng đồng hành cùng bạn?"/>
-        <button id="send-btn" class="icon-only" type="submit" title="Gửi">
-  <svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M4 12h12M11 5l7 7-7 7" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <span class="sr-only">Gửi</span>
-</button>
-
-    <div class="footbar">
-      <div class="fb-left">
-  <button id="newchat-btn" class="mini-btn" type="button" title="Bắt đầu cuộc trò chuyện mới">
-    <img class="ico" src="./icons/new_chat.svg"
-         alt="" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px" aria-hidden="true">
-    New Chat
-  </button>
-  <span class="tip">
-    Bấm <span class="kbd">Ctrl/Cmd</span> + <span class="kbd">Shift</span> + <span class="kbd">K</span>
-    để bắt đầu cuộc hội thoại mới.
-  </span>
-</div>
-      <div class="fb-right">
-  <button id="stepback-btn" class="mini-icon" type="button" title="Lùi một bước">
-    <img class="ico" src="./icons/step_back.svg" alt="" aria-hidden="true">
-  </button>
-  <button id="copy-btn" class="mini-icon" type="button" title="Sao chép hội thoại">
-    <img class="ico" src="./icons/copy.svg" alt="" aria-hidden="true">
-  </button>
-  <button id="save-btn" class="mini-icon" type="button" title="Lưu (.md)">
-    <img class="ico" src="./icons/luu.svg" alt="" aria-hidden="true">
-  </button>
-  <button id="print-btn" class="mini-icon primary" type="button" title="In/PDF">
-    <img class="ico" src="./icons/print.svg" alt="" aria-hidden="true">
-  </button>
-</div>
-
-    <div class="hint">Mẹo: <b>Enter</b> để gửi, <b>Shift+Enter</b> để xuống dòng. Nếu trang chậm sau vài ngày dùng, hệ thống sẽ tự rút gọn lịch sử hiển thị để nhẹ máy.</div>
+    <div style="font-weight:600">Xin chào bạn! Bạn đang muốn tìm hiểu điều gì trong Phật pháp?</div>
+    <div class="chips" id="chips">
+      <button class="chip" data-topic="Giáo lý">
+        <img class="ico" src="/icons/giao_ly.svg" alt="" aria-hidden="true"> Giáo lý
+      </button>
+      <button class="chip" data-topic="Kinh văn">
+        <img class="ico" src="/icons/kinh_van.svg" alt="" aria-hidden="true"> Kinh văn
+      </button>
+      <button class="chip" data-topic="Sách nói Phật giáo">
+        <img class="ico" src="/icons/sach_noi.svg" alt="" aria-hidden="true"> Sách nói Phật giáo
+      </button>
+      <button class="chip" data-topic="Vấn đáp">
+        <img class="ico" src="/icons/van_dap.svg" alt="" aria-hidden="true"> Vấn đáp
+      </button>
+      <button class="chip" data-topic="Lộ trình tu học">
+        <img class="ico" src="/icons/lo_trinh.svg" alt="" aria-hidden="true"> Lộ trình
+      </button>
+      <button class="chip" data-topic="Tìm pháp thoại">
+        <img class="ico" src="/icons/tim_phap.svg" alt="" aria-hidden="true"> Tìm pháp thoại
+      </button>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <!-- ===== Vùng hội thoại ===== -->
+  <main class="card" style="padding:0 18px 18px">
+    <!-- nơi chat.js sẽ đổ bong bóng -->
+    <div id="messages">
+      <div id="chat-list" class="bubble-list" style="height:420px;overflow:auto;"></div>
+    </div>
 
-  <script>
-  /* ===== Config ===== */
-  const API_URL='/api/chat', API_URL_STREAM='/api/chat-stream';
-  const MAX_NODES=120, TRIM_BATCH=20, ENABLE_GREETING_BUBBLE=false;
+    <!-- Composer -->
+    <form id="chat-form" autocomplete="off" style="display:flex;gap:10px;align-items:center;margin-top:12px">
+      <input id="chat-input" name="q" type="text" placeholder="Nam mô Bổn Sư Thích Ca Mâu Ni Phật…" style="flex:1;min-height:44px">
+      <button id="send-btn" type="submit" class="btn primary">
+        <span class="txt">Gửi</span>
+      </button>
+    </form>
+  </main>
 
-  <script>
-/* ===== Refs (safe) ===== */
-let  chatBox   = document.getElementById('chat-box');
-const chatForm = document.getElementById('chat-form');
-let  userInput = document.getElementById('user-input');
-
-/* Nếu chưa có, tự tạo/đặt đúng vị trí để tránh null */
-if (!chatBox) {
-  chatBox =
-    document.querySelector('#chat-box, .messages, .chat-box') ||
-    (() => {
-      const d = document.createElement('div');
-      d.id = 'chat-box';
-      const formEl = document.getElementById('chat-form');
-      const host   = formEl ? formEl.parentElement : document.body;
-      if (formEl) host.insertBefore(d, formEl); else host.appendChild(d);
-      return d;
-    })();
-}
-
-if (!userInput) {
-  userInput =
-    document.querySelector('#user-input, #chat-input, form input[type="text"], input[type="text"]');
-}
-  const send=document.getElementById('send-btn');
-  const stopBtn=document.getElementById('stop-btn');
-  const regenBtn=document.getElementById('regen-btn');
-  const clearBtn=document.getElementById('clear-btn');
-  const chipsBox=document.getElementById('chips');
-  const newChatBtn=document.getElementById('newchat-btn');
-  const stepBackBtn=document.getElementById('stepback-btn');
-  const copyBtn=document.getElementById('copy-btn');
-  const saveBtn=document.getElementById('save-btn');
-  const printBtn=document.getElementById('print-btn');
-  let activeTopic='', lastUserMsg='';
-
-  /* ===== Utils ===== */
-  function appendBubble(text, who='assistant'){
-    const el=document.createElement('div');
-    el.className='bubble '+(who==='user'?'user':'assistant');
-    el.textContent=text??''; el.dataset.md=text||'';
-    pane.appendChild(el);
-    if(pane.children.length>MAX_NODES){
-      for(let i=0;i<TRIM_BATCH;i++) if(pane.firstChild) pane.removeChild(pane.firstChild);
-      if(!pane.dataset.truncated){
-        const note=document.createElement('div'); note.className='bubble note';
-        note.textContent='Đã rút gọn lịch sử hiển thị để trang mượt hơn.'; pane.insertBefore(note,pane.firstChild);
-        pane.dataset.truncated='1';
-      }
-    }
-    pane.scrollTop=pane.scrollHeight; return el;
-  }
-  function setBusy(b){ send.disabled=b; input.readOnly=b;
-    if(b){ send.dataset._t=send.textContent; send.textContent='Đang gửi…'; stopBtn.style.display='inline-block'; }
-    else { send.textContent=send.dataset._t||'Gửi'; stopBtn.style.display='none'; }
-  }
-
-  /* ===== Suggestions parsing ===== */
-  function extractSuggestions(md){
-    const lines=(md||'').split('\n'); let inSug=false, body=[], sug=[];
-    for(const L of lines){
-      if(!inSug && /gợi ý hỏi thêm/i.test(L)){ inSug=true; continue; }
-      if(inSug){
-        const m=L.trim().match(/^[-•]\s+(.*)/); if(m){sug.push(m[1].trim()); continue;}
-        if(L.trim()==='') continue;
-      }
-      if(!inSug) body.push(L);
-    }
-    return {body:body.join('\n').trim(), suggestions:sug.slice(0,5)};
-  }
-
-  /* ===== Render markdown + lead/outro + chips ===== */
-  function finalizeAsMarkdown(bubbleEl, text){
-    <script>
-(function(){
-  const LEAD_TEXT  = 'Kính chào bạn! mình rất vui xin được trả lời câu hỏi của bạn:';
-  const OUTRO_TEXT = 'Mình rất hoan hỷ được tiếp tục trợ duyên và xin chờ câu hỏi tiếp theo của bạn.';
-
-  // Nếu chưa có extractSuggestions thì tạo nhanh
-  if (typeof extractSuggestions !== 'function') {
-    window.extractSuggestions = function(markdown){
-      const lines=(markdown||'').split('\n'); let inSug=false, body=[], sug=[];
-      for (const L of lines){
-        if (!inSug && /gợi ý hỏi thêm/i.test(L)) { inSug=true; continue; }
-        if (inSug){
-          const m=L.trim().match(/^[-•]\s+(.*)/); if(m){sug.push(m[1].trim()); continue;}
-          if (L.trim()==='') continue;
-        }
-        if (!inSug) body.push(L);
-      }
-      return { body: body.join('\n').trim(), suggestions: sug.slice(0,6) };
-    };
-  }
-
-  // Ghi đè finalizeAsMarkdown: thêm lead + outro (italic) và chip gợi ý
-  window.finalizeAsMarkdown = function(bubbleEl, text){
-    const parts = extractSuggestions(text);
-    const html  = DOMPurify.sanitize(marked.parse(parts.body || text || ''));
-
-    const lead = document.createElement('p');
-    lead.className = 'lead';
-    lead.textContent = LEAD_TEXT;
-
-    const bodyBox = document.createElement('div');
-    bodyBox.innerHTML = html;
-
-    bubbleEl.innerHTML = '';
-    bubbleEl.appendChild(lead);
-    bubbleEl.appendChild(bodyBox);
-    bubbleEl.dataset.md = text || '';
-    bubbleEl.classList.add('assistant');
-
-    if (parts.suggestions && parts.suggestions.length){
-      const wrap  = document.createElement('div'); wrap.className = 'suggest';
-      const title = document.createElement('div'); title.className = 'sug-title'; title.textContent = 'Gợi ý hỏi thêm:';
-      wrap.appendChild(title);
-      parts.suggestions.forEach(s=>{
-        const b = document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=s;
-        b.onclick = ()=>{ input.value = s; form.requestSubmit(); };
-        wrap.appendChild(b);
-      });
-      bubbleEl.appendChild(wrap);
-    }
-
-    const outro = document.createElement('p');
-    outro.className = 'outro';
-    outro.style.fontStyle = 'italic';             // ← nghiêng
-    outro.textContent = OUTRO_TEXT;               // ← câu đệ muốn
-    bubbleEl.appendChild(outro);
-  };
-})();
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
-
-<script>
-/* ===== Config ===== */
-const API_URL='/api/chat', API_URL_STREAM='/api/chat-stream';
-const MAX_NODES=120, TRIM_BATCH=20, ENABLE_GREETING_BUBBLE=false;
-
-/* ===== Refs ===== */
-const form=document.getElementById('chat-form');
-const pane=document.getElementById('messages');
-const input=document.getElementById('chat-input');
-const send=document.getElementById('send-btn');
-const stopBtn=document.getElementById('stop-btn');
-const regenBtn=document.getElementById('regen-btn');
-const clearBtn=document.getElementById('clear-btn');
-const chipsBox=document.getElementById('chips');
-const newChatBtn=document.getElementById('newchat-btn');
-const stepBackBtn=document.getElementById('stepback-btn');
-const copyBtn=document.getElementById('copy-btn');
-const saveBtn=document.getElementById('save-btn');
-const printBtn=document.getElementById('print-btn');
-let activeTopic='', lastUserMsg='';
-
-/* ===== Helpers ===== */
-function appendBubble(text, who='assistant'){
-  const el=document.createElement('div');
-  el.className='bubble '+(who==='user'?'user':'assistant');
-  el.textContent=text??''; el.dataset.md=text||'';
-  pane.appendChild(el);
-  if(pane.children.length>MAX_NODES){
-    for(let i=0;i<TRIM_BATCH;i++) if(pane.firstChild) pane.removeChild(pane.firstChild);
-    if(!pane.dataset.truncated){
-      const note=document.createElement('div'); note.className='bubble note';
-      note.textContent='Đã rút gọn lịch sử hiển thị để trang mượt hơn.'; pane.insertBefore(note,pane.firstChild);
-      pane.dataset.truncated='1';
-    }
-  }
-  pane.scrollTop=pane.scrollHeight; return el;
-}
-function setBusy(b){ send.disabled=b; input.readOnly=b;
-  if(b){ send.dataset._t=send.textContent; send.textContent='Đang gửi…'; stopBtn.style.display='inline-block'; }
-  else { send.textContent=send.dataset._t||'Gửi'; stopBtn.style.display='none'; }
-}
-
-/* ===== Suggestions parser ===== */
-function extractSuggestions(md){
-  const lines=(md||'').split('\n'); let inSug=false, body=[], sug=[];
-  for(const L of lines){
-    if(!inSug && /gợi ý hỏi thêm/i.test(L)){ inSug=true; continue; }
-    if(inSug){
-      const m=L.trim().match(/^[-•]\s+(.*)/); if(m){sug.push(m[1].trim()); continue;}
-      if(L.trim()==='') continue;
-    }
-    if(!inSug) body.push(L);
-  }
-  return {body:body.join('\n').trim(), suggestions:sug.slice(0,6)};
-}
-
-/* ===== Render markdown + lead/outro + chips ===== */
-(function(){
-  const LEAD_TEXT  = 'Kính chào bạn! mình rất vui xin được trả lời câu hỏi của bạn:';
-  const OUTRO_TEXT = 'Tôi rất hoan hỷ được tiếp tục trợ duyên và xin chờ câu hỏi tiếp theo của bạn.';
-
-  window.finalizeAsMarkdown = function(bubbleEl, text){
-    const parts = extractSuggestions(text);
-    const html  = DOMPurify.sanitize(marked.parse(parts.body || text || ''));
-
-    const lead = document.createElement('p');
-    lead.className = 'lead';
-    lead.textContent = LEAD_TEXT;
-
-    const bodyBox = document.createElement('div');
-    bodyBox.innerHTML = html;
-
-    bubbleEl.innerHTML = '';
-    bubbleEl.appendChild(lead);
-    bubbleEl.appendChild(bodyBox);
-    bubbleEl.dataset.md = text || '';
-    bubbleEl.classList.add('assistant');
-
-    if (parts.suggestions && parts.suggestions.length){
-      const wrap  = document.createElement('div'); wrap.className = 'suggest';
-      const title = document.createElement('div'); title.className = 'sug-title'; title.textContent = 'Gợi ý hỏi thêm:';
-      wrap.appendChild(title);
-      parts.suggestions.forEach(s=>{
-        const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=s;
-        b.onclick = ()=>{ input.value = s; form.requestSubmit(); };
-        wrap.appendChild(b);
-      });
-      bubbleEl.appendChild(wrap);
-    }
-
-    const outro = document.createElement('p');
-    outro.className = 'outro';
-    outro.style.fontStyle = 'italic';     // nghiêng
-    outro.textContent = OUTRO_TEXT;
-    bubbleEl.appendChild(outro);
-  };
-})();
-
-/* ===== Streaming ===== */
-let currentController=null;
-async function streamAPI(message, history, onToken, onDone){
-  currentController=new AbortController();
-  const res=await fetch(API_URL_STREAM,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history}),signal:currentController.signal});
-  const ct=res.headers.get('content-type')||'';
-  if(!res.ok){ const t=ct.includes('application/json')?JSON.stringify(await res.json(),null,2):await res.text(); throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`); }
-  if(!ct.includes('text/event-stream')){ const reply=await callAPI(message,history); onToken&&onToken(reply,reply); onDone&&onDone(reply); return; }
-  const reader=res.body.getReader(); const decoder=new TextDecoder('utf-8'); let buffer='',acc='';
-  try{
-    while(true){ const {value,done}=await reader.read(); if(done) break;
-      buffer+=decoder.decode(value,{stream:true}); const events=buffer.split('\n\n'); buffer=events.pop()||'';
-      for(const evt of events){ const lines=evt.split('\n').filter(Boolean);
-        for(const line of lines){ if(!line.startsWith('data:')) continue;
-          const data=line.slice(5).trim(); if(data==='[DONE]'){ onDone&&onDone(acc); return; }
-          try{ const j=JSON.parse(data); const token=j?.choices?.[0]?.delta?.content||''; if(token){acc+=token; onToken&&onToken(acc,token);} }catch{}
-        }
-      }
-    }
-    onDone&&onDone(acc);
-  } finally { currentController=null; }
-}
-function stopStream(){ if(currentController){ currentController.abort(); currentController=null; } }
-
-async function callAPI(message, history){
-  const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history})});
-  const ct=res.headers.get('content-type')||'';
-  if(!res.ok){ const t=ct.includes('application/json')?JSON.stringify(await res.json(),null,2):await res.text(); throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`); }
-  if(ct.includes('application/json')){ const data=await res.json(); return data?.reply || data?.choices?.[0]?.message?.content || JSON.stringify(data,null,2); }
-  return await res.text();
-}
-
-/* ===== Handlers ===== */
-chipsBox?.addEventListener('click',(e)=>{ const btn=e.target.closest('.chip'); if(!btn) return;
-  chipsBox.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-  activeTopic=(activeTopic===btn.dataset.topic)?'':btn.dataset.topic; if(activeTopic) btn.classList.add('active');
-});
-form.addEventListener('submit',async(ev)=>{
-  ev.preventDefault();
-  try{
-    const msg=(input.value||'').trim(); if(!msg) return;
-    lastUserMsg=msg; const msgWithTopic=activeTopic?`[Chủ đề ưu tiên: ${activeTopic}] ${msg}`:msg;
-    appendBubble(msg,'user'); input.value=''; setBusy(true);
-
-    const history=Array.from(pane.querySelectorAll('.bubble')).slice(-50).map(el=>({role:el.classList.contains('user')?'user':'assistant',content:el.dataset.md||el.textContent||''}));
-    const botBubble=appendBubble('','assistant');
-
-    await streamAPI(msgWithTopic,history,
-      acc=>{botBubble.textContent=acc;botBubble.dataset.md=acc;pane.scrollTop=pane.scrollHeight;},
-      full=>finalizeAsMarkdown(botBubble,full)
-    );
-  }catch(err){ console.error('[Chat][Submit]',err); appendBubble('Lỗi: '+(err?.message||err),'assistant'); }
-  finally{ setBusy(false); input.focus(); }
-});
-input.addEventListener('keydown',(e)=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); form.requestSubmit(); }});
-
-function bubblesToMarkdown(){ const out=[]; pane.querySelectorAll('.bubble').forEach(el=>{const role=el.classList.contains('user')?'Người hỏi':'Trợ lý'; const md=(el.dataset.md||el.textContent||'').trim(); out.push(`**${role}:**\n\n${md}\n`)}); return out.join('\n').trim()+'\n'; }
-function saveFile(name,content,mime='text/plain'){ const blob=new Blob([content],{type:mime}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},100); }
-function ymdhs(){ const d=new Date(),p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`; }
-
-function newChat(){ pane.innerHTML=''; if(ENABLE_GREETING_BUBBLE) appendBubble('Nam mô Bổn Sư Thích Ca Mâu Ni Phật 🙏 Bạn đang muốn tìm hiểu điều gì trong Phật pháp?'); lastUserMsg=''; }
-function stepBack(){ const items=Array.from(pane.querySelectorAll('.bubble')); if(!items.length) return; items.pop()?.remove(); const prev=items.pop(); if(prev&&prev.classList.contains('user')) prev.remove(); }
-async function copyTranscript(){ try{ await navigator.clipboard.writeText(bubblesToMarkdown()); }catch{} }
-function saveMarkdown(){ saveFile(`PBPL_Chat_${ymdhs()}.md`,bubblesToMarkdown(),'text/markdown'); }
-function printPDF(){
-  const html =
-    '<!doctype html><html><head><meta charset="utf-8"></head><body>' +
-    bubblesToMarkdown() +
-    '</body></html>';
-
-  const w = window.open('', '_blank');
-  if (!w) return;
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
-  w.focus();
-  w.print();
-}
-
-newChatBtn.addEventListener('click',newChat);
-stepBackBtn.addEventListener('click',stepBack);
-copyBtn.addEventListener('click',copyTranscript);
-saveBtn.addEventListener('click',saveMarkdown);
-printBtn.addEventListener('click',printPDF);
-stopBtn.addEventListener('click',()=>stopStream());
-regenBtn.addEventListener('click',()=>{ if(!lastUserMsg) return; input.value=lastUserMsg; form.requestSubmit(); });
-clearBtn.addEventListener('click',newChat);
-
-console.log('[Chat] Ready ✅');
-</script>
-
-<!-- ===== Thư viện Markdown & sanitize (có fallback) ===== -->
-<script>
-  // Fallback an toàn – phòng khi CDN lỗi thì không vỡ trang
-  window.marked = window.marked || { parse: s => s };
-  window.DOMPurify = window.DOMPurify || { sanitize: s => s };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js" defer></script>
-
-<!-- App scripts -->
-<script src="chat.js"></script>
-<script src="script.js"></script>
+  <!-- ===== JS (dùng defer để tránh chạy sớm) ===== -->
+  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script defer src="/chat.js"></script>
+  <script defer src="/script.js"></script>
 </body>
 </html>
