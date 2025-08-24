@@ -12,7 +12,7 @@ function scrollToBottom(){
   if (typeof el.scrollTo === 'function') {
     scrollToBottom();
   } else {
-    el.scrollTop = el.scrollHeight;
+    scrollToBottom();
   }
 }
 // ===== Helpers =====
