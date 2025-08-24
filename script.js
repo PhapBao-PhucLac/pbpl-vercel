@@ -33,7 +33,6 @@
   };
 
   // tiện ích
-  const scrollToBottom = () => list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
 
   const addBubble = (text, who = "user") => {
     const li = document.createElement("li");
