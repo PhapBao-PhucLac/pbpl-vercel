@@ -314,8 +314,24 @@
 
   /* ===== Refs ===== */
   const form=document.getElementById('chat-form');
-  const pane=document.getElementById('messages');
-  const input=document.getElementById('chat-input');
+  let pane=document.getElementById('messages');
+  let input=document.getElementById('chat-input');
+// PBPL: đảm bảo luôn có phần tử, tránh null
+if (!pane){
+  pane = document.getElementById('messages')
+      || document.querySelector('#messages,.messages')
+      || (()=>{
+           const d=document.createElement('div');
+           d.id='messages';
+           (document.querySelector('.card')||document.body).appendChild(d);
+           return d;
+         })();
+}
+
+if (!input){
+  // lấy ô nhập đầu tiên nếu chưa có #chat-input
+  input = document.querySelector('#chat-input,input[type="text"]');
+}
   const send=document.getElementById('send-btn');
   const stopBtn=document.getElementById('stop-btn');
   const regenBtn=document.getElementById('regen-btn');
