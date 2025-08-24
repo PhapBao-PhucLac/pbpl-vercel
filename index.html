@@ -10,12 +10,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Slab:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- Favicon / PWA icons -->
+  <!-- Favicon / Icons -->
   <link rel="icon" href="./logo.svg" type="image/svg+xml">
   <link rel="alternate icon" href="./logo.png" type="image/png">
   <link rel="apple-touch-icon" href="./logo.png">
 
-  <!-- CSS nội tuyến gọn -->
+  <!-- CSS gọn, bọc TRONG <style> -->
   <style>
     :root{--ink:#121212;--soft:#fafafa;--brand:#c3182f;}
     html,body{height:100%}
@@ -27,15 +27,15 @@
         radial-gradient(1000px 400px at 80% 0,#f6f9ff 0,transparent 50%),#fff;
     }
 
-    /* Header */
+    /* Tiêu đề */
     .brand-title{font:700 28px "Roboto Slab",serif;letter-spacing:.3px}
     .brand-motto,.brand-sub{font-weight:500}
 
-    /* Icon cho chips & mini toolbar */
+    /* Icon chips & mini toolbar */
     .chip .ico{width:18px;height:18px;margin-right:6px;vertical-align:-3px}
     .mini-icon .ico{width:18px;height:18px;display:block}
 
-    /* Nút gửi: Desktop = chữ | Mobile = icon */
+    /* Nút Gửi: Desktop=chữ, Mobile=icon */
     #send-btn .txt{display:inline}
     #send-btn .ico{display:none}
     @media (max-width:768px){
